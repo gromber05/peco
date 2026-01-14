@@ -93,5 +93,7 @@ fun Preview_MyTopAppBar() {
 @Preview
 @Composable
 fun Preview_HomeScreen() {
-    HomeScreen()
+    HomeScreen(
+        viewModel = hiltViewModel()
+    )
 }
