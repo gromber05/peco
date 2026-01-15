@@ -33,8 +33,8 @@ fun MyTopAppBar(name: String) {
         ) {
             Text(
                 text = "¡Hola, ${name}!",
-                color = MaterialTheme.colorScheme.onPrimary,
-                fontSize = 20.sp
+                color = MaterialTheme.colorScheme.primary,
+                fontSize = 30.sp
             )
         }
     }

@@ -12,6 +12,9 @@ interface AnimalDao {
     @Insert(onConflict = OnConflictStrategy.Companion.REPLACE)
     suspend fun insertAnimal(animal: AnimalEntity)
 
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insertAnimals(animals: List<AnimalEntity>)
+
     @Query("SELECT * FROM animals WHERE id = :id LIMIT 1")
     suspend fun getAnimalById(id: Int): AnimalEntity?
 

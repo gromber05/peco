@@ -8,5 +8,8 @@ data class HomeUiState(
     val isLoading: Boolean = false,
     var error: String? = null,
     val isAdmin: Boolean = false,
-    val animalList: List<Animal> = emptyList()
+    val isLogged: Boolean = false,
+    val animalList: List<Animal> = emptyList(),
+    val deck: List<Animal> = emptyList(),
+    val likedIds: Set<Int> = emptySet()
 )

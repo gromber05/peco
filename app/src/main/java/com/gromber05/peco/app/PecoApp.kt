@@ -1,8 +1,10 @@
 package com.gromber05.peco.app
 
+import android.widget.Toast
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -24,6 +26,7 @@ fun PecoApp(
     isDark: Boolean
 ) {
     val navController = rememberNavController()
+    val context = LocalContext.current
 
     val loginViewModel: LoginViewModel = hiltViewModel()
     val registerViewModel: RegisterViewModel = hiltViewModel()
@@ -82,8 +85,16 @@ fun PecoApp(
             HomeScreen(
                 viewModel = homeViewModel,
                 isDarkMode = isDark,
+                onToggleDarkMode = onToggleTheme,
+                onLogout = {
+                    navController.navigate(AppNavigation.LoginScreen.route)
+                },
                 onNavigateToAdmin = {
-                    navController.navigate(AppNavigation.AdminScreen.route)
+                     if (logger.isAdmin){
+                         navController.navigate(AppNavigation.AdminScreen.route)
+                     } else {
+                         Toast.makeText(context, "No puedes acceder porque no tienes permiso", Toast.LENGTH_SHORT).show()
+                     }
                 }
             )
         }
