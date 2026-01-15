@@ -80,10 +80,11 @@ fun PecoApp(
 
         composable(AppNavigation.MainScreen.route) {
             HomeScreen(
-                onToggleTheme = onToggleTheme,
-                isDarkMode = isDark,
                 viewModel = homeViewModel,
-                email = logger.email
+                isDarkMode = isDark,
+                onNavigateToAdmin = {
+                    navController.navigate(AppNavigation.AdminScreen.route)
+                }
             )
         }
         composable(AppNavigation.AdminScreen.route) {

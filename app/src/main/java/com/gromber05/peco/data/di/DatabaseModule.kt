@@ -27,13 +27,15 @@ object DatabaseModule {
             ).addCallback(object : RoomDatabase.Callback() {
                 override fun onCreate(db: SupportSQLiteDatabase) {
                     super.onCreate(db)
+                    db.execSQL("""
+                        INSERT INTO users (username, email, password, photo, isAdmin)
+                        VALUES ('Super Admin', 'admin', 'fernandoapruebame', null, 1)
+                    """)
 
-                    db.execSQL(
-                        """
-                            INSERT INTO users (username, email, password, photo, isAdmin)
-                            VALUES ('Super Admin', 'admin', 'fernandoapruebame', null, 1)
-                            """
-                    )
+                    db.execSQL("""
+                        INSERT INTO users (username, email, password, photo, isAdmin)
+                        VALUES ('Usuario', 'usuario', 'usuario', null, 0)
+                    """)
                 }
             }).addMigrations().build()
 
