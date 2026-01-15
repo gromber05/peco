@@ -20,6 +20,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 
 @Composable
@@ -94,7 +95,7 @@ fun LoginScreen(
             visualTransformation = if (state.isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
             modifier = Modifier.fillMaxWidth(),
             singleLine = true,
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
         )
 
         if (state.error != null) {
@@ -122,11 +123,11 @@ fun LoginScreen(
 
         TextButton(
             onClick = {
-                viewModel.login()
+                onNavigateToRegister()
             }
         ) {
             Text(
-                text = "Usa 'admin' en el correo para entrar como gestor",
+                text = "¿No tienes cuenta? Regístrate aquí",
                 style = MaterialTheme.typography.bodySmall,
                 color = Color.Gray
             )
@@ -140,7 +141,7 @@ fun LoginScreen(
 @Composable
 fun Preview_loginScreen() {
     LoginScreen(
-        viewModel = viewModel(),
+        viewModel = hiltViewModel(),
         onNavigateToHome = {},
         onNavigateToAdmin = {},
         onNavigateToRegister = {}

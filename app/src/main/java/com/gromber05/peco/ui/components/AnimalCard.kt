@@ -35,7 +35,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.gromber05.peco.model.AdoptionState
-import com.gromber05.peco.model.Animal
+import com.gromber05.peco.model.data.Animal
 
 @Composable
 fun AnimalCard(
@@ -102,7 +102,7 @@ fun AnimalCard(
                         Column {
                             AnimalName("Nacimiento", animal.dob)
                             Spacer(modifier = Modifier.padding(2.dp))
-                            AnimalName("Estado", animal.adoptionState)
+                            AnimalName("Estado", animal.adoptionState.value)
                         }
                     }
                 }
@@ -153,7 +153,7 @@ fun AnimalCardPreview() {
                species = "Perro",
                photo = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRcci_BP3wtsbh1-gFdV4FXfyMWkdw1GyO-0-tvNLGhRGqc1YL8tuZWS05CdGtePNgYc5ESKo7BmbEaDywuWbSDJmwA7v6t9wuVIr79Cw&s=10",
                dob = "29/11",
-               adoptionState = AdoptionState.AVAILABLE.value,
+               adoptionState = AdoptionState.AVAILABLE,
                location = ""
            ),
            onDetails = {}

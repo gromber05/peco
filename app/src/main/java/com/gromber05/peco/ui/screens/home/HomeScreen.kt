@@ -21,12 +21,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import com.gromber05.peco.ui.screens.login.LoginViewModel
 
 @Composable
 fun HomeScreen(
-    viewModel : LoginViewModel = hiltViewModel(),
-    email: String = ""
+    viewModel: HomeViewModel = hiltViewModel(),
+    email: String = "",
 ) {
     val state by viewModel.uiState.collectAsState()
     var selectPage by rememberSaveable() { mutableStateOf(0) }

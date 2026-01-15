@@ -38,7 +38,7 @@ class LoginViewModel @Inject constructor(
             val user = userRepository.getUserByEmail(email)
 
             if (user != null) {
-                if (user.pass == pass) {
+                if (user.password == pass) {
                     _uiState.update {
                         it.copy(
                             isLoading = false,

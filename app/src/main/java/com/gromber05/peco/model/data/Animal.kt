@@ -1,4 +1,6 @@
-package com.gromber05.peco.model
+package com.gromber05.peco.model.data
+
+import com.gromber05.peco.model.AdoptionState
 
 data class Animal(
     val id: Int,
@@ -7,5 +9,5 @@ data class Animal(
     val photo: String?,
     val dob: String,
     val location: String,
-    val adoptionState: String,
+    val adoptionState: AdoptionState,
 )
