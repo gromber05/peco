@@ -11,7 +11,8 @@ data class AnimalEntity (
     val species: String,
     val photo: String? = null,
     val dob: String,
-    val location: String,
+    val latitude: Double,
+    val longitude: Double,
     val adoptionState: AdoptionState,
 
 )

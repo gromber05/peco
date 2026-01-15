@@ -1,6 +1,7 @@
 package com.gromber05.peco.data.local.animal
 
 import com.gromber05.peco.model.data.Animal
+import kotlin.Double
 
 fun AnimalEntity.toDomain(): Animal =
     Animal(
@@ -9,7 +10,8 @@ fun AnimalEntity.toDomain(): Animal =
         species = species,
         photo = photo,
         dob = dob,
-        location = location,
+        latitude = latitude,
+        longitude = longitude,
         adoptionState = adoptionState
     )
 
@@ -20,6 +22,7 @@ fun Animal.toEntity(): AnimalEntity =
         species = species,
         photo = photo,
         dob = dob,
-        location = location,
+        latitude = latitude,
+        longitude = longitude,
         adoptionState = adoptionState
     )

@@ -8,6 +8,7 @@ data class Animal(
     val species: String,
     val photo: String?,
     val dob: String,
-    val location: String,
+    val latitude: Double,
+    val longitude: Double,
     val adoptionState: AdoptionState,
 )

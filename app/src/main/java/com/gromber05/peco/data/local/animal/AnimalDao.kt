@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import kotlinx.coroutines.flow.Flow
 
 
 @Dao
@@ -16,4 +17,7 @@ interface AnimalDao {
 
     @Query("DELETE FROM animals WHERE id = :id")
     suspend fun removeAnimal(id: Int): Int
+
+    @Query("SELECT * FROM animals")
+    fun getAllAnimals(): Flow<List<AnimalEntity>>
 }
