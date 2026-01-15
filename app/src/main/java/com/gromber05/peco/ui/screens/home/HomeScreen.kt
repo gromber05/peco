@@ -33,11 +33,14 @@ fun HomeScreen(
     //TODO. Tienes que hacer una función que cuando se inicie el menú home, cargue el usuario desde el email para que se pueda actualizar también desde aquí
 
     Scaffold(
-        topBar = { MyTopAppBar(name = state.user) }
+        topBar = { MyTopAppBar(name = state.username) }
     ) { innerPadding ->
         when (selectPage) {
             0 -> {
                 SettingsView(Modifier.padding(innerPadding))
+            }
+            1 -> @Composable {
+                HomeView(Modifier.padding(innerPadding))
             }
         }
     }
@@ -45,7 +48,11 @@ fun HomeScreen(
 
 @Composable
 fun HomeView(modifier: Modifier = Modifier) {
+    Column(
+        modifier = modifier
+    ) {
 
+    }
 }
 
 @Composable

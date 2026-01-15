@@ -39,6 +39,8 @@ class LoginViewModel @Inject constructor(
 
             if (user != null) {
                 if (user.password == pass) {
+                    userRepository.setCurrentUser(user)
+
                     _uiState.update {
                         it.copy(
                             isLoading = false,

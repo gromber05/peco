@@ -9,7 +9,7 @@ data class AnimalEntity (
     @PrimaryKey val id: Int = 0,
     val name: String,
     val species: String,
-    val photo: String?,
+    val photo: String? = null,
     val dob: String,
     val location: String,
     val adoptionState: AdoptionState,

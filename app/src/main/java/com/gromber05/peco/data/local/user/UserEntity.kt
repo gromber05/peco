@@ -9,6 +9,6 @@ data class UserEntity (
     val username: String,
     val email: String,
     val password: String,
-    val photo: String?,
+    val photo: String? = null,
     val isAdmin: Boolean = false
 )
