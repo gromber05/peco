@@ -30,7 +30,7 @@ object DatabaseModule {
 
                     db.execSQL(
                         """
-                            INSERT INTO users (name, email, password, photo, isAdmin)
+                            INSERT INTO users (username, email, password, photo, isAdmin)
                             VALUES ('Super Admin', 'admin', 'fernandoapruebame', null, 1)
                             """
                     )
@@ -47,18 +47,3 @@ object DatabaseModule {
         return database.animalDao()
     }
 }
-
-
-
-/*.addCallback(object : RoomDatabase.Callback() {
-                override fun onCreate(db: SupportSQLiteDatabase) {
-                    super.onCreate(db)
-
-                    db.execSQL(
-                        """
-                    INSERT INTO users (name, email, pass, isAdmin)
-                    VALUES ('Super Admin', 'admin', 'fernandoapruebame', 1)
-                    """
-                    )
-                }
-            })*/

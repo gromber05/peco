@@ -2,6 +2,7 @@ package com.gromber05.peco.ui.screens.login
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.gromber05.peco.data.local.user.toUser
 import com.gromber05.peco.data.repository.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -39,7 +40,7 @@ class LoginViewModel @Inject constructor(
 
             if (user != null) {
                 if (user.password == pass) {
-                    userRepository.setCurrentUser(user)
+                    userRepository.setCurrentUser(user.toUser())
 
                     _uiState.update {
                         it.copy(

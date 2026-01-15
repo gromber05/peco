@@ -1,7 +1,6 @@
 package com.gromber05.peco.data.local.animal
 
 import com.gromber05.peco.model.data.Animal
-import kotlin.Double
 
 fun AnimalEntity.toDomain(): Animal =
     Animal(

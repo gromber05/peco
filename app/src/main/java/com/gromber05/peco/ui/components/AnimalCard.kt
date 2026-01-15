@@ -154,7 +154,8 @@ fun AnimalCardPreview() {
                photo = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRcci_BP3wtsbh1-gFdV4FXfyMWkdw1GyO-0-tvNLGhRGqc1YL8tuZWS05CdGtePNgYc5ESKo7BmbEaDywuWbSDJmwA7v6t9wuVIr79Cw&s=10",
                dob = "29/11",
                adoptionState = AdoptionState.AVAILABLE,
-               location = ""
+               latitude = 0.0,
+               longitude = 0.0
            ),
            onDetails = {}
        )

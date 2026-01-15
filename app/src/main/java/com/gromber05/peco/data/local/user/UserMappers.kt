@@ -1,14 +1,14 @@
 package com.gromber05.peco.data.local.user
 
 import com.gromber05.peco.model.data.User
-import kotlin.String
 
 fun User.toUserEntity(): UserEntity = UserEntity(
     id = id,
     username = username,
     password = password,
     email = email,
-    photo = photo
+    photo = photo,
+    isAdmin = isAdmin
 )
 
 fun UserEntity.toUser(): User = User(
@@ -16,5 +16,6 @@ fun UserEntity.toUser(): User = User(
     username = username,
     password = password,
     email = email,
-    photo = photo
+    photo = photo,
+    isAdmin = isAdmin
 )

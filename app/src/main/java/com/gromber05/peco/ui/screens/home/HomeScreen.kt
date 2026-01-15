@@ -32,7 +32,6 @@ import androidx.compose.ui.unit.sp
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.android.gms.location.LocationServices
 import com.gromber05.peco.ui.components.AnimalCard
 
@@ -40,6 +39,8 @@ import com.gromber05.peco.ui.components.AnimalCard
 fun HomeScreen(
     viewModel: HomeViewModel = hiltViewModel(),
     email: String = "",
+    onToggleTheme: () -> Unit,
+    isDarkMode: Boolean,
 ) {
     val state by viewModel.uiState.collectAsState()
     var selectPage by rememberSaveable() { mutableStateOf(0) }
@@ -168,6 +169,9 @@ fun Preview_MyTopAppBar() {
 @Composable
 fun Preview_HomeScreen() {
     HomeScreen(
-        viewModel = hiltViewModel()
+        viewModel = TODO(),
+        email = TODO(),
+        onToggleTheme = TODO(),
+        isDarkMode = TODO()
     )
 }

@@ -35,6 +35,14 @@ class HomeViewModel @Inject constructor(
 
     suspend fun logout() {
         userRepository.logout()
+
+        _uiState.update {
+            it.copy(
+                username = "",
+                email = "",
+                isLoading = false
+            )
+        }
     }
 
     private fun observeUser() {
