@@ -87,7 +87,7 @@ com.gromber05.peco
 
 1. **Clonar el repositorio:**
 ```bash
-git clone https://git.gonzaloromerobernal.es/IESRafaelAlberti/peco
+git clone https://git.gonzaloromerobernal.es/IESRafaelAlberti/peco.git
 ```
 
 2. **Abrir en Android Studio:**

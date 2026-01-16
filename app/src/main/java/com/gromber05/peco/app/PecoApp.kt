@@ -122,9 +122,24 @@ fun PecoApp(
             )
         }
 
-        composable("edit_profile") { EditProfileScreen(onBack = { navController.popBackStack() }) }
-        composable("change_password") { ChangePasswordScreen(onBack = { navController.popBackStack() }) }
+        composable(
+            route = AppNavigation.EditProfileScreen.route
+        ) {
+            EditProfileScreen(
+                onBack = {
+                    navController.popBackStack()
+                }
+            )
+        }
 
+        composable(
+            AppNavigation.EditPasswordScreen.route
+        ) {
+            ChangePasswordScreen(
+                onBack = {
+                    navController.popBackStack()
+                }
+            )
+        }
     }
-
 }
