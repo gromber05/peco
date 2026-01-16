@@ -6,4 +6,5 @@ sealed class AppNavigation(val route: String) {
     object DetailScreen: AppNavigation(route = "detail/{animalId}")
     object AdminScreen: AppNavigation(route = "admin_home_screen")
     object RegisterScreen: AppNavigation(route = "register_screen")
+    object AdminAddAnimal: AppNavigation(route = "admin_addanimal_screen")
 }

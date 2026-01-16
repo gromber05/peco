@@ -41,14 +41,9 @@ class LoginViewModel @Inject constructor(
             if (user != null) {
                 if (user.password == pass) {
                     userRepository.setCurrentUser(user.toUser())
+                    userRepository.saveSession(email = user.email, isAdmin = user.isAdmin)
 
-                    _uiState.update {
-                        it.copy(
-                            isLoading = false,
-                            isLoggedIn = true,
-                            isAdmin = user.isAdmin
-                        )
-                    }
+                    _uiState.update { it.copy(isLoading = false, error = null) }
                 } else {
                     _uiState.update { it.copy(isLoading = false, error = "Contraseña incorrecta") }
                 }

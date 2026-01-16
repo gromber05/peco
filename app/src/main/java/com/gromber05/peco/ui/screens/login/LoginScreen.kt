@@ -27,20 +27,14 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 fun LoginScreen(
     viewModel: LoginViewModel = viewModel(),
     onNavigateToHome: () -> Unit,
-    onNavigateToAdmin: () -> Unit,
     onNavigateToRegister: () -> Unit,
-    onToggleTheme: () -> Unit,
-    isDarkMode: Boolean
+    onToggleTheme: () -> Unit
 ) {
     val state by viewModel.uiState.collectAsState()
 
     LaunchedEffect(state.isLoggedIn) {
         if (state.isLoggedIn) {
-            if (state.isAdmin) {
-                onNavigateToAdmin()
-            } else {
-                onNavigateToHome()
-            }
+            onNavigateToHome()
         }
     }
 
@@ -168,9 +162,7 @@ fun Preview_loginScreen() {
     LoginScreen(
         viewModel = hiltViewModel(),
         onNavigateToHome = {},
-        onNavigateToAdmin = {},
         onNavigateToRegister = {},
         onToggleTheme = {},
-        isDarkMode = true,
     )
 }

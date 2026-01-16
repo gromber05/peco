@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.gromber05.peco.data.local.animal.toDomain
 import com.gromber05.peco.data.local.swipe.SwipeAction
+import com.gromber05.peco.data.local.user.toUser
 import com.gromber05.peco.data.repository.AnimalRepository
 import com.gromber05.peco.data.repository.SwipeRepository
 import com.gromber05.peco.data.repository.UserRepository
@@ -30,6 +31,7 @@ class HomeViewModel @Inject constructor(
     val events = _events.asSharedFlow()
 
     init {
+        restoreUserFromSessionIfNeeded()
         observeUser()
         observeAnimalsDeck()
         observeLikedIds()
@@ -66,7 +68,6 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    /** 🔥 Aquí se construye el "deck Tinder" excluyendo los animales ya swipeados */
     private fun observeAnimalsDeck() {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
@@ -106,8 +107,6 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    /* -------- Tinder actions -------- */
-
     fun likeCurrent() {
         val animal = _uiState.value.deck.firstOrNull() ?: return
         onLike(animal)
@@ -121,8 +120,6 @@ class HomeViewModel @Inject constructor(
     fun onLike(animal: Animal) {
         viewModelScope.launch {
             swipeRepository.swipe(animal.id, SwipeAction.LIKE)
-            // No hace falta quitarlo manualmente del deck:
-            // el combine() reaccionará al nuevo swipe y lo eliminará solo ✅
         }
     }
 
@@ -138,8 +135,6 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    /* -------- Orden por proximidad -------- */
-
     fun sortByProximity(userLat: Double, userLon: Double) {
         val animals = _uiState.value.animalList
 
@@ -147,19 +142,33 @@ class HomeViewModel @Inject constructor(
             LocationUtils.calculateDistance(userLat, userLon, animal.latitude, animal.longitude)
         }
 
-        // Reordenamos animalList. El deck se recalcula solo pero usando el order nuevo:
-        val swiped = _uiState.value.animalList.map { it.id }.toSet() // no fiable
-        // Mejor: solo actualiza animalList y deja deck al combine -> PERO combine usa flow de animales del repo.
-        // Si quieres orden persistente, guárdalo en estado y aplica el orden al deck directamente:
+        val swiped = _uiState.value.animalList.map { it.id }.toSet()
         val likedIds = _uiState.value.likedIds
 
         _uiState.update {
-            val swipedSet = emptySet<Int>() // el deck real lo gestiona combine
+            val swipedSet = emptySet<Int>()
             it.copy(
                 animalList = ordered,
-                deck = ordered.filterNot { a -> a.id in swipedSet }, // opcional
+                deck = ordered.filterNot { a -> a.id in swipedSet },
                 likedIds = likedIds
             )
         }
     }
+
+    private fun restoreUserFromSessionIfNeeded() {
+        viewModelScope.launch {
+            userRepository.sessionEmail.collect { email ->
+                if (!email.isNullOrBlank()) {
+                    val current = userRepository.currentUser.value
+                    if (current == null) {
+                        val entity = userRepository.getUserByEmail(email)
+                        if (entity != null) {
+                            userRepository.setCurrentUser(entity.toUser())
+                        }
+                    }
+                }
+            }
+        }
+    }
+
 }

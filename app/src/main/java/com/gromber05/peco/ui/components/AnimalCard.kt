@@ -1,6 +1,6 @@
 package com.gromber05.peco.ui.components
 
-import androidx.compose.animation.Crossfade
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -9,33 +9,35 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.Pets
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.gromber05.peco.model.AdoptionState
 import com.gromber05.peco.model.data.Animal
+import com.gromber05.peco.utils.LocationUtils.rememberCityFromLatLng
 
 @Composable
 fun AnimalCard(
@@ -43,123 +45,178 @@ fun AnimalCard(
     animal: Animal,
     onDetails: () -> Unit
 ) {
-    val isFavorite by rememberSaveable{ mutableStateOf(false) }
-
     Card(
         modifier = modifier
             .fillMaxWidth()
-            .clickable(onClick = onDetails)
+            .clickable(onClick = onDetails),
+        shape = RoundedCornerShape(30.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        elevation = CardDefaults.cardElevation(defaultElevation = 10.dp)
     ) {
-        Column(
+        Box(
             modifier = Modifier
-                .padding(8.dp)
-                .fillMaxWidth()
+                .fillMaxSize()
+                .height(540.dp)
         ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.weight(1f)
+            if (!animal.photo.isNullOrBlank()) {
+                AsyncImage(
+                    model = animal.photo,
+                    contentDescription = "Foto de ${animal.name}",
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = ContentScale.Crop
+                )
+            } else {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(MaterialTheme.colorScheme.surfaceVariant),
+                    contentAlignment = Alignment.Center
                 ) {
-                    Box(
-                        modifier = Modifier
-                            .size(60.dp)
-                            .clip(CircleShape),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        if (animal.photo != null) {
-                            AsyncImage(
-                                model = animal.photo,
-                                contentDescription = "Foto de ${animal.name}",
-                                modifier = Modifier.fillMaxSize(),
-                                contentScale = ContentScale.Crop
-                            )
-                        } else {
-                            Icon(
-                                imageVector = Icons.Default.Person,
-                                contentDescription = "Animal sin imagen",
-                                tint = Color.Gray,
-                                modifier = Modifier.size(40.dp)
-                            )
-                        }
-                    }
-                    Spacer(modifier = Modifier.padding(8.dp))
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceAround
-                    ) {
-                        Column {
-                            AnimalName("Nombre", animal.name)
-                            Spacer(modifier = Modifier.padding(2.dp))
-                            AnimalName("Especie", animal.species)
-                        }
+                    Icon(
+                        imageVector = Icons.Default.Person,
+                        contentDescription = "Animal sin imagen",
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.size(72.dp)
+                    )
+                }
+            }
 
-                        Spacer(modifier = Modifier.padding(4.dp))
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(220.dp)
+                    .align(Alignment.BottomCenter)
+                    .background(
+                        Brush.verticalGradient(
+                            colors = listOf(
+                                Color.Transparent,
+                                Color.Black.copy(alpha = 0.55f),
+                                Color.Black.copy(alpha = 0.85f),
+                            )
+                        )
+                    )
+            )
 
-                        Column {
-                            AnimalName("Nacimiento", animal.dob)
-                            Spacer(modifier = Modifier.padding(2.dp))
-                            AnimalName("Estado", animal.adoptionState.value)
-                        }
-                    }
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .align(Alignment.BottomStart)
+                    .padding(18.dp)
+            ) {
+                Text(
+                    text = animal.name,
+                    style = MaterialTheme.typography.headlineMedium,
+                    fontWeight = FontWeight.Black,
+                    color = Color.White
+                )
+
+                Spacer(modifier = Modifier.height(10.dp))
+
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Chip(
+                        icon = Icons.Default.Pets,
+                        text = animal.species
+                    )
+                    Chip(
+                        text = animal.adoptionState.value
+                    )
                 }
 
-                IconButton(
-                    onClick = { /* TODO */ }
+                Spacer(modifier = Modifier.height(10.dp))
+
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(10.dp),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Crossfade(targetState = isFavorite, label = "HeartAnimation") { liked ->
+                    Text(
+                        text = "Nacimiento: ${animal.dob}",
+                        color = Color.White.copy(alpha = 0.9f),
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                    val city = rememberCityFromLatLng(
+                        latitude = animal.latitude,
+                        longitude = animal.longitude
+                    )
+
+                    Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(
-                            imageVector = if (liked) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
-                            contentDescription = "Favorito",
-                            tint = if (liked) Color.Red else Color.Gray
+                            imageVector = Icons.Default.LocationOn,
+                            contentDescription = null,
+                            tint = Color.White.copy(alpha = 0.9f),
+                            modifier = Modifier.size(18.dp)
+                        )
+                        Text(
+                            text = city,
+                            color = Color.White.copy(alpha = 0.9f),
+                            style = MaterialTheme.typography.bodyMedium
                         )
                     }
                 }
+
+                Spacer(modifier = Modifier.height(6.dp))
+
+                Text(
+                    text = "Toca la tarjeta para ver detalles",
+                    color = Color.White.copy(alpha = 0.75f),
+                    style = MaterialTheme.typography.bodySmall
+                )
             }
         }
     }
 }
 
 @Composable
-fun AnimalName(value: String, name: String) {
-    return Column() {
-        Text(
-            text = value,
-            fontSize = 12.sp,
-            fontStyle = FontStyle.Italic
-        )
-        Text(
-            text = " $name",
-            fontSize = 16.sp,
-        )
+private fun Chip(
+    text: String,
+    icon: androidx.compose.ui.graphics.vector.ImageVector? = null
+) {
+    Surface(
+        color = Color.White.copy(alpha = 0.18f),
+        shape = RoundedCornerShape(999.dp)
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(6.dp)
+        ) {
+            if (icon != null) {
+                Icon(
+                    imageVector = icon,
+                    contentDescription = null,
+                    tint = Color.White,
+                    modifier = Modifier.size(16.dp).alpha(0.95f)
+                )
+            }
+            Text(
+                text = text,
+                color = Color.White,
+                style = MaterialTheme.typography.labelLarge,
+                fontWeight = FontWeight.SemiBold
+            )
+        }
     }
 }
 
-
-@Preview
+@Preview(showBackground = true)
 @Composable
 fun AnimalCardPreview() {
-   Column (
-       horizontalAlignment = Alignment.CenterHorizontally
-   ){
-       AnimalCard(
-           modifier = Modifier.fillMaxWidth(),
-           animal = Animal(
-               id = 0,
-               name = "Mario",
-               species = "Perro",
-               photo = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRcci_BP3wtsbh1-gFdV4FXfyMWkdw1GyO-0-tvNLGhRGqc1YL8tuZWS05CdGtePNgYc5ESKo7BmbEaDywuWbSDJmwA7v6t9wuVIr79Cw&s=10",
-               dob = "29/11",
-               adoptionState = AdoptionState.AVAILABLE,
-               latitude = 0.0,
-               longitude = 0.0
-           ),
-           onDetails = {}
-       )
-   }
+    Column(
+        modifier = Modifier.padding(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        AnimalCard(
+            modifier = Modifier.fillMaxWidth(),
+            animal = Animal(
+                id = 1,
+                name = "Mario",
+                species = "Perro",
+                photo = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRcci_BP3wtsbh1-gFdV4FXfyMWkdw1GyO-0-tvNLGhRGqc1YL8tuZWS05CdGtePNgYc5ESKo7BmbEaDywuWbSDJmwA7v6t9wuVIr79Cw&s=10",
+                dob = "29/11/2022",
+                adoptionState = AdoptionState.AVAILABLE,
+                latitude = 0.0,
+                longitude = 0.0
+            ),
+            onDetails = {}
+        )
+    }
 }
-
-

@@ -84,5 +84,7 @@ dependencies {
     implementation(libs.androidx.compose.material.icons.extended)
 
     implementation(libs.coil.compose)
+
+    implementation(libs.androidx.datastore.preferences)
 }
 

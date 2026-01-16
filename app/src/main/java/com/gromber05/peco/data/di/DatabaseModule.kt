@@ -9,6 +9,7 @@ import com.gromber05.peco.data.local.animal.AnimalDao
 import com.gromber05.peco.data.local.swipe.SwipeDao
 import com.gromber05.peco.data.local.swipe.SwipeEntity
 import com.gromber05.peco.data.local.user.UserDao
+import com.gromber05.peco.data.session.AppPreferences
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -49,28 +50,28 @@ object DatabaseModule {
                     db.execSQL(
                         """
                         INSERT INTO animals (id, name, species, photo, dob, latitude, longitude, adoptionState)
-                        VALUES (1, 'Luna', 'Perro', null, '2022-03-01', 36.5271, -6.2886, 'AVAILABLE')
+                        VALUES (1, 'Luna', 'Perro', 'https://eq2imhfmrcc.exactdn.com/wp-content/uploads/2016/08/golden-retriever.jpg?strip=all', '2022-03-01', 36.5271, -6.2886, 'AVAILABLE')
                     """.trimIndent()
                     )
 
                     db.execSQL(
                         """
                         INSERT INTO animals (id, name, species, photo, dob, latitude, longitude, adoptionState)
-                        VALUES (2, 'Milo', 'Gato', null, '2021-07-12', 36.6864, -6.1372, 'AVAILABLE')
+                        VALUES (2, 'Milo', 'Gato', 'https://eq2imhfmrcc.exactdn.com/wp-content/uploads/2016/08/golden-retriever.jpg?strip=all', '2021-07-12', 36.6864, -6.1372, 'AVAILABLE')
                     """.trimIndent()
                     )
 
                     db.execSQL(
                         """
                         INSERT INTO animals (id, name, species, photo, dob, latitude, longitude, adoptionState)
-                        VALUES (3, 'Nala', 'Perro', null, '2020-11-05', 36.4657, -6.1967, 'AVAILABLE')
+                        VALUES (3, 'Nala', 'Perro', 'https://eq2imhfmrcc.exactdn.com/wp-content/uploads/2016/08/golden-retriever.jpg?strip=all', '2020-11-05', 36.4657, -6.1967, 'AVAILABLE')
                     """.trimIndent()
                     )
 
                     db.execSQL(
                         """
                         INSERT INTO animals (id, name, species, photo, dob, latitude, longitude, adoptionState)
-                        VALUES (4, 'Simba', 'Gato', null, '2019-09-20', 36.5297, -6.2923, 'AVAILABLE')
+                        VALUES (4, 'Simba', 'Gato', 'https://eq2imhfmrcc.exactdn.com/wp-content/uploads/2016/08/golden-retriever.jpg?strip=all', '2019-09-20', 36.5297, -6.2923, 'AVAILABLE')
                     """.trimIndent()
                     )
                 }
@@ -93,4 +94,9 @@ object DatabaseModule {
     fun provideSwipeDao(database: AppDatabase): SwipeDao {
         return database.swipeDao()
     }
+
+    @Provides
+    @Singleton
+    fun provideAppPreferences(@ApplicationContext context: Context): AppPreferences =
+        AppPreferences(context)
 }

@@ -22,6 +22,7 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Person3
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Button
 import androidx.compose.material3.FilledIconButton
@@ -56,6 +57,8 @@ import com.gromber05.peco.model.events.UiEvent
 import com.gromber05.peco.ui.components.AnimalCard
 import com.gromber05.peco.ui.components.MyTopAppBar
 import com.gromber05.peco.ui.components.TinderSwipeDeck
+import com.gromber05.peco.ui.screens.admin.AdminAddAnimalScreen
+import com.gromber05.peco.ui.screens.admin.AdminScreen
 
 @Composable
 fun HomeScreen(
@@ -63,10 +66,10 @@ fun HomeScreen(
     onToggleDarkMode: () -> Unit,
     isDarkMode: Boolean,
     onLogout: () -> Unit,
-    onNavigateToAdmin: () -> Unit
 ) {
     val state by viewModel.uiState.collectAsState()
     var selectPage by rememberSaveable { mutableIntStateOf(0) }
+    var adminPage by rememberSaveable { mutableIntStateOf(0) }
 
     val context = LocalContext.current
     val fusedLocationClient = remember { LocationServices.getFusedLocationProviderClient(context) }
@@ -129,14 +132,8 @@ fun HomeScreen(
             when (event) {
                 UiEvent.LoggedOut -> onLogout()
                 is UiEvent.Error -> Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show()
+                else -> {}
             }
-        }
-    }
-
-    LaunchedEffect(selectPage) {
-        if (selectPage == 2 && state.isAdmin) {
-            onNavigateToAdmin()
-            selectPage = 0
         }
     }
 
@@ -161,8 +158,8 @@ fun HomeScreen(
                     NavigationBarItem(
                         selected = selectPage == 1,
                         onClick = { selectPage = 1 },
-                        icon = { Icon(Icons.Filled.Settings, contentDescription = "Menú de Ajustes") },
-                        label = { Text("Ajustes") },
+                        icon = { Icon(Icons.Filled.Person3, contentDescription = "Menú tu Cuenta") },
+                        label = { Text("Cuenta") },
                         colors = navItemColors
                     )
 
@@ -184,8 +181,21 @@ fun HomeScreen(
             1 -> SettingsView(
                 modifier = Modifier.padding(innerPadding),
                 onToggleTheme = onToggleDarkMode,
-                isDarkMode = isDarkMode
+                isDarkMode = isDarkMode,
+                onLogout = onLogout
             )
+            2 -> {
+                when (adminPage) {
+                    0 -> AdminScreen(
+                        onBack = { selectPage = 0 },
+                        onAddAnimal = { adminPage = 1 },
+                        onManageAnimals = { adminPage = 2 }
+                    )
+                    1 -> AdminAddAnimalScreen(
+                        onBack = { adminPage = 0 }
+                    )
+                }
+            }
         }
     }
 }
@@ -200,13 +210,6 @@ fun HomeView(
     Column(
         modifier = modifier.fillMaxSize()
     ) {
-        Text(
-            text = "Descubre tu nuevo compi 🐶🐱",
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 10.dp),
-            style = MaterialTheme.typography.titleMedium,
-            color = MaterialTheme.colorScheme.onBackground
-        )
-
         Box(
             modifier = Modifier
                 .weight(1f)
@@ -266,6 +269,7 @@ fun HomeView(
 fun SettingsView(
     modifier: Modifier = Modifier,
     onToggleTheme: () -> Unit,
+    onLogout: () -> Unit,
     isDarkMode: Boolean
 ) {
     Column(modifier = modifier) {
@@ -276,6 +280,27 @@ fun SettingsView(
             Icon(
                 imageVector = Icons.Default.DarkMode,
                 contentDescription = "Cambiar Tema",
+                tint = if (isDarkMode) {
+                    MaterialTheme.colorScheme.primary
+                } else {
+                    MaterialTheme.colorScheme.onSurfaceVariant
+                }
+            )
+        }
+
+        Text(
+            text = if (isDarkMode) "Modo oscuro" else "Modo claro",
+            modifier = Modifier.padding(horizontal = 16.dp),
+            color = MaterialTheme.colorScheme.onSurface
+        )
+
+        IconButton(
+            onClick = onLogout,
+            modifier = Modifier.padding(16.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Default.DarkMode,
+                contentDescription = "Cerrar sesion",
                 tint = if (isDarkMode) {
                     MaterialTheme.colorScheme.primary
                 } else {

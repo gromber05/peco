@@ -1,9 +1,15 @@
 package com.gromber05.peco.app
 
 import android.widget.Toast
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavType
@@ -16,51 +22,62 @@ import com.gromber05.peco.ui.screens.detail.DetailScreen
 import com.gromber05.peco.ui.screens.home.HomeScreen
 import com.gromber05.peco.ui.screens.home.HomeViewModel
 import com.gromber05.peco.ui.screens.login.LoginScreen
+import com.gromber05.peco.ui.AppViewModel
 import com.gromber05.peco.ui.screens.login.LoginViewModel
 import com.gromber05.peco.ui.screens.register.RegisterScreen
 import com.gromber05.peco.ui.screens.register.RegisterViewModel
 
 @Composable
 fun PecoApp(
-    onToggleTheme: () -> Unit,
     isDark: Boolean
 ) {
     val navController = rememberNavController()
     val context = LocalContext.current
 
+    val appVm: AppViewModel = hiltViewModel()
     val loginViewModel: LoginViewModel = hiltViewModel()
     val registerViewModel: RegisterViewModel = hiltViewModel()
     val homeViewModel: HomeViewModel = hiltViewModel()
 
     val logger by loginViewModel.uiState.collectAsState()
+    val isLogged by appVm.isLoggedInOrNull.collectAsState(initial = false)
+
+    val onToggleTheme = {appVm.toggleDarkMode()}
+
+    if (isLogged == null) {
+        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            Text("Cargando…")
+        }
+        return
+    }
+
+    LaunchedEffect(isLogged) {
+        if (isLogged == true) {
+            navController.navigate(AppNavigation.MainScreen.route) {
+                popUpTo(AppNavigation.LoginScreen.route) { inclusive = true }
+                launchSingleTop = true
+            }
+        } else {
+            navController.navigate(AppNavigation.LoginScreen.route) {
+                popUpTo(AppNavigation.MainScreen.route) { inclusive = true }
+                launchSingleTop = true
+            }
+        }
+    }
 
     NavHost(
         navController = navController,
-        startDestination = if (!logger.isLoggedIn) {
+        startDestination = if (isLogged == false) {
             AppNavigation.LoginScreen.route
         } else {
-            if (logger.isAdmin) {
-                AppNavigation.AdminScreen.route
-            } else {
-                AppNavigation.MainScreen.route
-            }
+            AppNavigation.MainScreen.route
         }
     ) {
         composable(AppNavigation.LoginScreen.route) {
             LoginScreen(
                 onToggleTheme = onToggleTheme,
-                isDarkMode = isDark,
                 viewModel = loginViewModel,
-                onNavigateToHome = {
-                    navController.navigate(AppNavigation.MainScreen.route) {
-                        popUpTo(AppNavigation.LoginScreen.route) { inclusive = true }
-                    }
-                },
-                onNavigateToAdmin = {
-                    navController.navigate(AppNavigation.AdminScreen.route) {
-                        popUpTo(AppNavigation.LoginScreen.route) { inclusive = true }
-                    }
-                },
+                onNavigateToHome = {},
                 onNavigateToRegister = {
                     navController.navigate(AppNavigation.RegisterScreen.route)
                 }
@@ -86,20 +103,8 @@ fun PecoApp(
                 viewModel = homeViewModel,
                 isDarkMode = isDark,
                 onToggleDarkMode = onToggleTheme,
-                onLogout = {
-                    navController.navigate(AppNavigation.LoginScreen.route)
-                },
-                onNavigateToAdmin = {
-                     if (logger.isAdmin){
-                         navController.navigate(AppNavigation.AdminScreen.route)
-                     } else {
-                         Toast.makeText(context, "No puedes acceder porque no tienes permiso", Toast.LENGTH_SHORT).show()
-                     }
-                }
+                onLogout = { appVm.logout() }
             )
-        }
-        composable(AppNavigation.AdminScreen.route) {
-            // AdminScreen()
         }
 
         composable(
