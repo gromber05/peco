@@ -1,7 +1,7 @@
 package com.gromber05.peco.utils.converters
 
 import androidx.room.TypeConverter
-import com.gromber05.peco.data.local.swipe.SwipeAction
+import com.gromber05.peco.model.SwipeAction
 
 class SwipeConverters {
     @TypeConverter

@@ -3,7 +3,7 @@ package com.gromber05.peco.ui.screens.home
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.gromber05.peco.data.local.animal.toDomain
-import com.gromber05.peco.data.local.swipe.SwipeAction
+import com.gromber05.peco.model.SwipeAction
 import com.gromber05.peco.data.local.user.toUser
 import com.gromber05.peco.data.repository.AnimalRepository
 import com.gromber05.peco.data.repository.SwipeRepository

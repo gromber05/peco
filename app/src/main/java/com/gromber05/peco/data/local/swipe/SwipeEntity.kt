@@ -3,6 +3,7 @@ package com.gromber05.peco.data.local.swipe
 import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.PrimaryKey
+import com.gromber05.peco.model.SwipeAction
 
 @Entity(
     tableName = "swipes",
