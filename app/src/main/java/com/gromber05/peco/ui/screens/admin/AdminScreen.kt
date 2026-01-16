@@ -8,7 +8,6 @@ import androidx.compose.material.icons.filled.Assessment
 import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.Pets
 import androidx.compose.material3.*
-import androidx.compose.material3.SecondaryTabRow
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -20,21 +19,13 @@ import com.gromber05.peco.ui.components.SimpleBarChart
 fun AdminScreen(
     onBack: () -> Unit,
     onAddAnimal: () -> Unit,
-    onManageAnimals: () -> Unit
+    onManageAnimals: () -> Unit,
+    modifier: Modifier
 ) {
     var tab by remember { mutableIntStateOf(0) }
 
     Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Panel de administración") },
-                navigationIcon = {
-                    IconButton(onClick = onBack) {
-                        Icon(Icons.Default.Assessment, contentDescription = null)
-                    }
-                }
-            )
-        }
+        modifier = modifier,
     ) { padding ->
         Column(Modifier.padding(padding)) {
 

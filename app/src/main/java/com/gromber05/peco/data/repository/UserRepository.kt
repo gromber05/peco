@@ -2,6 +2,7 @@ package com.gromber05.peco.data.repository
 
 import com.gromber05.peco.data.local.user.UserDao
 import com.gromber05.peco.data.local.user.UserEntity
+import com.gromber05.peco.data.local.user.toUser
 import com.gromber05.peco.data.session.AppPreferences
 import com.gromber05.peco.model.data.User
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -38,9 +39,7 @@ class UserRepository @Inject constructor(
 
 
     suspend fun login(email: String, password: String): Boolean {
-        val user = userDao.getUserByEmail(email)
-
-        if (user == null) return false
+        val user = userDao.getUserByEmail(email) ?: return false
 
         appPrefs.saveSession(user.email, user.isAdmin)
         return true
@@ -49,5 +48,14 @@ class UserRepository @Inject constructor(
     suspend fun logout() {
         _currentUser.emit(null)
         appPrefs.clearSession()
+    }
+
+    suspend fun updateUser(user: UserEntity)  {
+        userDao.updateUser(user)
+    }
+
+    suspend fun refreshCurrentUserFromEmail(email: String) {
+        val entity = getUserByEmail(email) ?: return
+        setCurrentUser(entity.toUser())
     }
 }

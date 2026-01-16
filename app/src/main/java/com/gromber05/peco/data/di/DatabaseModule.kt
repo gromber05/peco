@@ -36,14 +36,14 @@ object DatabaseModule {
                     db.execSQL(
                         """
                         INSERT INTO users (username, email, password, photo, isAdmin)
-                        VALUES ('Super Admin', 'admin', 'fernandoapruebame', null, 1)
+                        VALUES ('Super Admin', 'admin@admin.es', 'fernandoapruebame', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSp-7WmGrclnPy4Y7vQMYkdkORBUeQcmyVigw&s', 1)
                     """.trimIndent()
                     )
 
                     db.execSQL(
                         """
                         INSERT INTO users (username, email, password, photo, isAdmin)
-                        VALUES ('Usuario', 'usuario', 'usuario', null, 0)
+                        VALUES ('Usuario', 'usuario@usuario.es', 'usuario', '', 0)
                     """.trimIndent()
                     )
 

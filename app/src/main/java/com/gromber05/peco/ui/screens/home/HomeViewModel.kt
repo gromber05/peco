@@ -37,18 +37,6 @@ class HomeViewModel @Inject constructor(
         observeLikedIds()
     }
 
-    fun logout() {
-        viewModelScope.launch {
-            try {
-                userRepository.logout()
-                _uiState.update { it.copy(isLogged = false) }
-                _events.emit(UiEvent.LoggedOut)
-            } catch (_: Exception) {
-                _events.emit(UiEvent.Error("No se pudo cerrar sesión"))
-            }
-        }
-    }
-
     private fun observeUser() {
         viewModelScope.launch {
             userRepository.currentUser.collect { user ->
@@ -58,6 +46,7 @@ class HomeViewModel @Inject constructor(
                             username = user.username,
                             email = user.email,
                             isAdmin = user.isAdmin,
+                            photo = user.photo,
                             isLogged = true
                         )
                     }
@@ -171,4 +160,16 @@ class HomeViewModel @Inject constructor(
         }
     }
 
+
+    fun logout() {
+        viewModelScope.launch {
+            try {
+                userRepository.logout()
+                _uiState.update { it.copy(isLogged = false) }
+                _events.emit(UiEvent.LoggedOut)
+            } catch (_: Exception) {
+                _events.emit(UiEvent.Error("No se pudo cerrar sesión"))
+            }
+        }
+    }
 }

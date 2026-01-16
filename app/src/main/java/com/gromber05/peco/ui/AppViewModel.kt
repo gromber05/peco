@@ -38,11 +38,4 @@ class AppViewModel @Inject constructor(
             settingsRepository.setDarkMode(enabled)
         }
     }
-
-    fun logout() {
-        viewModelScope.launch {
-            userRepository.logout()
-        }
-    }
-
 }

@@ -19,16 +19,13 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AdminPanelSettings
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person3
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Button
 import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -66,6 +63,8 @@ fun HomeScreen(
     onToggleDarkMode: () -> Unit,
     isDarkMode: Boolean,
     onLogout: () -> Unit,
+    onOpenEditProfile: () -> Unit,
+    onOpenChangePassword: () -> Unit,
 ) {
     val state by viewModel.uiState.collectAsState()
     var selectPage by rememberSaveable { mutableIntStateOf(0) }
@@ -182,17 +181,25 @@ fun HomeScreen(
                 modifier = Modifier.padding(innerPadding),
                 onToggleTheme = onToggleDarkMode,
                 isDarkMode = isDarkMode,
-                onLogout = onLogout
+                onLogout = onLogout,
+                username = state.username,
+                email = state.email,
+                isAdmin = state.isAdmin,
+                onOpenEditProfile = onOpenEditProfile,
+                onOpenChangePassword = onOpenChangePassword,
+                profilePhoto = state.photo
             )
             2 -> {
                 when (adminPage) {
                     0 -> AdminScreen(
+                        modifier = Modifier.padding(innerPadding),
                         onBack = { selectPage = 0 },
                         onAddAnimal = { adminPage = 1 },
                         onManageAnimals = { adminPage = 2 }
                     )
                     1 -> AdminAddAnimalScreen(
-                        onBack = { adminPage = 0 }
+                        modifier = Modifier.padding(innerPadding),
+                        onBack = { adminPage = 0 },
                     )
                 }
             }
@@ -262,57 +269,5 @@ fun HomeView(
                 Icon(Icons.Filled.Favorite, contentDescription = "Me gusta")
             }
         }
-    }
-}
-
-@Composable
-fun SettingsView(
-    modifier: Modifier = Modifier,
-    onToggleTheme: () -> Unit,
-    onLogout: () -> Unit,
-    isDarkMode: Boolean
-) {
-    Column(modifier = modifier) {
-        IconButton(
-            onClick = onToggleTheme,
-            modifier = Modifier.padding(16.dp)
-        ) {
-            Icon(
-                imageVector = Icons.Default.DarkMode,
-                contentDescription = "Cambiar Tema",
-                tint = if (isDarkMode) {
-                    MaterialTheme.colorScheme.primary
-                } else {
-                    MaterialTheme.colorScheme.onSurfaceVariant
-                }
-            )
-        }
-
-        Text(
-            text = if (isDarkMode) "Modo oscuro" else "Modo claro",
-            modifier = Modifier.padding(horizontal = 16.dp),
-            color = MaterialTheme.colorScheme.onSurface
-        )
-
-        IconButton(
-            onClick = onLogout,
-            modifier = Modifier.padding(16.dp)
-        ) {
-            Icon(
-                imageVector = Icons.Default.DarkMode,
-                contentDescription = "Cerrar sesion",
-                tint = if (isDarkMode) {
-                    MaterialTheme.colorScheme.primary
-                } else {
-                    MaterialTheme.colorScheme.onSurfaceVariant
-                }
-            )
-        }
-
-        Text(
-            text = if (isDarkMode) "Modo oscuro" else "Modo claro",
-            modifier = Modifier.padding(horizontal = 16.dp),
-            color = MaterialTheme.colorScheme.onSurface
-        )
     }
 }

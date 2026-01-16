@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Update
 
 @Dao
 interface UserDao {
@@ -15,4 +16,7 @@ interface UserDao {
 
     @Query("DELETE FROM users WHERE email = :email")
     suspend fun removeUser(email: String): Int
+
+    @Update
+    suspend fun updateUser(user: UserEntity)
 }

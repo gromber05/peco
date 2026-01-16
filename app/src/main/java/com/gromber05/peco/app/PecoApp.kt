@@ -1,6 +1,5 @@
 package com.gromber05.peco.app
 
-import android.widget.Toast
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Text
@@ -23,6 +22,8 @@ import com.gromber05.peco.ui.screens.home.HomeScreen
 import com.gromber05.peco.ui.screens.home.HomeViewModel
 import com.gromber05.peco.ui.screens.login.LoginScreen
 import com.gromber05.peco.ui.AppViewModel
+import com.gromber05.peco.ui.screens.profile.ChangePasswordScreen
+import com.gromber05.peco.ui.screens.profile.EditProfileScreen
 import com.gromber05.peco.ui.screens.login.LoginViewModel
 import com.gromber05.peco.ui.screens.register.RegisterScreen
 import com.gromber05.peco.ui.screens.register.RegisterViewModel
@@ -103,7 +104,10 @@ fun PecoApp(
                 viewModel = homeViewModel,
                 isDarkMode = isDark,
                 onToggleDarkMode = onToggleTheme,
-                onLogout = { appVm.logout() }
+                onLogout = { homeViewModel.logout() },
+                onOpenEditProfile = { navController.navigate("edit_profile") },
+                onOpenChangePassword = { navController.navigate("change_password") }
+
             )
         }
 
@@ -117,5 +121,10 @@ fun PecoApp(
                 animalId = id
             )
         }
+
+        composable("edit_profile") { EditProfileScreen(onBack = { navController.popBackStack() }) }
+        composable("change_password") { ChangePasswordScreen(onBack = { navController.popBackStack() }) }
+
     }
+
 }

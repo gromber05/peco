@@ -24,7 +24,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -43,7 +42,8 @@ import com.gromber05.peco.model.events.UiEvent
 @Composable
 fun AdminAddAnimalScreen(
     onBack: () -> Unit,
-    viewModel: AdminAddAnimalViewModel = hiltViewModel()
+    viewModel: AdminAddAnimalViewModel = hiltViewModel(),
+    modifier: Modifier
 ) {
     val state by viewModel.uiState.collectAsState()
     val context = LocalContext.current
@@ -59,6 +59,7 @@ fun AdminAddAnimalScreen(
     }
 
     Scaffold(
+        modifier = modifier,
         topBar = {
             TopAppBar(
                 title = { Text("Añadir animal") },
