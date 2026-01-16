@@ -46,23 +46,39 @@ El proyecto sigue las **Modern Android Development (MAD)** guidelines de Google:
 
 ## 📁 Estructura del Proyecto
 
-El código está organizado siguiendo una estructura modular por capas (features/screens):
+El proyecto sigue una arquitectura **MVVM + separación por capas**, adaptada a Jetpack Compose y organizada por responsabilidad:
+
+> La aplicación mantiene una separación clara entre la capa de datos, dominio y presentación.
+> La UI no accede directamente a la base de datos, sino a través de repositorios, garantizando escalabilidad, testabilidad y mantenibilidad.
+
 
 ```text
 com.gromber05.peco
-├── data                # Capa de Datos (Room, Repositorios)
-│   ├── dao
-│   ├── entity
-│   └── repository
-├── di                  # Inyección de Dependencias (Hilt Modules)
-├── domain              # Modelos de dominio y UseCases (si aplica)
-├── navigation          # Grafo de navegación y rutas
-├── ui                  # Capa de Presentación
-│   ├── components      # Composables reutilizables (Botones, Cards)
-│   ├── screens         # Pantallas (Login, Home, Detail, Admin)
-│   └── theme           # Tema de Compose (Colores, Tipografía)
-└── utils               # Clases de utilidad y extensiones
-
+├── app                     # Configuración principal de la app
+├── data                    # Capa de datos
+│   ├── di                  # Módulos de inyección de dependencias (Hilt)
+│   ├── local               # Persistencia local (Room)
+│   │   ├── animal          # Entidades, DAO y lógica de animales
+│   │   ├── swipe           # Gestión de interacciones tipo swipe
+│   │   └── user            # Usuarios y perfiles
+│   ├── repository          # Repositorios (fuente única de datos)
+│   └── session             # Gestión de sesión y usuario autenticado
+├── model                   # Modelos de dominio y eventos
+│   ├── data                # Data classes desacopladas de Room
+│   └── events              # Eventos de UI y lógica
+├── ui                      # Capa de presentación (Jetpack Compose)
+│   ├── components          # Componentes reutilizables
+│   ├── navigation          # Grafo de navegación y rutas
+│   ├── screens             # Pantallas por funcionalidad
+│   │   ├── admin
+│   │   ├── detail
+│   │   ├── home
+│   │   ├── login
+│   │   ├── profile
+│   │   └── register
+│   └── theme               # Tema, colores y tipografía
+└── utils                   # Utilidades generales
+    └── converters           # Conversores de tipos (Room)
 ```
 
 ---
