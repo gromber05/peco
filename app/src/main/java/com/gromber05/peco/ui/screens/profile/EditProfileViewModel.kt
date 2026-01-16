@@ -82,4 +82,8 @@ class EditProfileViewModel @Inject constructor(
             }
         }
     }
+
+    fun onPhotoSelected(uriString: String) {
+        _uiState.update { it.copy(photo = uriString, error = null, saved = false) }
+    }
 }
