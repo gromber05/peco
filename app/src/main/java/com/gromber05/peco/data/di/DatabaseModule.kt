@@ -9,6 +9,7 @@ import com.gromber05.peco.data.local.animal.AnimalDao
 import com.gromber05.peco.data.local.swipe.SwipeDao
 import com.gromber05.peco.data.local.swipe.SwipeEntity
 import com.gromber05.peco.data.local.user.UserDao
+import com.gromber05.peco.data.repository.LocationRepository
 import com.gromber05.peco.data.session.AppPreferences
 import dagger.Module
 import dagger.Provides
@@ -36,14 +37,14 @@ object DatabaseModule {
                     db.execSQL(
                         """
                         INSERT INTO users (username, email, password, photo, isAdmin)
-                        VALUES ('Super Admin', 'admin@admin.es', 'fernandoapruebame', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSp-7WmGrclnPy4Y7vQMYkdkORBUeQcmyVigw&s', 1)
+                        VALUES ('Admin', 'admin@admin.es', 'fernandoapruebame', 'https://i.pinimg.com/originals/3f/72/2e/3f722e7be5a952584063a35048820e89.png', 1)
                     """.trimIndent()
                     )
 
                     db.execSQL(
                         """
                         INSERT INTO users (username, email, password, photo, isAdmin)
-                        VALUES ('Usuario', 'usuario@usuario.es', 'usuario', '', 0)
+                        VALUES ('Usuario', 'usuario@usuario.es', 'usuario', 'https://www.pokemon.com/static-assets/content-assets/cms2/img/pokedex/full/004.png', 0)
                     """.trimIndent()
                     )
 
@@ -57,21 +58,21 @@ object DatabaseModule {
                     db.execSQL(
                         """
                         INSERT INTO animals (id, name, species, photo, dob, latitude, longitude, adoptionState)
-                        VALUES (2, 'Milo', 'Gato', 'https://eq2imhfmrcc.exactdn.com/wp-content/uploads/2016/08/golden-retriever.jpg?strip=all', '2021-07-12', 36.6864, -6.1372, 'AVAILABLE')
+                        VALUES (2, 'Milo', 'Gato', 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4d/Cat_November_2010-1a.jpg/250px-Cat_November_2010-1a.jpg', '2021-07-12', 36.6864, -6.1372, 'AVAILABLE')
                     """.trimIndent()
                     )
 
                     db.execSQL(
                         """
                         INSERT INTO animals (id, name, species, photo, dob, latitude, longitude, adoptionState)
-                        VALUES (3, 'Nala', 'Perro', 'https://eq2imhfmrcc.exactdn.com/wp-content/uploads/2016/08/golden-retriever.jpg?strip=all', '2020-11-05', 36.4657, -6.1967, 'AVAILABLE')
+                        VALUES (3, 'Nala', 'Perro', 'https://cdn.sanity.io/images/5vm5yn1d/pro/5cb1f9400891d9da5a4926d7814bd1b89127ecba-1300x867.jpg?fm=webp&q=80', '2020-11-05', 36.4657, -6.1967, 'AVAILABLE')
                     """.trimIndent()
                     )
 
                     db.execSQL(
                         """
                         INSERT INTO animals (id, name, species, photo, dob, latitude, longitude, adoptionState)
-                        VALUES (4, 'Simba', 'Gato', 'https://eq2imhfmrcc.exactdn.com/wp-content/uploads/2016/08/golden-retriever.jpg?strip=all', '2019-09-20', 36.5297, -6.2923, 'AVAILABLE')
+                        VALUES (4, 'Simba', 'Gato', 'https://i.pinimg.com/736x/9a/bf/f2/9abff24eab348a5394c6b90225768242.jpg', '2019-09-20', 36.5297, -6.2923, 'AVAILABLE')
                     """.trimIndent()
                     )
                 }
@@ -97,6 +98,13 @@ object DatabaseModule {
 
     @Provides
     @Singleton
-    fun provideAppPreferences(@ApplicationContext context: Context): AppPreferences =
-        AppPreferences(context)
+    fun provideAppPreferences(@ApplicationContext context: Context): AppPreferences {
+        return AppPreferences(context)
+    }
+
+    @Provides
+    @Singleton
+    fun provideLocationRepository(@ApplicationContext context: Context): LocationRepository {
+        return LocationRepository(context)
+    }
 }

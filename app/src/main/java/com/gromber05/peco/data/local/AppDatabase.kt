@@ -14,7 +14,8 @@ import com.gromber05.peco.utils.converters.SwipeConverters
 
 @Database(
     entities = [UserEntity::class, AnimalEntity::class, SwipeEntity::class],
-    version = 2
+    version = 2,
+    exportSchema = false
 )
 @TypeConverters(AdoptionStateConverter::class, SwipeConverters::class)
 abstract class AppDatabase : RoomDatabase() {
