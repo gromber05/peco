@@ -1,12 +1,12 @@
 # 🐾 Peco - Gestión de Protectora de Animales
 
-**Peco** es una aplicación móvil nativa para Android diseñada para optimizar las operaciones diarias de una protectora de animales. Su objetivo es conectar a adoptantes con mascotas que buscan hogar y facilitar la gestión interna por parte de los administradores.
+**Peco** es una aplicación móvil nativa para Android diseñada para optimizar las operaciones diarias de una protectora de animales. Su objetivo es conectar a adoptantes con mascotas que buscan hogar y facilitar la gestión técnica e interna por parte de los administradores.
 
 ---
 
 ## 📱 Capturas de Pantalla
 
-| Login | Home (Usuario) | Detalle Mascota |
+| Login | Home (Usuario) | Panel Admin |
 | --- | --- | --- |
 | 🖼️ | 🖼️ | 🖼️ |
 
@@ -14,33 +14,33 @@
 
 ## 🚀 Tecnologías y Arquitectura
 
-El proyecto sigue las **Modern Android Development (MAD)** guidelines de Google:
+El proyecto sigue las **Modern Android Development (MAD)** guidelines de Google, utilizando un stack tecnológico de vanguardia:
 
-* **Lenguaje:** [Kotlin 2.x](https://kotlinlang.org/)
-* **Interfaz de Usuario (UI):** [Jetpack Compose](https://developer.android.com/jetpack/compose) (Material Design 3).
-* **Arquitectura:** MVVM (Model-View-ViewModel) + Clean Architecture (por capas).
-* **Inyección de Dependencias:** [Hilt](https://dagger.dev/hilt/) (Dagger).
-* **Navegación:** Jetpack Compose Navigation.
-* **Persistencia de Datos:** [Room Database](https://developer.android.com/training/data-storage/room).
-* **Carga de Imágenes:** [Coil](https://coil-kt.github.io/coil/compose/).
+* **Lenguaje:** [Kotlin 2.1.0+](https://kotlinlang.org/) 
+* **Interfaz de Usuario (UI):** [Jetpack Compose](https://developer.android.com/jetpack/compose) con **Material Design 3**.
+* **Arquitectura:** MVVM (Model-View-ViewModel) + Clean Architecture orientada a capas.
+* **Inyección de Dependencias:** [Hilt](https://dagger.dev/hilt/) (Dagger) para una gestión de dependencias desacoplada.
+* **Navegación:** Type-safe Navigation con Jetpack Compose.
+* **Persistencia de Datos:** [Room Database](https://developer.android.com/training/data-storage/room)
+* **Carga de Imágenes:** [Coil](https://coil-kt.github.io/coil/compose/) (Image loading asíncrono).
 * **Asincronía:** Kotlin Coroutines & Flow.
-* **Gráficos:** Vico (para estadísticas).
+* **Gráficos:** [Vico](https://github.com/patrykandpatrick/vico) para la visualización de datos estadísticos.
 
 ---
 
 ## ✨ Funcionalidades Principales
 
 ### 👤 Para Usuarios
-
-* **Registro e Inicio de Sesión:** Acceso seguro a la plataforma.
-* **Exploración:** Visualización de lista de animales en adopción con filtros.
-* **Detalle:** Ficha completa de cada mascota (fotos, descripción, edad, estado).
+* **Autenticación:** Sistema de Login y Registro seguro.
+* **Exploración:** Feed dinámico de animales con estados actualizados en tiempo real.
+* **Interacción:** Sistema de gestos (Swipe) para interactuar con las fichas de animales.
+* **Perfil:** Gestión de datos de usuario y preferencias.
 
 ### 🛡️ Para Administradores
-
-* **Gestión de Inventario:** Alta, baja y modificación de fichas de animales.
-* **Roles:** Permisos especiales detectados automáticamente tras el login.
-* **Estadísticas:** (En desarrollo) Visualización de adopciones mensuales.
+* **Gestión de Inventario:** CRUD completo (Crear, Leer, Actualizar, Borrar) de animales.
+* **Geolocalización:** Registro de coordenadas GPS de rescate mediante mapas/coordenadas.
+* **Dashboard Estadístico:** Visualización mediante gráficas del flujo de adopciones y animales rescatados.
+* **Roles:** Control de acceso basado en roles gestionado por `SessionRepository`.
 
 ---
 
@@ -52,33 +52,26 @@ El proyecto sigue una arquitectura **MVVM + separación por capas**, adaptada a 
 > La UI no accede directamente a la base de datos, sino a través de repositorios, garantizando escalabilidad, testabilidad y mantenibilidad.
 
 
-```text
+```text    
 com.gromber05.peco
-├── app                     # Configuración principal de la app
-├── data                    # Capa de datos
-│   ├── di                  # Módulos de inyección de dependencias (Hilt)
-│   ├── local               # Persistencia local (Room)
-│   │   ├── animal          # Entidades, DAO y lógica de animales
-│   │   ├── swipe           # Gestión de interacciones tipo swipe
-│   │   └── user            # Usuarios y perfiles
-│   ├── repository          # Repositorios (fuente única de datos)
-│   └── session             # Gestión de sesión y usuario autenticado
-├── model                   # Modelos de dominio y eventos
-│   ├── data                # Data classes desacopladas de Room
-│   └── events              # Eventos de UI y lógica
-├── ui                      # Capa de presentación (Jetpack Compose)
-│   ├── components          # Componentes reutilizables
-│   ├── navigation          # Grafo de navegación y rutas
-│   ├── screens             # Pantallas por funcionalidad
-│   │   ├── admin
-│   │   ├── detail
-│   │   ├── home
-│   │   ├── login
-│   │   ├── profile
-│   │   └── register
-│   └── theme               # Tema, colores y tipografía
-└── utils                   # Utilidades generales
-    └── converters           # Conversores de tipos (Room)
+├── data                        # Capa de datos: acceso y persistencia
+│   ├── di                      # Módulos de Hilt (inyección de dependencias)
+│   ├── local                   # Persistencia local (Room)
+│   │   ├── animal              # Entidades, DAO y lógica de mascotas
+│   │   ├── swipe               # Lógica relacionada con interacciones/swipe
+│   │   └── user                # Persistencia de usuarios y cuentas
+│   ├── repository              # Implementaciones de repositorios (SSOT)
+│   └── session                 # Gestión de sesión y DataStore
+│
+├── model                       # Modelos de dominio y estados de UI
+│
+├── ui                          # Capa de presentación (Jetpack Compose)
+│   ├── components              # Componentes reutilizables (Cards, Buttons, etc.)
+│   ├── navigation              # Rutas y grafos de navegación
+│   ├── screens                 # Pantallas (Login, Home, Admin, Profile, etc.)
+│   └── theme                   # Design System (Material 3, colores, tipografía)
+│
+└── utils                       # Helpers, type converters y utilidades comunes
 ```
 
 ---
@@ -91,8 +84,9 @@ git clone https://git.gonzaloromerobernal.es/IESRafaelAlberti/peco.git
 ```
 
 2. **Abrir en Android Studio:**
-* Se recomienda usar **Android Studio Ladybug** o superior.
-* JDK requerido: **Java 17** o superior.
+* **Android Studio:** (2024.2.1) o superior.
+* **JDK:** Java 17 o superior.
+* **Gradle:** 8.x con soporte para Kotlin 2.0.
 
 
 3. **Sincronizar:**
@@ -101,8 +95,6 @@ git clone https://git.gonzaloromerobernal.es/IESRafaelAlberti/peco.git
 
 4. **Ejecutar:**
 * Conecta un dispositivo físico o inicia un emulador y pulsa `Run`.
-
-
 
 ---
 
