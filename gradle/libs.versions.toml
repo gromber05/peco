@@ -73,7 +73,7 @@ firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "fir
 
 # Estos los tienes y están bien con BOM:
 firebase-analytics = { module = "com.google.firebase:firebase-analytics" }
-firebase-auth-ktx = { module = "com.google.firebase:firebase-auth-ktx" }
+firebase-auth-ktx = { module = "com.google.firebase:firebase-auth" }
 
 firebase-firestore = { module = "com.google.firebase:firebase-firestore" }
 

@@ -102,12 +102,6 @@ object DatabaseModule {
 
     @Provides
     @Singleton
-    fun provideAppPreferences(@ApplicationContext context: Context): AppPreferences {
-        return AppPreferences(context)
-    }
-
-    @Provides
-    @Singleton
     fun provideLocationRepository(@ApplicationContext context: Context): LocationRepository {
         return LocationRepository(context)
     }
@@ -117,11 +111,13 @@ object DatabaseModule {
     fun provideAppPreferences(@ApplicationContext context: Context): AppPreferences =
         AppPreferences(context)
 
-    @Provides @Singleton
+    @Provides
+    @Singleton
     fun provideChatDataSource(db: FirebaseFirestore): ChatFirebaseDataSource =
         ChatFirebaseDataSource(db)
 
-    @Provides @Singleton
+    @Provides
+    @Singleton
     fun provideChatRepository(ds: ChatFirebaseDataSource): ChatRepository =
         ChatRepositoryImpl(ds)
 }
