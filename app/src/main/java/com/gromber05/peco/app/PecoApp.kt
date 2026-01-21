@@ -1,31 +1,25 @@
 package com.gromber05.peco.app
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.gromber05.peco.ui.AppViewModel
 import com.gromber05.peco.ui.navigation.AppNavigation
 import com.gromber05.peco.ui.screens.detail.DetailScreen
 import com.gromber05.peco.ui.screens.home.HomeScreen
 import com.gromber05.peco.ui.screens.home.HomeViewModel
 import com.gromber05.peco.ui.screens.login.LoginScreen
-import com.gromber05.peco.ui.AppViewModel
 import com.gromber05.peco.ui.screens.chat.ConversationsScreen
+import com.gromber05.peco.ui.screens.login.LoginViewModel
 import com.gromber05.peco.ui.screens.profile.ChangePasswordScreen
 import com.gromber05.peco.ui.screens.profile.EditProfileScreen
-import com.gromber05.peco.ui.screens.login.LoginViewModel
 import com.gromber05.peco.ui.screens.register.RegisterScreen
 import com.gromber05.peco.ui.screens.register.RegisterViewModel
 
@@ -34,7 +28,6 @@ fun PecoApp(
     isDark: Boolean
 ) {
     val navController = rememberNavController()
-    val context = LocalContext.current
 
     val appVm: AppViewModel = hiltViewModel()
     val loginViewModel: LoginViewModel = hiltViewModel()
@@ -45,13 +38,6 @@ fun PecoApp(
     val isLogged by appVm.isLoggedInOrNull.collectAsState(initial = false)
 
     val onToggleTheme = {appVm.toggleDarkMode()}
-
-    if (isLogged == null) {
-        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            Text("Cargando…")
-        }
-        return
-    }
 
     LaunchedEffect(isLogged) {
         if (isLogged == true) {
@@ -106,6 +92,7 @@ fun PecoApp(
                 isDarkMode = isDark,
                 onToggleDarkMode = onToggleTheme,
                 onLogout = { homeViewModel.logout() },
+                onBack = { navController.popBackStack() },
                 onOpenEditProfile = { navController.navigate(AppNavigation.EditProfile.route) },
                 onOpenChangePassword = { navController.navigate(AppNavigation.ChangePassword.route) },
                 onOpenChats = {

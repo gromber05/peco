@@ -26,10 +26,10 @@ interface SwipeDao {
     suspend fun clearAll()
 
     @Query("SELECT COUNT(*) FROM swipes WHERE action = 'LIKE'")
-    fun countLikes(): kotlinx.coroutines.flow.Flow<Int>
+    fun countLikes(): Flow<Int>
 
     @Query("SELECT COUNT(*) FROM swipes WHERE action = 'DISLIKE'")
-    fun countDislikes(): kotlinx.coroutines.flow.Flow<Int>
+    fun countDislikes(): Flow<Int>
 
     @Query("""
     SELECT a.species AS label, COUNT(*) AS count
@@ -40,6 +40,5 @@ interface SwipeDao {
     ORDER BY count DESC
     LIMIT 5
 """)
-    fun topLikedSpecies(): kotlinx.coroutines.flow.Flow<List<LabelCount>>
-
+    fun topLikedSpecies(): Flow<List<LabelCount>>
 }

@@ -3,6 +3,7 @@ package com.gromber05.peco.ui.screens.home
 import android.Manifest
 import android.content.pm.PackageManager
 import android.widget.Toast
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
@@ -65,6 +66,7 @@ fun HomeScreen(
     viewModel: HomeViewModel = hiltViewModel(),
     onToggleDarkMode: () -> Unit,
     isDarkMode: Boolean,
+    onBack: () -> Unit,
     onLogout: () -> Unit,
     onOpenEditProfile: () -> Unit,
     onOpenChangePassword: () -> Unit,
@@ -99,6 +101,10 @@ fun HomeScreen(
         } else {
             Toast.makeText(context, "Permiso de ubicación denegado", Toast.LENGTH_SHORT).show()
         }
+    }
+
+    BackHandler {
+        onBack()
     }
 
     fun obtenerUbicacionYOrdenar() {

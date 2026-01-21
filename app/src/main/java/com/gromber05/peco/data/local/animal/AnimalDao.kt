@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface AnimalDao {
-    @Insert(onConflict = OnConflictStrategy.Companion.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAnimal(animal: AnimalEntity)
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
@@ -26,10 +26,10 @@ interface AnimalDao {
     fun getAllAnimals(): Flow<List<AnimalEntity>>
 
     @Query("SELECT COUNT(*) FROM animals")
-    fun countAnimals(): kotlinx.coroutines.flow.Flow<Int>
+    fun countAnimals(): Flow<Int>
 
     @Query("SELECT COUNT(*) FROM animals WHERE adoptionState = :state")
-    fun countAnimalsByState(state: String): kotlinx.coroutines.flow.Flow<Int>
+    fun countAnimalsByState(state: String): Flow<Int>
 
     @Query("""
     SELECT species AS label, COUNT(*) AS count
@@ -37,6 +37,6 @@ interface AnimalDao {
     GROUP BY species
     ORDER BY count DESC
 """)
-    fun countBySpecies(): kotlinx.coroutines.flow.Flow<List<LabelCount>>
+    fun countBySpecies(): Flow<List<LabelCount>>
 
 }

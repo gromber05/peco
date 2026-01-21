@@ -1,4 +1,4 @@
-package com.gromber05.peco.data.local.swipe
+package com.gromber05.peco.model
 
 enum class SwipeAction {
     LIKE,

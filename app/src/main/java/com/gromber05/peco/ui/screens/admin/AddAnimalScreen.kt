@@ -1,29 +1,31 @@
 package com.gromber05.peco.ui.screens.admin
 
+import android.Manifest
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.Icon
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -35,6 +37,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import coil.compose.AsyncImage
 import com.gromber05.peco.model.AdoptionState
 import com.gromber05.peco.model.events.UiEvent
 
@@ -47,6 +50,29 @@ fun AdminAddAnimalScreen(
 ) {
     val state by viewModel.uiState.collectAsState()
     val context = LocalContext.current
+
+    val permissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestMultiplePermissions()
+    ) { result ->
+        val granted = result[Manifest.permission.ACCESS_FINE_LOCATION] == true ||
+                result[Manifest.permission.ACCESS_COARSE_LOCATION] == true
+
+        if (granted) {
+            viewModel.autoFillLocationIfNeeded()
+            Toast.makeText(context, "Se ha actualizado la ubicación", Toast.LENGTH_SHORT).show()
+        } else {
+            Toast.makeText(context, "Permiso de ubicación denegado", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        permissionLauncher.launch(
+            arrayOf(
+                Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            )
+        )
+    }
 
     LaunchedEffect(Unit) {
         viewModel.events.collect { event ->
@@ -105,29 +131,16 @@ fun AdminAddAnimalScreen(
                 singleLine = true
             )
 
-            OutlinedTextField(
-                value = state.photo,
-                onValueChange = viewModel::onPhotoChange,
-                label = { Text("Foto (URL opcional)") },
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = true
+            PhotoPicker(
+                photoUri = state.photoUri,
+                onPhotoPicked = viewModel::onPhotoUriChange
             )
 
-            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                OutlinedTextField(
-                    value = state.latitude,
-                    onValueChange = viewModel::onLatChange,
-                    label = { Text("Latitud") },
-                    modifier = Modifier.weight(1f),
-                    singleLine = true
-                )
-                OutlinedTextField(
-                    value = state.longitude,
-                    onValueChange = viewModel::onLonChange,
-                    label = { Text("Longitud") },
-                    modifier = Modifier.weight(1f),
-                    singleLine = true
-                )
+            TextButton(
+                onClick = viewModel::autoFillLocationIfNeeded,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Rellenar ubicación automáticamente")
             }
 
             AdoptionStateDropdown(
@@ -166,7 +179,9 @@ private fun AdoptionStateDropdown(
     var expanded by remember { mutableStateOf(false) }
     val options = remember { AdoptionState.entries }
 
-    Column {
+    Column(
+        modifier = Modifier.fillMaxWidth(0.9f)
+    ){
         Text(
             text = "Estado de adopción",
             style = MaterialTheme.typography.labelLarge
@@ -184,6 +199,45 @@ private fun AdoptionStateDropdown(
                         expanded = false
                     }
                 )
+            }
+        }
+    }
+}
+
+@Composable
+private fun PhotoPicker(
+    photoUri: String,
+    onPhotoPicked: (String) -> Unit
+) {
+    val pickImageLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri ->
+        if (uri != null) onPhotoPicked(uri.toString())
+    }
+
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Text("Foto", style = MaterialTheme.typography.labelLarge)
+
+        Button(
+            onClick = { pickImageLauncher.launch("image/*") },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text(if (photoUri.isBlank()) "Elegir foto" else "Cambiar foto")
+        }
+
+        if (photoUri.isNotBlank()) {
+            AsyncImage(
+                model = photoUri,
+                contentDescription = "Foto del animal",
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(180.dp)
+            )
+            TextButton(
+                onClick = { onPhotoPicked("") },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Quitar foto")
             }
         }
     }

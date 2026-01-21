@@ -1,6 +1,6 @@
 package com.gromber05.peco.data.repository
 
-import com.gromber05.peco.data.local.swipe.SwipeAction
+import com.gromber05.peco.model.SwipeAction
 import com.gromber05.peco.data.local.swipe.SwipeDao
 import com.gromber05.peco.data.local.swipe.SwipeEntity
 import jakarta.inject.Inject
