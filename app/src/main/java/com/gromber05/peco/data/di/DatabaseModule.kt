@@ -4,11 +4,15 @@ import android.content.Context
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
+import com.google.firebase.firestore.FirebaseFirestore
 import com.gromber05.peco.data.local.AppDatabase
 import com.gromber05.peco.data.local.animal.AnimalDao
 import com.gromber05.peco.data.local.swipe.SwipeDao
 import com.gromber05.peco.data.local.swipe.SwipeEntity
 import com.gromber05.peco.data.local.user.UserDao
+import com.gromber05.peco.data.remote.chat.ChatFirebaseDataSource
+import com.gromber05.peco.data.repository.ChatRepository
+import com.gromber05.peco.data.repository.ChatRepositoryImpl
 import com.gromber05.peco.data.session.AppPreferences
 import dagger.Module
 import dagger.Provides
@@ -99,4 +103,12 @@ object DatabaseModule {
     @Singleton
     fun provideAppPreferences(@ApplicationContext context: Context): AppPreferences =
         AppPreferences(context)
+
+    @Provides @Singleton
+    fun provideChatDataSource(db: FirebaseFirestore): ChatFirebaseDataSource =
+        ChatFirebaseDataSource(db)
+
+    @Provides @Singleton
+    fun provideChatRepository(ds: ChatFirebaseDataSource): ChatRepository =
+        ChatRepositoryImpl(ds)
 }

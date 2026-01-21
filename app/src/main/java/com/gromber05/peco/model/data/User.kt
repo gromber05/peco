@@ -6,5 +6,6 @@ data class User(
     val password: String,
     val email: String,
     val photo: String? = null,
+    val isVolunteer: Boolean = false,
     val isAdmin: Boolean = false
 )

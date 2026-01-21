@@ -17,7 +17,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Chat
 import androidx.compose.material.icons.filled.AdminPanelSettings
+import androidx.compose.material.icons.filled.Chat
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
@@ -56,6 +58,7 @@ import com.gromber05.peco.ui.components.MyTopAppBar
 import com.gromber05.peco.ui.components.TinderSwipeDeck
 import com.gromber05.peco.ui.screens.admin.AdminAddAnimalScreen
 import com.gromber05.peco.ui.screens.admin.AdminScreen
+import com.gromber05.peco.ui.screens.chat.ConversationsScreen
 
 @Composable
 fun HomeScreen(
@@ -65,6 +68,7 @@ fun HomeScreen(
     onLogout: () -> Unit,
     onOpenEditProfile: () -> Unit,
     onOpenChangePassword: () -> Unit,
+    onOpenChats: (String) -> Unit,
 ) {
     val state by viewModel.uiState.collectAsState()
     var selectPage by rememberSaveable { mutableIntStateOf(0) }
@@ -162,6 +166,15 @@ fun HomeScreen(
                         colors = navItemColors
                     )
 
+                    NavigationBarItem(
+                        selected = selectPage == 3,
+                        onClick = { selectPage = 1 },
+                        icon = { Icon(Icons.AutoMirrored.Filled.Chat, contentDescription = "Chats") },
+                        label = { Text("Chats") },
+                        colors = navItemColors
+                    )
+
+
                     if (state.isAdmin) {
                         NavigationBarItem(
                             selected = selectPage == 2,
@@ -202,6 +215,14 @@ fun HomeScreen(
                         onBack = { adminPage = 0 },
                     )
                 }
+            }
+            3 -> {
+                ConversationsScreen(
+                    myUid = state.username,
+                    isVolunteer = state.isAdmin,
+                    onOpenChat = onOpenChats,
+                    onBack = { selectPage = 0 }
+                )
             }
         }
     }

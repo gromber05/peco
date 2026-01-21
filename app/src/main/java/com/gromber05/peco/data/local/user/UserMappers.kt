@@ -1,6 +1,7 @@
 package com.gromber05.peco.data.local.user
 
 import com.gromber05.peco.model.data.User
+import kotlin.Boolean
 
 fun User.toUserEntity(): UserEntity = UserEntity(
     id = id,
@@ -8,7 +9,8 @@ fun User.toUserEntity(): UserEntity = UserEntity(
     password = password,
     email = email,
     photo = photo,
-    isAdmin = isAdmin
+    isAdmin = isAdmin,
+    isVolunteer = isVolunteer
 )
 
 fun UserEntity.toUser(): User = User(
@@ -17,5 +19,6 @@ fun UserEntity.toUser(): User = User(
     password = password,
     email = email,
     photo = photo,
-    isAdmin = isAdmin
+    isAdmin = isAdmin,
+    isVolunteer = isVolunteer
 )

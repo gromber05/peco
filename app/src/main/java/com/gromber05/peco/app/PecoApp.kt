@@ -22,6 +22,7 @@ import com.gromber05.peco.ui.screens.home.HomeScreen
 import com.gromber05.peco.ui.screens.home.HomeViewModel
 import com.gromber05.peco.ui.screens.login.LoginScreen
 import com.gromber05.peco.ui.AppViewModel
+import com.gromber05.peco.ui.screens.chat.ConversationsScreen
 import com.gromber05.peco.ui.screens.profile.ChangePasswordScreen
 import com.gromber05.peco.ui.screens.profile.EditProfileScreen
 import com.gromber05.peco.ui.screens.login.LoginViewModel
@@ -105,9 +106,22 @@ fun PecoApp(
                 isDarkMode = isDark,
                 onToggleDarkMode = onToggleTheme,
                 onLogout = { homeViewModel.logout() },
-                onOpenEditProfile = { navController.navigate("edit_profile") },
-                onOpenChangePassword = { navController.navigate("change_password") }
+                onOpenEditProfile = { navController.navigate(AppNavigation.EditProfile.route) },
+                onOpenChangePassword = { navController.navigate(AppNavigation.ChangePassword.route) },
+                onOpenChats = {
+                    navController.navigate(AppNavigation.Conversations.route)
+                }
+            )
+        }
 
+        composable(AppNavigation.Conversations.route) {
+            ConversationsScreen(
+                myUid = logger.user,
+                isVolunteer = logger.isVolunteer,
+                onOpenChat = { conversationId ->
+                    navController.navigate(AppNavigation.Conversation.createRoute(conversationId))
+                },
+                onBack = { navController.popBackStack() }
             )
         }
 
@@ -122,8 +136,8 @@ fun PecoApp(
             )
         }
 
-        composable("edit_profile") { EditProfileScreen(onBack = { navController.popBackStack() }) }
-        composable("change_password") { ChangePasswordScreen(onBack = { navController.popBackStack() }) }
+        composable(AppNavigation.EditProfile.route) { EditProfileScreen(onBack = { navController.popBackStack() }) }
+        composable(AppNavigation.ChangePassword.route) { ChangePasswordScreen(onBack = { navController.popBackStack() }) }
 
     }
 
