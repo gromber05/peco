@@ -12,6 +12,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.gromber05.peco.ui.AppViewModel
 import com.gromber05.peco.ui.navigation.AppNavigation
+import com.gromber05.peco.ui.screens.animals.AnimalsScreen
 import com.gromber05.peco.ui.screens.detail.DetailScreen
 import com.gromber05.peco.ui.screens.home.HomeScreen
 import com.gromber05.peco.ui.screens.home.HomeViewModel
@@ -118,13 +119,34 @@ fun PecoApp(
         ) { backStackEntry ->
             val id = backStackEntry.arguments?.getInt("animalId") ?: 0
             DetailScreen(
-                isDarkMode = isDark,
-                animalId = id
+                animalId = id,
+                onBack = {navController.popBackStack()}
             )
         }
 
-        composable(AppNavigation.EditProfile.route) { EditProfileScreen(onBack = { navController.popBackStack() }) }
-        composable(AppNavigation.ChangePassword.route) { ChangePasswordScreen(onBack = { navController.popBackStack() }) }
+        composable(route = AppNavigation.EditProfile.route) {
+            EditProfileScreen(
+                onBack = {
+                    navController.popBackStack()
+                }
+            )
+        }
+
+        composable(route = AppNavigation.ChangePassword.route) {
+            ChangePasswordScreen(
+                onBack = {
+                    navController.popBackStack()
+                }
+            )
+        }
+
+        composable(route = AppNavigation.AnimalScreen.route) {
+            AnimalsScreen(
+                onAnimalClick = { animalId ->
+                    navController.navigate(AppNavigation.AnimalScreen.route)
+                }
+            )
+        }
 
     }
 

@@ -31,7 +31,7 @@ fun ConversationsScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(if (isVolunteer) "Chats asignados" else "Mis chats") },
+                title = { Text(if (isVolunteer) "Chats" else "Mis chats") },
             )
         }
     ) { padding ->

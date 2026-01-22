@@ -1,10 +1,11 @@
-package com.gromber05.peco.ui.screens.detail
+package com.gromber05.peco.ui.screens.animals
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.gromber05.peco.data.local.animal.toDomain
 import com.gromber05.peco.data.repository.AnimalRepository
 import com.gromber05.peco.model.data.Animal
+import com.gromber05.peco.ui.screens.detail.DetailUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jakarta.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -14,7 +15,7 @@ import kotlinx.coroutines.launch
 
 
 @HiltViewModel
-class DetailViewModel @Inject constructor(
+class AnimalsViewModel @Inject constructor(
     private val animalRepository: AnimalRepository
 ): ViewModel() {
     private val _animal = MutableStateFlow<Animal?>(null)

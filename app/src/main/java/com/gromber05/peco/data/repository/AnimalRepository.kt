@@ -5,6 +5,7 @@ import com.gromber05.peco.data.local.animal.AnimalEntity
 import jakarta.inject.Inject
 import jakarta.inject.Singleton
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.StateFlow
 
 @Singleton
 class AnimalRepository @Inject constructor(
@@ -19,4 +20,6 @@ class AnimalRepository @Inject constructor(
     }
 
     fun getAnimals(): Flow<List<AnimalEntity>> = animalDao.getAllAnimals()
+
+    suspend fun observeAnimal(id: Int): AnimalEntity? = animalDao.getAnimalById(id)
 }

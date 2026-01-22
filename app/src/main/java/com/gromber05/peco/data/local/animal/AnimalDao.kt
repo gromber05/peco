@@ -39,4 +39,6 @@ interface AnimalDao {
 """)
     fun countBySpecies(): Flow<List<LabelCount>>
 
+    @Query("SELECT * FROM animals WHERE id = :id")
+    fun observeAnimalById(id: Int): Flow<AnimalEntity?>
 }

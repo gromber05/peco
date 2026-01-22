@@ -1,0 +1,9 @@
+package com.gromber05.peco.ui.screens.animals
+
+import com.gromber05.peco.model.data.Animal
+
+data class AnimalsUiState(
+    val isLoading: Boolean = true,
+    val animals: List<Animal> = emptyList(),
+    val notFound: Boolean = false
+)
