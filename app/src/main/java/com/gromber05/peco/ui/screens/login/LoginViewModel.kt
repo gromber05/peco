@@ -41,7 +41,7 @@ class LoginViewModel @Inject constructor(
             if (user != null) {
                 if (user.password == pass) {
                     userRepository.setCurrentUser(user.toUser())
-                    userRepository.saveSession(email = user.email, isAdmin = user.isAdmin)
+                    userRepository.saveSession(email = user.email, role = user.role)
 
                     _uiState.update { it.copy(isLoading = false, error = null) }
                 } else {

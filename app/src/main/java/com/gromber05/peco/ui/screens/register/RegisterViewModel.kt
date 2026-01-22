@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.gromber05.peco.data.local.user.UserEntity
 import com.gromber05.peco.data.repository.UserRepository
+import com.gromber05.peco.model.user.UserRole
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -55,7 +56,7 @@ class RegisterViewModel @Inject constructor(
                     username = state.name,
                     email = state.email,
                     password = state.pass,
-                    isAdmin = false
+                    role = UserRole.USER
                 )
 
                 userRepository.insertUser(newUser)

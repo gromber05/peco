@@ -2,6 +2,7 @@ package com.gromber05.peco.data.local.user
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.gromber05.peco.model.user.UserRole
 
 @Entity(tableName = "users")
 data class UserEntity (
@@ -10,6 +11,5 @@ data class UserEntity (
     val email: String,
     val password: String,
     val photo: String? = null,
-    val isVolunteer: Boolean = false,
-    val isAdmin: Boolean = false
+    val role: UserRole = UserRole.USER
 )

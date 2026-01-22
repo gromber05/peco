@@ -8,7 +8,6 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.gromber05.peco.data.local.AppDatabase
 import com.gromber05.peco.data.local.animal.AnimalDao
 import com.gromber05.peco.data.local.swipe.SwipeDao
-import com.gromber05.peco.data.local.swipe.SwipeEntity
 import com.gromber05.peco.data.local.user.UserDao
 import com.gromber05.peco.data.remote.chat.ChatFirebaseDataSource
 import com.gromber05.peco.data.repository.ChatRepository
@@ -40,15 +39,22 @@ object DatabaseModule {
 
                     db.execSQL(
                         """
-                        INSERT INTO users (username, email, password, photo, isAdmin)
-                        VALUES ('Admin', 'admin@admin.es', 'fernandoapruebame', 'https://i.pinimg.com/originals/3f/72/2e/3f722e7be5a952584063a35048820e89.png', 1)
+                        INSERT INTO users (username, email, password, photo, role)
+                        VALUES ('Admin', 'admin', '1', 'https://i.pinimg.com/originals/3f/72/2e/3f722e7be5a952584063a35048820e89.png', 'ADMIN')
                     """.trimIndent()
                     )
 
                     db.execSQL(
                         """
-                        INSERT INTO users (username, email, password, photo, isAdmin)
-                        VALUES ('Usuario', 'usuario@usuario.es', 'usuario', 'https://www.pokemon.com/static-assets/content-assets/cms2/img/pokedex/full/004.png', 0)
+                        INSERT INTO users (username, email, password, photo, role)
+                        VALUES ('Voluntario', 'voluntario', '1', 'https://www.pokemon.com/static-assets/content-assets/cms2/img/pokedex/full/004.png', 'VOLUNTEER')
+                    """.trimIndent()
+                    )
+
+                    db.execSQL(
+                        """
+                        INSERT INTO users (username, email, password, photo, role)
+                        VALUES ('Usuario', 'usuario', '1', 'https://www.pokemon.com/static-assets/content-assets/cms2/img/pokedex/full/004.png', 'USER')
                     """.trimIndent()
                     )
 
@@ -81,7 +87,7 @@ object DatabaseModule {
                     )
                 }
             })
-            .fallbackToDestructiveMigration(false)
+            .fallbackToDestructiveMigration(true)
             .build()
 
 

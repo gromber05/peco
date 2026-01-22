@@ -1,6 +1,7 @@
 package com.gromber05.peco.ui.screens.home
 
 import com.gromber05.peco.model.data.Animal
+import com.gromber05.peco.model.user.UserRole
 
 data class HomeUiState(
     val username: String = "",
@@ -8,8 +9,9 @@ data class HomeUiState(
     val photo: String? = null,
     val isLoading: Boolean = false,
     var error: String? = null,
-    val isAdmin: Boolean = false,
-    val isVolunteer: Boolean = false,
+    val userRole: UserRole = UserRole.USER,
+    val isAdmin: Boolean = userRole.equals(UserRole.ADMIN),
+    val isVolunteer: Boolean = userRole.equals(UserRole.VOLUNTEER),
     val isLogged: Boolean = false,
     val animalList: List<Animal> = emptyList(),
     val deck: List<Animal> = emptyList(),

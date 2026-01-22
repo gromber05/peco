@@ -4,7 +4,8 @@ import com.gromber05.peco.data.local.user.UserDao
 import com.gromber05.peco.data.local.user.UserEntity
 import com.gromber05.peco.data.local.user.toUser
 import com.gromber05.peco.data.session.AppPreferences
-import com.gromber05.peco.model.data.User
+import com.gromber05.peco.model.user.User
+import com.gromber05.peco.model.user.UserRole
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import javax.inject.Inject
@@ -35,13 +36,13 @@ class UserRepository @Inject constructor(
         _currentUser.emit(user)
     }
 
-    suspend fun saveSession(email: String, isAdmin: Boolean) { appPrefs.saveSession(email, isAdmin)}
+    suspend fun saveSession(email: String, role: UserRole) { appPrefs.saveSession(email, role)}
 
 
     suspend fun login(email: String, password: String): Boolean {
         val user = userDao.getUserByEmail(email) ?: return false
 
-        appPrefs.saveSession(user.email, user.isAdmin)
+        appPrefs.saveSession(user.email, user.role)
         return true
     }
 

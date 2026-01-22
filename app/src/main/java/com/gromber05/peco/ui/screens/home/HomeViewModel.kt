@@ -45,7 +45,7 @@ class HomeViewModel @Inject constructor(
                         it.copy(
                             username = user.username,
                             email = user.email,
-                            isAdmin = user.isAdmin,
+                            userRole = user.role,
                             photo = user.photo,
                             isLogged = true
                         )

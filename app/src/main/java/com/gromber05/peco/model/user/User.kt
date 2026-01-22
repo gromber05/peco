@@ -1,4 +1,4 @@
-package com.gromber05.peco.model.data
+package com.gromber05.peco.model.user
 
 data class User(
     val id: Int,
@@ -6,6 +6,5 @@ data class User(
     val password: String,
     val email: String,
     val photo: String? = null,
-    val isVolunteer: Boolean = false,
-    val isAdmin: Boolean = false
+    val role: UserRole
 )
