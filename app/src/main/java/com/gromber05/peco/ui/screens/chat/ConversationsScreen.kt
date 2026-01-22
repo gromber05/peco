@@ -1,5 +1,6 @@
 package com.gromber05.peco.ui.screens.chat
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -21,15 +22,16 @@ fun ConversationsScreen(
 ) {
     val state by vm.state.collectAsState()
 
+    BackHandler{
+        onBack()
+    }
+
     LaunchedEffect(myUid, isVolunteer) { vm.start(myUid, isVolunteer) }
 
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { Text(if (isVolunteer) "Chats asignados" else "Mis chats") },
-                navigationIcon = {
-                    IconButton(onClick = onBack) { Text("←") }
-                }
             )
         }
     ) { padding ->

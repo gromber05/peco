@@ -22,6 +22,7 @@ import androidx.compose.material.icons.filled.AdminPanelSettings
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Logout
 import androidx.compose.material.icons.filled.Person
@@ -50,6 +51,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import com.gromber05.peco.model.user.UserRole
 
 
 @Composable
@@ -57,9 +59,9 @@ fun SettingsView(
     modifier: Modifier = Modifier,
     username: String,
     email: String,
-    isAdmin: Boolean,
-    isDarkMode: Boolean,
+    userRole: UserRole = UserRole.USER,
     profilePhoto: String?,
+    isDarkMode: Boolean,
     onToggleTheme: () -> Unit,
     onLogout: () -> Unit,
     onOpenEditProfile: () -> Unit = {},
@@ -150,28 +152,43 @@ fun SettingsView(
 
                         Spacer(Modifier.height(8.dp))
 
-                        if (isAdmin) {
-                            AssistChip(
-                                onClick = {},
-                                label = { Text("Administrador") },
-                                leadingIcon = {
-                                    Icon(
-                                        imageVector = Icons.Default.AdminPanelSettings,
-                                        contentDescription = null
-                                    )
-                                }
-                            )
-                        } else {
-                            AssistChip(
-                                onClick = {},
-                                label = { Text("Usuario") },
-                                leadingIcon = {
-                                    Icon(
-                                        imageVector = Icons.Default.Pets,
-                                        contentDescription = null
-                                    )
-                                }
-                            )
+                        when (userRole) {
+                            UserRole.USER -> {
+                                AssistChip(
+                                    onClick = {},
+                                    label = { Text("Usuario") },
+                                    leadingIcon = {
+                                        Icon(
+                                            imageVector = Icons.Default.Pets,
+                                            contentDescription = null
+                                        )
+                                    }
+                                )
+                            }
+                            UserRole.ADMIN -> {
+                                AssistChip(
+                                    onClick = {},
+                                    label = { Text("Administrador") },
+                                    leadingIcon = {
+                                        Icon(
+                                            imageVector = Icons.Default.AdminPanelSettings,
+                                            contentDescription = null
+                                        )
+                                    }
+                                )
+                            }
+                            UserRole.VOLUNTEER -> {
+                                AssistChip(
+                                    onClick = {},
+                                    label = { Text("Voluntario") },
+                                    leadingIcon = {
+                                        Icon(
+                                            imageVector = Icons.Default.Home,
+                                            contentDescription = null
+                                        )
+                                    }
+                                )
+                            }
                         }
                     }
 

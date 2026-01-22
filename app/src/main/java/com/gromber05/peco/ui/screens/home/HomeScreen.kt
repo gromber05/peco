@@ -20,7 +20,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Chat
 import androidx.compose.material.icons.filled.AdminPanelSettings
-import androidx.compose.material.icons.filled.Chat
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
@@ -107,7 +106,7 @@ fun HomeScreen(
         onBack()
     }
 
-    fun obtenerUbicacionYOrdenar() {
+    fun getLocationAndOrganise() {
         try {
             val granted = ActivityCompat.checkSelfPermission(
                 context,
@@ -127,12 +126,12 @@ fun HomeScreen(
     }
 
     LaunchedEffect(Unit) {
-        val tienePermiso = ContextCompat.checkSelfPermission(
+        val hasPermission = ContextCompat.checkSelfPermission(
             context,
             Manifest.permission.ACCESS_FINE_LOCATION
         ) == PackageManager.PERMISSION_GRANTED
 
-        if (tienePermiso) obtenerUbicacionYOrdenar()
+        if (hasPermission) getLocationAndOrganise()
         else permissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
     }
 
@@ -203,10 +202,10 @@ fun HomeScreen(
                 onLogout = onLogout,
                 username = state.username,
                 email = state.email,
-                isAdmin = state.isAdmin,
                 onOpenEditProfile = onOpenEditProfile,
                 onOpenChangePassword = onOpenChangePassword,
-                profilePhoto = state.photo
+                profilePhoto = state.photo,
+                userRole = state.userRole,
             )
             2 -> {
                 when (adminPage) {
