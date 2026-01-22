@@ -15,10 +15,11 @@ import com.gromber05.peco.ui.components.ConversationItem
 @Composable
 fun ConversationsScreen(
     myUid: String,
-    isVolunteer: Boolean,
     onOpenChat: (String) -> Unit,
     onBack: () -> Unit,
-    vm: ConversationsViewModel = hiltViewModel()
+    vm: ConversationsViewModel = hiltViewModel(),
+    isVolunteer: Boolean,
+    modifier: Modifier
 ) {
     val state by vm.state.collectAsState()
 
@@ -29,6 +30,7 @@ fun ConversationsScreen(
     LaunchedEffect(myUid, isVolunteer) { vm.start(myUid, isVolunteer) }
 
     Scaffold(
+        modifier = modifier,
         topBar = {
             TopAppBar(
                 title = { Text(if (isVolunteer) "Chats" else "Mis chats") },

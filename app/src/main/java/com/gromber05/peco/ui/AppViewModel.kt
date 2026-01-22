@@ -17,12 +17,9 @@ class AppViewModel @Inject constructor(
     private val userRepository: UserRepository,
     private val settingsRepository: SettingsRepository
 ) : ViewModel() {
-
-    val isLoggedIn = userRepository.isLoggedIn
     val isLoggedInOrNull = userRepository.isLoggedIn
         .map<Boolean, Boolean?> { it }
         .stateIn(viewModelScope, SharingStarted.Eagerly, null)
-    val isAdmin = userRepository.isAdmin
 
     val darkMode = settingsRepository.darkMode
 

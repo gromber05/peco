@@ -6,27 +6,15 @@ import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Chat
 import androidx.compose.material.icons.filled.AdminPanelSettings
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person3
-import androidx.compose.material3.Button
-import androidx.compose.material3.FilledIconButton
-import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
@@ -43,7 +31,6 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -53,11 +40,11 @@ import androidx.core.content.ContextCompat
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.google.android.gms.location.LocationServices
 import com.gromber05.peco.model.events.UiEvent
-import com.gromber05.peco.ui.components.AnimalCard
+import com.gromber05.peco.model.user.UserRole
 import com.gromber05.peco.ui.components.MyTopAppBar
-import com.gromber05.peco.ui.components.TinderSwipeDeck
 import com.gromber05.peco.ui.screens.admin.AdminAddAnimalScreen
 import com.gromber05.peco.ui.screens.admin.AdminScreen
+import com.gromber05.peco.ui.screens.animals.AnimalsScreen
 import com.gromber05.peco.ui.screens.chat.ConversationsScreen
 
 @Composable
@@ -70,6 +57,7 @@ fun HomeScreen(
     onOpenEditProfile: () -> Unit,
     onOpenChangePassword: () -> Unit,
     onOpenChats: (String) -> Unit,
+    onAnimalClick: (Int) -> Unit
 ) {
     val state by viewModel.uiState.collectAsState()
     var selectPage by rememberSaveable { mutableIntStateOf(0) }
@@ -86,24 +74,26 @@ fun HomeScreen(
         indicatorColor = MaterialTheme.colorScheme.secondaryContainer
     )
 
+    BackHandler {
+        when {
+            selectPage == 3 && adminPage != 0 -> adminPage = 0
+            selectPage != 0 -> selectPage = 0
+            else -> onBack()
+        }
+    }
+
     val permissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
     ) { isGranted ->
         if (isGranted) {
             try {
                 fusedLocationClient.lastLocation.addOnSuccessListener { location ->
-                    location?.let {
-                        viewModel.sortByProximity(it.latitude, it.longitude)
-                    }
+                    location?.let { viewModel.sortByProximity(it.latitude, it.longitude) }
                 }
             } catch (_: SecurityException) {}
         } else {
             Toast.makeText(context, "Permiso de ubicación denegado", Toast.LENGTH_SHORT).show()
         }
-    }
-
-    BackHandler {
-        onBack()
     }
 
     fun getLocationAndOrganise() {
@@ -115,9 +105,7 @@ fun HomeScreen(
 
             if (granted) {
                 fusedLocationClient.lastLocation.addOnSuccessListener { location ->
-                    location?.let {
-                        viewModel.sortByProximity(it.latitude, it.longitude)
-                    }
+                    location?.let { viewModel.sortByProximity(it.latitude, it.longitude) }
                 }
             }
         } catch (e: Exception) {
@@ -145,6 +133,9 @@ fun HomeScreen(
         }
     }
 
+    val isAdmin = state.userRole == UserRole.ADMIN
+    val isVolunteer = state.userRole == UserRole.VOLUNTEER
+
     Scaffold(
         topBar = { MyTopAppBar(name = state.username) },
         bottomBar = {
@@ -166,36 +157,57 @@ fun HomeScreen(
                     NavigationBarItem(
                         selected = selectPage == 1,
                         onClick = { selectPage = 1 },
+                        icon = { Icon(Icons.Filled.Favorite, contentDescription = "Animales favoritos") },
+                        label = { Text("Animales") },
+                        colors = navItemColors
+                    )
+
+
+                    NavigationBarItem(
+                        selected = selectPage == 2,
+                        onClick = { selectPage = 2 },
                         icon = { Icon(Icons.Filled.Person3, contentDescription = "Menú tu Cuenta") },
                         label = { Text("Cuenta") },
                         colors = navItemColors
                     )
 
                     NavigationBarItem(
-                        selected = selectPage == 3,
-                        onClick = { selectPage = 1 },
+                        selected = selectPage == 4,
+                        onClick = { selectPage = 4 },
                         icon = { Icon(Icons.AutoMirrored.Filled.Chat, contentDescription = "Chats") },
                         label = { Text("Chats") },
                         colors = navItemColors
                     )
 
-
-                    if (state.isAdmin) {
+                    if (isAdmin) {
                         NavigationBarItem(
-                            selected = selectPage == 2,
-                            onClick = { selectPage = 2 },
+                            selected = selectPage == 3,
+                            onClick = { selectPage = 3 },
                             icon = { Icon(Icons.Filled.AdminPanelSettings, contentDescription = "Menú de Admin") },
                             label = { Text("Admin") },
                             colors = navItemColors
                         )
                     }
+
                 }
             }
         }
     ) { innerPadding ->
         when (selectPage) {
-            0 -> HomeView(modifier = Modifier.padding(innerPadding))
-            1 -> SettingsView(
+            0 -> HomeView(
+                modifier = Modifier.padding(innerPadding),
+                viewModel = viewModel
+            )
+
+            1 -> AnimalsScreen(
+                modifier = Modifier.padding(innerPadding),
+                onBack = {
+
+                },
+                onAnimalClick = onAnimalClick
+            )
+
+            2 -> SettingsView(
                 modifier = Modifier.padding(innerPadding),
                 onToggleTheme = onToggleDarkMode,
                 isDarkMode = isDarkMode,
@@ -207,7 +219,8 @@ fun HomeScreen(
                 profilePhoto = state.photo,
                 userRole = state.userRole,
             )
-            2 -> {
+
+            3 -> {
                 when (adminPage) {
                     0 -> AdminScreen(
                         modifier = Modifier.padding(innerPadding),
@@ -221,79 +234,17 @@ fun HomeScreen(
                     )
                 }
             }
-            3 -> {
+
+            4 -> {
                 ConversationsScreen(
+                    modifier = Modifier.padding(innerPadding),
                     myUid = state.username,
-                    isVolunteer = state.isAdmin,
                     onOpenChat = onOpenChats,
-                    onBack = { selectPage = 0 }
+                    onBack = { selectPage = 0 },
+                    isVolunteer = state.userRole == UserRole.VOLUNTEER,
                 )
             }
         }
-    }
-}
 
-@Composable
-fun HomeView(
-    modifier: Modifier = Modifier,
-    viewModel: HomeViewModel = hiltViewModel(),
-) {
-    val state by viewModel.uiState.collectAsState()
-
-    Column(
-        modifier = modifier.fillMaxSize()
-    ) {
-        Box(
-            modifier = Modifier
-                .weight(1f)
-                .fillMaxWidth()
-        ) {
-            TinderSwipeDeck(
-                items = state.deck,
-                modifier = Modifier.fillMaxSize(),
-                keyOf = { it.id },
-                cardContent = { animal ->
-                    AnimalCard(animal = animal) {
-                    }
-                },
-                onLike = { animal ->
-                    viewModel.onLike(animal)
-                },
-                onDislike = { animal ->
-                    viewModel.onDislike(animal)
-                },
-                onEmpty = {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Text("No hay más animales por hoy 🐾")
-                        Spacer(Modifier.height(8.dp))
-                        Button(onClick = { viewModel.resetSwipes() }) {
-                            Text("Volver a empezar")
-                        }
-                    }
-                }
-            )
-        }
-
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            horizontalArrangement = Arrangement.SpaceEvenly,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            FilledTonalIconButton(
-                onClick = { viewModel.dislikeCurrent() },
-                modifier = Modifier.size(56.dp)
-            ) {
-                Icon(Icons.Filled.Close, contentDescription = "Descartar")
-            }
-
-            FilledIconButton(
-                onClick = { viewModel.likeCurrent() },
-                modifier = Modifier.size(64.dp)
-            ) {
-                Icon(Icons.Filled.Favorite, contentDescription = "Me gusta")
-            }
-        }
     }
 }

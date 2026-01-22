@@ -20,15 +20,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
-import com.gromber05.peco.model.data.Animal
+import com.gromber05.peco.ui.components.AnimalCardHorizontal
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -44,9 +42,6 @@ fun DetailScreen(
     when {
         uiState.isLoading -> {
             CircularProgressIndicator()
-        }
-        uiState.animal != null -> {
-            AnimalDetailContent(uiState.animal!!)
         }
     }
 
@@ -87,8 +82,8 @@ fun DetailScreen(
                 .padding(padding)
         ) {
             AsyncImage(
-                model = animal.photo,
-                contentDescription = "Foto de ${animal.name}",
+                model = animal?.photo,
+                contentDescription = "Foto de ${animal?.name}",
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .fillMaxWidth()
@@ -101,15 +96,15 @@ fun DetailScreen(
                     .padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
-                Text(animal.name, style = MaterialTheme.typography.headlineSmall)
+                Text(animal?.name ?: "", style = MaterialTheme.typography.headlineSmall)
                 Text(
-                    text = "Especie: ${animal.species}",
+                    text = "Especie: ${animal?.species}",
                     style = MaterialTheme.typography.bodyLarge
                 )
 
                 AssistChip(
                     onClick = { },
-                    label = { Text("Estado: ${animal.adoptionState}") }
+                    label = { Text("Estado: ${animal?.adoptionState}") }
                 )
 
                 Spacer(Modifier.height(6.dp))

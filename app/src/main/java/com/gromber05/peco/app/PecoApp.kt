@@ -1,7 +1,6 @@
 package com.gromber05.peco.app
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -11,8 +10,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.gromber05.peco.ui.AppViewModel
+import com.gromber05.peco.ui.animations.SplashScreen
 import com.gromber05.peco.ui.navigation.AppNavigation
-import com.gromber05.peco.ui.screens.animals.AnimalsScreen
 import com.gromber05.peco.ui.screens.detail.DetailScreen
 import com.gromber05.peco.ui.screens.home.HomeScreen
 import com.gromber05.peco.ui.screens.home.HomeViewModel
@@ -35,24 +34,16 @@ fun PecoApp(
     val registerViewModel: RegisterViewModel = hiltViewModel()
     val homeViewModel: HomeViewModel = hiltViewModel()
 
-    val logger by loginViewModel.uiState.collectAsState()
-    val isLogged by appVm.isLoggedInOrNull.collectAsState(initial = false)
-
     val onToggleTheme = {appVm.toggleDarkMode()}
 
-    LaunchedEffect(isLogged) {
-        if (isLogged == true) {
-            navController.navigate(AppNavigation.MainScreen.route) {
-                popUpTo(AppNavigation.LoginScreen.route) { inclusive = true }
-                launchSingleTop = true
-            }
-        } else {
-            navController.navigate(AppNavigation.LoginScreen.route) {
-                popUpTo(AppNavigation.MainScreen.route) { inclusive = true }
-                launchSingleTop = true
-            }
-        }
+    val logger by loginViewModel.uiState.collectAsState()
+    val isLogged: Boolean? by appVm.isLoggedInOrNull.collectAsState(initial = null)
+
+    if (isLogged == null) {
+        SplashScreen()
+        return
     }
+
 
     NavHost(
         navController = navController,
@@ -98,18 +89,10 @@ fun PecoApp(
                 onOpenChangePassword = { navController.navigate(AppNavigation.ChangePassword.route) },
                 onOpenChats = {
                     navController.navigate(AppNavigation.Conversations.route)
-                }
-            )
-        }
-
-        composable(AppNavigation.Conversations.route) {
-            ConversationsScreen(
-                myUid = logger.user,
-                isVolunteer = logger.isVolunteer,
-                onOpenChat = { conversationId ->
-                    navController.navigate(AppNavigation.Conversation.createRoute(conversationId))
                 },
-                onBack = { navController.popBackStack() }
+                onAnimalClick = { animalId ->
+                    navController.navigate(AppNavigation.DetailScreen.createRoute(animalId))
+                }
             )
         }
 
@@ -139,15 +122,5 @@ fun PecoApp(
                 }
             )
         }
-
-        composable(route = AppNavigation.AnimalScreen.route) {
-            AnimalsScreen(
-                onAnimalClick = { animalId ->
-                    navController.navigate(AppNavigation.AnimalScreen.route)
-                }
-            )
-        }
-
     }
-
 }

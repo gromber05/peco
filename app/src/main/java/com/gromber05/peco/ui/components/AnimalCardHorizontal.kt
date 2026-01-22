@@ -77,7 +77,7 @@ fun AnimalCardHorizontal(
                 ) {
                     AssistChip(
                         onClick = { /* opcional */ },
-                        label = { Text(animal.adoptionState.name) }
+                        label = { Text(animal.adoptionState.value) }
                     )
                 }
             }

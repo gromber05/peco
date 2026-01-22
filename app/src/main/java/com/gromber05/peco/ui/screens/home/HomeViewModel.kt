@@ -43,6 +43,7 @@ class HomeViewModel @Inject constructor(
                 if (user != null) {
                     _uiState.update {
                         it.copy(
+                            userId = user.id,
                             username = user.username,
                             email = user.email,
                             userRole = user.role,
