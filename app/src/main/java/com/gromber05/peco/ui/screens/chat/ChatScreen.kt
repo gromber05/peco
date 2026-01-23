@@ -14,72 +14,71 @@ import com.gromber05.peco.ui.components.MessageBubble
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChatScreen(
-    conversationId: String,
-    myUid: String,
-    canClose: Boolean,
+    otherUserId: Int,
     onBack: () -> Unit,
-    vm: ChatViewModel = hiltViewModel()
+    viewModel: ChatViewModel = hiltViewModel()
 ) {
-    val state by vm.state.collectAsState()
-    var input by remember { mutableStateOf("") }
+    val uiState by viewModel.uiState.collectAsState()
+    var text by remember { mutableStateOf("") }
 
-    LaunchedEffect(conversationId) { vm.start(conversationId) }
+    LaunchedEffect(otherUserId) {
+        viewModel.startChatWith(otherUserId)
+    }
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text("Chat") },
-                navigationIcon = { IconButton(onClick = onBack) { Text("←") } },
-                actions = {
-                    if (canClose) {
-                        TextButton(onClick = { vm.close(conversationId) }) { Text("Cerrar") }
-                    }
-                }
+            CenterAlignedTopAppBar(
+                title = { Text("Chat") }
             )
         }
     ) { padding ->
-        Column(Modifier.padding(padding).fillMaxSize()) {
-            if (state.loading) LinearProgressIndicator(Modifier.fillMaxWidth())
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+        ) {
+            if (uiState.isLoading) {
+                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator()
+                }
+                return@Column
+            }
 
             LazyColumn(
-                modifier = Modifier.weight(1f).fillMaxWidth(),
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxWidth(),
                 contentPadding = PaddingValues(12.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                items(state.messages) { msg ->
-                    MessageBubble(msg = msg, isMine = msg.senderId == myUid)
+                items(uiState.messages, key = { it.id }) { msg ->
+                    Text(msg.text) // luego lo mejoras con burbujas
                 }
             }
 
-            Divider()
-
             Row(
-                modifier = Modifier.fillMaxWidth().padding(10.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(12.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 OutlinedTextField(
-                    value = input,
-                    onValueChange = { input = it },
                     modifier = Modifier.weight(1f),
-                    placeholder = { Text("Escribe un mensaje…") },
-                    singleLine = true
+                    value = text,
+                    onValueChange = { text = it },
+                    placeholder = { Text("Escribe un mensaje...") }
                 )
                 Spacer(Modifier.width(8.dp))
                 Button(
                     onClick = {
-                        vm.send(conversationId, myUid, input)
-                        input = ""
-                    },
-                    enabled = !state.sending
-                ) { Text("Enviar") }
-            }
-
-            state.error?.let {
-                Text(
-                    text = "Error: $it",
-                    modifier = Modifier.padding(12.dp),
-                    color = MaterialTheme.colorScheme.error
-                )
+                        if (text.isNotBlank()) {
+                            viewModel.send(text.trim())
+                            text = ""
+                        }
+                    }
+                ) {
+                    Text("Enviar")
+                }
             }
         }
     }

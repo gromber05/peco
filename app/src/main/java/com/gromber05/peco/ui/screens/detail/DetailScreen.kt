@@ -9,10 +9,17 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Chat
 import androidx.compose.material3.AssistChip
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -22,32 +29,25 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import coil.compose.AsyncImage
-import com.gromber05.peco.ui.components.AnimalCardHorizontal
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DetailScreen(
+    modifier: Modifier = Modifier,
     animalId: Int,
     viewModel: DetailViewModel = hiltViewModel(),
-    modifier: Modifier = Modifier,
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    onChatClick: (Int) -> Unit
 ) {
-    val animal by viewModel.animal.collectAsState(initial = null)
     val uiState by viewModel.uiState.collectAsState(initial = DetailUiState())
+    val animal = uiState.animal
 
-    when {
-        uiState.isLoading -> {
-            CircularProgressIndicator()
-        }
-    }
-
-    BackHandler {
-        onBack()
-    }
+    BackHandler { onBack() }
 
     LaunchedEffect(animalId) {
         viewModel.loadAnimal(animalId)
@@ -62,8 +62,32 @@ fun DetailScreen(
             CenterAlignedTopAppBar(
                 title = { Text(animal?.name ?: "Detalle") }
             )
+        },
+        floatingActionButton = {
+            val volunteerId = animal?.volunteerId
+
+            if (volunteerId != null) {
+                FloatingActionButton(
+                    onClick = { onChatClick(volunteerId) }
+                ) {
+                    Icon(Icons.AutoMirrored.Filled.Chat, contentDescription = "Abrir chat")
+                }
+            }
         }
     ) { padding ->
+
+        if (uiState.isLoading) {
+            Box(
+                modifier = modifier
+                    .fillMaxSize()
+                    .padding(padding),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator()
+            }
+            return@Scaffold
+        }
+
         if (animal == null) {
             Box(
                 modifier = modifier
@@ -76,44 +100,57 @@ fun DetailScreen(
             return@Scaffold
         }
 
-        Column(
+        val cardBackgroundColor = MaterialTheme.colorScheme.surfaceVariant
+
+        Card(
             modifier = modifier
                 .fillMaxSize()
                 .padding(padding)
+                .padding(16.dp),
+            shape = RoundedCornerShape(18.dp),
+            colors = CardDefaults.cardColors(containerColor = cardBackgroundColor),
+            elevation = CardDefaults.cardElevation(defaultElevation = 3.dp)
         ) {
-            AsyncImage(
-                model = animal?.photo,
-                contentDescription = "Foto de ${animal?.name}",
-                contentScale = ContentScale.Crop,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(260.dp)
-            )
-
             Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(10.dp)
+                modifier = Modifier.fillMaxSize()
             ) {
-                Text(animal?.name ?: "", style = MaterialTheme.typography.headlineSmall)
-                Text(
-                    text = "Especie: ${animal?.species}",
-                    style = MaterialTheme.typography.bodyLarge
+                // ✅ Foto dentro de la Card (con esquinas redondeadas arriba)
+                AsyncImage(
+                    model = animal.photo,
+                    contentDescription = "Foto de ${animal.name}",
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(260.dp)
+                        .clip(RoundedCornerShape(topStart = 18.dp, topEnd = 18.dp))
                 )
 
-                AssistChip(
-                    onClick = { },
-                    label = { Text("Estado: ${animal?.adoptionState}") }
-                )
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    Text(animal.name, style = MaterialTheme.typography.headlineSmall)
 
-                Spacer(Modifier.height(6.dp))
+                    Text(
+                        text = "Especie: ${animal.species}",
+                        style = MaterialTheme.typography.bodyLarge
+                    )
 
-                Text(
-                    text = "Aquí puedes poner más datos (edad, descripción, ubicación, etc.)",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
+                    AssistChip(
+                        onClick = { },
+                        label = { Text("Estado: ${animal.adoptionState}") }
+                    )
+
+                    Spacer(Modifier.height(6.dp))
+
+                    Text(
+                        text = "Aquí puedes poner más datos (edad, descripción, ubicación, etc.)",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
             }
         }
     }

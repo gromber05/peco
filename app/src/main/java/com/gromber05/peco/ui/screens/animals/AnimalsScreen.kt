@@ -7,9 +7,13 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -26,9 +30,9 @@ import com.gromber05.peco.ui.screens.detail.DetailScreen
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AnimalsScreen(
+    modifier: Modifier = Modifier,
     viewModel: AnimalsViewModel = hiltViewModel(),
     onAnimalClick: (Int) -> Unit,
-    modifier: Modifier = Modifier,
     onBack: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -63,14 +67,24 @@ fun AnimalsScreen(
                         verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
                         items(uiState.animals, key = { it.id }) { animal ->
-                            AnimalCardHorizontal(
-                                animal = animal,
-                                onClick = {
-                                    onAnimalClick(animal.id)
-                                }
-                            )
 
+                            Card(
+                                modifier = Modifier.fillMaxSize(),
+                                shape = RoundedCornerShape(16.dp),
+                                colors = CardDefaults.cardColors(
+                                    containerColor = MaterialTheme.colorScheme.surfaceVariant
+                                ),
+                                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+                            ) {
+                                AnimalCardHorizontal(
+                                    animal = animal,
+                                    onClick = {
+                                        onAnimalClick(animal.id)
+                                    }
+                                )
+                            }
                         }
+
                     }
                 }
             }

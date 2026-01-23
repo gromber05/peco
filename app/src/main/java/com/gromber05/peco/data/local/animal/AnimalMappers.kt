@@ -11,7 +11,8 @@ fun AnimalEntity.toDomain(): Animal =
         dob = dob,
         latitude = latitude,
         longitude = longitude,
-        adoptionState = adoptionState
+        adoptionState = adoptionState,
+        volunteerId = volunteerId
     )
 
 fun Animal.toEntity(): AnimalEntity =
@@ -23,5 +24,6 @@ fun Animal.toEntity(): AnimalEntity =
         dob = dob,
         latitude = latitude,
         longitude = longitude,
-        adoptionState = adoptionState
+        adoptionState = adoptionState,
+        volunteerId = volunteerId
     )

@@ -1,10 +1,9 @@
-package com.gromber05.peco.data.remote.chat.mapper
+package com.gromber05.peco.data.local.message
 
-import com.gromber05.peco.data.remote.chat.dto.MessageDto
 import com.gromber05.peco.model.data.chat.Message
 
-fun MessageDto.toDomain(id: String, conversationId: String): Message =
-    Message(
+fun Message.toEntity(): MessageEntity =
+    MessageEntity(
         id = id,
         conversationId = conversationId,
         senderId = senderId,
@@ -12,8 +11,11 @@ fun MessageDto.toDomain(id: String, conversationId: String): Message =
         createdAt = createdAt
     )
 
-fun Message.toDto(): MessageDto =
-    MessageDto(
+
+fun MessageEntity.toDomain(): Message =
+    Message(
+        id = id,
+        conversationId = conversationId,
         senderId = senderId,
         text = text,
         createdAt = createdAt

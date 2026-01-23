@@ -14,5 +14,5 @@ data class AnimalEntity (
     val latitude: Double,
     val longitude: Double,
     val adoptionState: AdoptionState,
-
+    val volunteerId: Int
 )

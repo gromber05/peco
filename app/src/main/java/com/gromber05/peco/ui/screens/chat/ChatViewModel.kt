@@ -2,43 +2,47 @@ package com.gromber05.peco.ui.screens.chat
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.gromber05.peco.data.local.message.MessageEntity
+import com.gromber05.peco.data.local.message.toDomain
 import com.gromber05.peco.data.repository.ChatRepository
+import com.gromber05.peco.data.repository.UserRepository
 import com.gromber05.peco.model.data.chat.Message
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-
-
 @HiltViewModel
 class ChatViewModel @Inject constructor(
-    private val chatRepository: ChatRepository
+    private val repo: ChatRepository,
+    private val session: UserRepository
 ) : ViewModel() {
 
-    private val _state = MutableStateFlow(ChatUiState())
-    val state: StateFlow<ChatUiState> = _state.asStateFlow()
+    private val _uiState = MutableStateFlow(ChatUiState())
+    val uiState: StateFlow<ChatUiState> = _uiState
 
-    fun start(conversationId: String) {
-        chatRepository.observeMessages(conversationId)
-            .onEach { msgs -> _state.value = _state.value.copy(loading = false, messages = msgs, error = null) }
-            .catch { e -> _state.value = _state.value.copy(loading = false, error = e.message) }
-            .launchIn(viewModelScope)
-    }
-
-    fun send(conversationId: String, myUid: String, text: String) {
-        val trimmed = text.trim()
-        if (trimmed.isEmpty()) return
-
+    fun startChatWith(otherUserId: Int) {
         viewModelScope.launch {
-            _state.value = _state.value.copy(sending = true)
-            runCatching { chatRepository.sendMessage(conversationId, myUid, trimmed) }
-                .onFailure { _state.value = _state.value.copy(error = it.message) }
-            _state.value = _state.value.copy(sending = false)
+            _uiState.update { it.copy(isLoading = true) }
+
+            val meId = session.currentUser.value?.id ?: throw Exception()
+            val convoId = repo.getOrCreateConversationId(meId, otherUserId)
+
+            repo.observeMessages(convoId).collect { msgs ->
+                _uiState.value = ChatUiState(
+                    isLoading = false,
+                    conversationId = convoId,
+                    messages = msgs.map {it.toDomain()}
+                )
+            }
         }
     }
 
-    fun close(conversationId: String) {
-        viewModelScope.launch { chatRepository.closeConversation(conversationId) }
+    fun send(text: String) {
+        val convoId = _uiState.value.conversationId ?: return
+        val meId = session.currentUser.value?.id ?: throw Exception("DEBUG »» Error al encontrar la id del usuario")
+        viewModelScope.launch {
+            repo.sendMessage(convoId, meId, text)
+        }
     }
 }

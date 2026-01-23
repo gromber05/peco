@@ -123,6 +123,7 @@ fun HomeScreen(
         else permissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
     }
 
+    
     LaunchedEffect(Unit) {
         viewModel.events.collect { event ->
             when (event) {

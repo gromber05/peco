@@ -1,9 +1,9 @@
 package com.gromber05.peco.model.data.chat
 
 data class Message(
-    val id: String,
-    val conversationId: String,
-    val senderId: String,
+    val id: Int,
+    val conversationId: Int,
+    val senderId: Int,
     val text: String,
-    val createdAt: Long = System.currentTimeMillis()
+    val createdAt: Long
 )

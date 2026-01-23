@@ -103,7 +103,12 @@ fun PecoApp(
             val id = backStackEntry.arguments?.getInt("animalId") ?: 0
             DetailScreen(
                 animalId = id,
-                onBack = {navController.popBackStack()}
+                onBack = {
+                    navController.popBackStack()
+                },
+                onChatClick = {
+                    TODO()
+                }
             )
         }
 
