@@ -38,6 +38,30 @@ class ChatRepository @Inject constructor(
         return id
     }
 
+    fun observeConversations(myUid: String): Flow<List<Conversation>> = callbackFlow {
+        val reg = conversations()
+            .whereEqualTo("participantMap.$myUid", true) // ✅ para que funcione el filtro rápido
+            .orderBy("lastMessageAt", Query.Direction.DESCENDING)
+            .addSnapshotListener { snap, err ->
+                if (err != null) { close(err); return@addSnapshotListener }
+
+                val list = snap?.documents.orEmpty().map { d ->
+                    Conversation(
+                        id = d.id,
+                        participants = (d.get("participants") as? List<*>)?.filterIsInstance<String>().orEmpty(),
+                        lastMessage = d.getString("lastMessage").orEmpty(),
+                        lastSenderId = d.getString("lastSenderId").orEmpty(),
+                        lastMessageAt = d.getTimestamp("lastMessageAt")?.toDate()?.time ?: 0L
+                    )
+                }
+
+                trySend(list)
+            }
+
+        awaitClose { reg.remove() }
+    }
+
+
     fun observeMessages(conversationId: String): Flow<List<ChatMessage>> = callbackFlow {
         val reg = conversations().document(conversationId)
             .collection("messages")
@@ -48,6 +72,7 @@ class ChatRepository @Inject constructor(
                 val list = snap?.documents.orEmpty().map { d ->
                     ChatMessage(
                         id = d.id,
+                        conversationId = conversationId,
                         senderId = d.getString("senderId").orEmpty(),
                         text = d.getString("text").orEmpty(),
                         createdAt = d.getTimestamp("createdAt")?.toDate()?.time ?: 0L

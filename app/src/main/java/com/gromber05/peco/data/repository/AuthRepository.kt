@@ -6,6 +6,8 @@ import jakarta.inject.Inject
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.tasks.await
 
 class AuthRepository @Inject constructor(
@@ -48,4 +50,10 @@ class AuthRepository @Inject constructor(
     fun signOut() {
         auth.signOut()
     }
+
+    fun isLoggedInFlow(): Flow<Boolean?> =
+        currentUidFlow()
+            .map { uid -> uid != null }
+            .distinctUntilChanged()
+
 }

@@ -32,13 +32,14 @@ import com.gromber05.peco.ui.screens.detail.DetailScreen
 fun AnimalsScreen(
     modifier: Modifier = Modifier,
     viewModel: AnimalsViewModel = hiltViewModel(),
+    uid: String,
     onAnimalClick: (Int) -> Unit,
     onBack: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
-    LaunchedEffect(Unit) {
-        viewModel.loadAnimals()
+    LaunchedEffect(uid) {
+        viewModel.start(uid)
     }
 
     Scaffold()
@@ -66,7 +67,7 @@ fun AnimalsScreen(
                         contentPadding = PaddingValues(12.dp),
                         verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
-                        items(uiState.animals, key = { it.id }) { animal ->
+                        items(uiState.animals, key = { it.uid }) { animal ->
 
                             Card(
                                 modifier = Modifier.fillMaxSize(),
@@ -79,7 +80,13 @@ fun AnimalsScreen(
                                 AnimalCardHorizontal(
                                     animal = animal,
                                     onClick = {
-                                        onAnimalClick(animal.id)
+                                        onAnimalClick(
+                                            try {
+                                                animal.uid.toInt()
+                                            } catch (_: Exception) {
+                                                0
+                                            }
+                                        )
                                     }
                                 )
                             }

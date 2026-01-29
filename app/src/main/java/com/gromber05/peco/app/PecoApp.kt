@@ -37,13 +37,7 @@ fun PecoApp(
     val onToggleTheme = {appVm.toggleDarkMode()}
 
     val logger by loginViewModel.uiState.collectAsState()
-    val isLogged: Boolean? by appVm.isLoggedInOrNull.collectAsState(initial = null)
-
-    if (isLogged == null) {
-        SplashScreen()
-        return
-    }
-
+    val isLogged: Boolean? by appVm.isLoggedInOrNull.collectAsState()
 
     NavHost(
         navController = navController,

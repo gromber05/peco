@@ -9,25 +9,42 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.gromber05.peco.model.data.chat.Conversation
+import com.gromber05.peco.utils.formatTimestamp
 
 @Composable
 fun ConversationItem(
     conv: Conversation,
+    currentUserId: String,
     onClick: () -> Unit
 ) {
+    val isMine = conv.lastSenderId == currentUserId
+
     Card(
-        modifier = Modifier.fillMaxWidth().clickable(onClick = onClick)
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 12.dp, vertical = 6.dp)
+            .clickable { onClick() }
     ) {
-        Column(Modifier.padding(14.dp)) {
+        Column(
+            modifier = Modifier.padding(14.dp)
+        ) {
             Text(
-                text = conv.lastMessage ?: "Sin mensajes todavía",
-                style = MaterialTheme.typography.titleMedium
+                text = conv.lastMessage.ifBlank { "Sin mensajes todavía" },
+                style = MaterialTheme.typography.titleMedium,
+                maxLines = 1
             )
-            Spacer(Modifier.height(6.dp))
+
+            Spacer(modifier = Modifier.height(6.dp))
+
             Text(
-                text = "Estado: ${conv.status.name} · animalId: ${conv.animalId ?: "—"}",
-                style = MaterialTheme.typography.labelMedium
+                text = buildString {
+                    append(if (isMine) "Tú: " else "Ellos: ")
+                    append(formatTimestamp(conv.lastMessageAt))
+                },
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
     }
 }
+

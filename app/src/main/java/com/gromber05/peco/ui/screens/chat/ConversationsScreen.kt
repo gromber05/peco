@@ -46,8 +46,11 @@ fun ConversationsScreen(
                     contentPadding = PaddingValues(12.dp),
                     verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
-                    items(conversations) { conv ->
-                        ConversationItem(conv = conv) {
+                    items(vm.messagesToConversations(conversations)) { conv ->
+                        ConversationItem(
+                            conv = conv,
+                            currentUserId = myUid
+                        ) {
                             onOpenChat(conv.id)
                         }
                     }
