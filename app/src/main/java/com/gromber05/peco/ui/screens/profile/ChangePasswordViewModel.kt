@@ -2,18 +2,17 @@ package com.gromber05.peco.ui.screens.profile
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.gromber05.peco.data.repository.UserRepository
+import com.gromber05.peco.data.repository.AuthRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jakarta.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 @HiltViewModel
 class ChangePasswordViewModel @Inject constructor(
-    private val userRepository: UserRepository
+    private val authRepository: AuthRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(ChangePasswordUiState())
@@ -43,24 +42,31 @@ class ChangePasswordViewModel @Inject constructor(
             try {
                 _uiState.update { it.copy(isLoading = true, error = null, saved = false) }
 
-                val email = userRepository.sessionEmail.first().orEmpty()
-                val user = userRepository.getUserByEmail(email)
+                authRepository.changePassword(
+                    currentPassword = s.current,
+                    newPassword = s.newPass
+                )
 
-                if (user == null) {
-                    _uiState.update { it.copy(isLoading = false, error = "No se pudo cargar el usuario") }
-                    return@launch
+                _uiState.update {
+                    it.copy(
+                        isLoading = false,
+                        saved = true,
+                        current = "",
+                        newPass = "",
+                        confirm = ""
+                    )
                 }
-
-                if (user.password != s.current) {
-                    _uiState.update { it.copy(isLoading = false, error = "Contraseña actual incorrecta") }
-                    return@launch
-                }
-
-                userRepository.updateUser(user.copy(password = s.newPass))
-
-                _uiState.update { it.copy(isLoading = false, saved = true, current = "", newPass = "", confirm = "") }
             } catch (e: Exception) {
-                _uiState.update { it.copy(isLoading = false, error = "No se pudo cambiar la contraseña") }
+                val msg = when {
+                    e.message?.contains("wrong password", ignoreCase = true) == true ->
+                        "Contraseña actual incorrecta"
+                    e.message?.contains("requires recent authentication", ignoreCase = true) == true ->
+                        "Por seguridad, vuelve a iniciar sesión e inténtalo de nuevo"
+                    else ->
+                        "No se pudo cambiar la contraseña"
+                }
+
+                _uiState.update { it.copy(isLoading = false, error = msg) }
             }
         }
     }

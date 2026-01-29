@@ -3,7 +3,7 @@ package com.gromber05.peco.model.data
 import com.gromber05.peco.model.AdoptionState
 
 data class Animal(
-    val id: Int,
+    val uid: String,
     val name: String,
     val species: String,
     val photo: String?,
@@ -11,5 +11,5 @@ data class Animal(
     val latitude: Double,
     val longitude: Double,
     val adoptionState: AdoptionState,
-    val volunteerId: Int
+    val volunteerId: String
 )

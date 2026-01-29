@@ -2,24 +2,33 @@ package com.gromber05.peco.ui.screens.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.gromber05.peco.data.local.animal.toDomain
-import com.gromber05.peco.model.SwipeAction
-import com.gromber05.peco.data.local.user.toUser
 import com.gromber05.peco.data.repository.AnimalRepository
+import com.gromber05.peco.data.repository.AuthRepository
 import com.gromber05.peco.data.repository.SwipeRepository
 import com.gromber05.peco.data.repository.UserRepository
+import com.gromber05.peco.data.repository.UsersRepository
+import com.gromber05.peco.model.SwipeAction
 import com.gromber05.peco.model.data.Animal
 import com.gromber05.peco.model.events.UiEvent
 import com.gromber05.peco.utils.LocationUtils
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jakarta.inject.Inject
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    private val userRepository: UserRepository,
+    private val authRepository: AuthRepository,
+    private val usersRepository: UserRepository,
     private val animalRepository: AnimalRepository,
     private val swipeRepository: SwipeRepository
 ) : ViewModel() {
@@ -31,69 +40,73 @@ class HomeViewModel @Inject constructor(
     val events = _events.asSharedFlow()
 
     init {
-        restoreUserFromSessionIfNeeded()
-        observeUser()
-        observeAnimalsDeck()
-        observeLikedIds()
+        observeUserAndData()
     }
 
-    private fun observeUser() {
+    private fun observeUserAndData() {
         viewModelScope.launch {
-            userRepository.currentUser.collect { user ->
-                if (user != null) {
-                    _uiState.update {
-                        it.copy(
-                            userId = user.id,
-                            username = user.username,
-                            email = user.email,
-                            userRole = user.role,
-                            photo = user.photo,
-                            isLogged = true
-                        )
-                    }
-                } else {
-                    _uiState.update { it.copy(isLogged = false) }
-                }
-            }
-        }
-    }
-
-    private fun observeAnimalsDeck() {
-        viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = true) }
-
-            combine(
-                animalRepository.getAnimals()
-                    .map { list -> list.map { it.toDomain() } }
-                    .flowOn(Dispatchers.IO),
-                swipeRepository.observeSwipedIds()
-            ) { animals: List<Animal>, swipedIds: List<Int> ->
-                val swipedSet = swipedIds.toSet()
-                val deck = animals.filterNot { it.id in swipedSet }
-                animals to deck
-            }
-                .catch { e ->
-                    _uiState.update { it.copy(isLoading = false, error = e.message ?: "Error") }
-                    _events.emit(UiEvent.Error("Error cargando animales"))
-                }
-                .collect { (animals, deck) ->
-                    _uiState.update {
-                        it.copy(
-                            animalList = animals,
-                            deck = deck,
-                            isLoading = false,
-                            error = null
-                        )
+            authRepository.currentUidFlow()
+                .collect { uid ->
+                    if (uid == null) {
+                        _uiState.update { it.copy(isLogged = false) }
+                    } else {
+                        _uiState.update { it.copy(isLogged = true) }
                     }
                 }
         }
-    }
 
-    private fun observeLikedIds() {
         viewModelScope.launch {
-            swipeRepository.observeLikedIds().collect { liked ->
-                _uiState.update { it.copy(likedIds = liked.toSet()) }
-            }
+            // Perfil usuario (Firestore)
+            authRepository.currentUidFlow()
+                .filterNotNull()
+                .collect { uid ->
+                    usersRepository.observeProfile(uid)
+                        .catch { e ->
+                            _uiState.update { it.copy(error = e.message) }
+                        }
+                        .collect { profile ->
+                            _uiState.update {
+                                it.copy(
+                                    userUid = profile.uid,
+                                    username = profile.username,
+                                    email = profile.email,
+                                    userRole = profile.role,
+                                    photo = profile.photo,
+                                    isLogged = true
+                                )
+                            }
+                        }
+                }
+        }
+
+        viewModelScope.launch {
+            authRepository.currentUidFlow()
+                .filterNotNull()
+                .collect { uid ->
+                    combine(
+                        animalRepository.observeAnimals(),
+                        swipeRepository.observeSwipedIds(uid),
+                        swipeRepository.observeLikedIds(uid)
+                    ) { animals, swipedIds, likedIds ->
+                        val deck = animals.filterNot { it.id in swipedIds }
+                        Triple(animals, deck, likedIds)
+                    }
+                        .catch { e ->
+                            _uiState.update { it.copy(isLoading = false, error = e.message ?: "Error") }
+                            _events.emit(UiEvent.Error("Error cargando datos"))
+                        }
+                        .collect { (animals, deck, likedIds) ->
+                            _uiState.update {
+                                it.copy(
+                                    animalList = animals,
+                                    deck = deck,
+                                    likedIds = likedIds,
+                                    isLoading = false,
+                                    error = null
+                                )
+                            }
+                        }
+                }
         }
     }
 
@@ -108,20 +121,23 @@ class HomeViewModel @Inject constructor(
     }
 
     fun onLike(animal: Animal) {
+        val uid = _uiState.value.userUid ?: return
         viewModelScope.launch {
-            swipeRepository.swipe(animal.id, SwipeAction.LIKE)
+            swipeRepository.setSwipe(uid, animal.uid, SwipeAction.LIKE)
         }
     }
 
     fun onDislike(animal: Animal) {
+        val uid = _uiState.value.userUid ?: return
         viewModelScope.launch {
-            swipeRepository.swipe(animal.id, SwipeAction.DISLIKE)
+            swipeRepository.setSwipe(uid, animal.uid, SwipeAction.DISLIKE)
         }
     }
 
     fun resetSwipes() {
+        val uid = _uiState.value.userUid ?: return
         viewModelScope.launch {
-            swipeRepository.clearAll()
+            swipeRepository.clearAll(uid)
         }
     }
 
@@ -132,11 +148,13 @@ class HomeViewModel @Inject constructor(
             LocationUtils.calculateDistance(userLat, userLon, animal.latitude, animal.longitude)
         }
 
-        val swiped = _uiState.value.animalList.map { it.id }.toSet()
+        // Deck = ordered - swiped
+        val swipedSet = _uiState.value.animalList
+            .map { it.id }
+            .toSet() // (si quieres usar swipes reales, mejor guarda swipedIds en state)
         val likedIds = _uiState.value.likedIds
 
         _uiState.update {
-            val swipedSet = emptySet<Int>()
             it.copy(
                 animalList = ordered,
                 deck = ordered.filterNot { a -> a.id in swipedSet },
@@ -145,28 +163,11 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    private fun restoreUserFromSessionIfNeeded() {
-        viewModelScope.launch {
-            userRepository.sessionEmail.collect { email ->
-                if (!email.isNullOrBlank()) {
-                    val current = userRepository.currentUser.value
-                    if (current == null) {
-                        val entity = userRepository.getUserByEmail(email)
-                        if (entity != null) {
-                            userRepository.setCurrentUser(entity.toUser())
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-
     fun logout() {
         viewModelScope.launch {
             try {
-                userRepository.logout()
-                _uiState.update { it.copy(isLogged = false) }
+                authRepository.signOut()
+                _uiState.update { it.copy(isLogged = false, userUid = null) }
                 _events.emit(UiEvent.LoggedOut)
             } catch (_: Exception) {
                 _events.emit(UiEvent.Error("No se pudo cerrar sesión"))

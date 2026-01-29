@@ -4,7 +4,7 @@ import com.gromber05.peco.model.data.Animal
 import com.gromber05.peco.model.user.UserRole
 
 data class HomeUiState(
-    val userId: Int? = null,
+    val userUid: String? = null,
     val username: String = "",
     val email: String = "",
     val photo: String? = null,

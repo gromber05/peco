@@ -1,26 +1,123 @@
 package com.gromber05.peco.data.repository
 
-import com.gromber05.peco.data.local.animal.AnimalDao
-import com.gromber05.peco.data.local.swipe.SwipeDao
+import com.google.firebase.firestore.FirebaseFirestore
 import com.gromber05.peco.model.data.LabelCount
 import jakarta.inject.Inject
 import jakarta.inject.Singleton
+import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.map
 
 @Singleton
 class AdminStatsRepository @Inject constructor(
-    private val animalDao: AnimalDao,
-    private val swipeDao: SwipeDao
+    private val db: FirebaseFirestore
 ) {
-    fun totalAnimals(): Flow<Int> = animalDao.countAnimals()
 
-    fun availableAnimals(): Flow<Int> = animalDao.countAnimalsByState("AVAILABLE")
-    fun adoptedAnimals(): Flow<Int> = animalDao.countAnimalsByState("ADOPTED")
-    fun pendingAnimals(): Flow<Int> = animalDao.countAnimalsByState("PENDING")
+    private fun animals() = db.collection("animals")
 
-    fun likes(): Flow<Int> = swipeDao.countLikes()
-    fun dislikes(): Flow<Int> = swipeDao.countDislikes()
+    fun totalAnimals(): Flow<Int> =
+        observeAnimals().map { it.size }
 
-    fun animalsBySpecies(): Flow<List<LabelCount>> = animalDao.countBySpecies()
-    fun topLikedSpecies(): Flow<List<LabelCount>> = swipeDao.topLikedSpecies()
+    fun availableAnimals(): Flow<Int> =
+        countAnimalsByState("AVAILABLE")
+
+    fun adoptedAnimals(): Flow<Int> =
+        countAnimalsByState("ADOPTED")
+
+    fun pendingAnimals(): Flow<Int> =
+        countAnimalsByState("PENDING")
+
+    private fun countAnimalsByState(state: String): Flow<Int> =
+        observeAnimals().map { list ->
+            list.count { it.adoptionState == state }
+        }
+
+    fun animalsBySpecies(): Flow<List<LabelCount>> =
+        observeAnimals().map { animals ->
+            animals
+                .groupBy { it.species }
+                .map { (species, list) ->
+                    LabelCount(species, list.size)
+                }
+                .sortedByDescending { it.count }
+        }
+
+    private fun swipes() = db.collectionGroup("swipes")
+
+    fun likes(): Flow<Int> =
+        countSwipesByAction("LIKE")
+
+    fun dislikes(): Flow<Int> =
+        countSwipesByAction("DISLIKE")
+
+    private fun countSwipesByAction(action: String): Flow<Int> =
+        observeSwipes().map { list ->
+            list.count { it.action == action }
+        }
+
+    fun topLikedSpecies(): Flow<List<LabelCount>> =
+        observeSwipes().map { swipes ->
+            swipes
+                .filter { it.action == "LIKE" }
+                .groupBy { it.animalSpecies }
+                .map { (species, list) ->
+                    LabelCount(species, list.size)
+                }
+                .sortedByDescending { it.count }
+        }
+
+    private data class AnimalMini(
+        val species: String,
+        val adoptionState: String
+    )
+
+    private fun observeAnimals(): Flow<List<AnimalMini>> = callbackFlow {
+        val reg = animals()
+            .addSnapshotListener { snap, err ->
+                if (err != null) {
+                    close(err)
+                    return@addSnapshotListener
+                }
+
+                val list = snap?.documents.orEmpty().mapNotNull { d ->
+                    val species = d.getString("species")
+                    val state = d.getString("adoptionState")
+                    if (species != null && state != null) {
+                        AnimalMini(species, state)
+                    } else null
+                }
+
+                trySend(list)
+            }
+
+        awaitClose { reg.remove() }
+    }
+
+    private data class SwipeMini(
+        val action: String,
+        val animalSpecies: String
+    )
+
+    private fun observeSwipes(): Flow<List<SwipeMini>> = callbackFlow {
+        val reg = swipes()
+            .addSnapshotListener { snap, err ->
+                if (err != null) {
+                    close(err)
+                    return@addSnapshotListener
+                }
+
+                val list = snap?.documents.orEmpty().mapNotNull { d ->
+                    val action = d.getString("action")
+                    val species = d.getString("animalSpecies")
+                    if (action != null && species != null) {
+                        SwipeMini(action, species)
+                    } else null
+                }
+
+                trySend(list)
+            }
+
+        awaitClose { reg.remove() }
+    }
 }

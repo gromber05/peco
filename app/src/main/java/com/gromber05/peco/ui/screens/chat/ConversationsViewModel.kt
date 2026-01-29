@@ -17,10 +17,5 @@ class ConversationsViewModel @Inject constructor(
     private val _state = MutableStateFlow(ConversationsUiState())
     val state: StateFlow<ConversationsUiState> = _state.asStateFlow()
 
-    fun start(myUid: String, isVolunteer: Boolean) {
-        chatRepository.observeMyConversations(myUid, isVolunteer)
-            .onEach { list -> _state.value = ConversationsUiState(loading = false, conversations = list) }
-            .catch { e -> _state.value = ConversationsUiState(loading = false, error = e.message) }
-            .launchIn(viewModelScope)
-    }
+    fun conversationsFlow(myUid: String) = chatRepository.observeMessages(myUid)
 }

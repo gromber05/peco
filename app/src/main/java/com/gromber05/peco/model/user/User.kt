@@ -1,10 +1,9 @@
 package com.gromber05.peco.model.user
 
 data class User(
-    val id: Int,
+    val uid: String,
     val username: String,
-    val password: String,
     val email: String,
-    val photo: String? = null,
+    val photo: String?,
     val role: UserRole
 )

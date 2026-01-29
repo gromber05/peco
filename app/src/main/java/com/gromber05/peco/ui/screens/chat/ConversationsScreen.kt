@@ -22,12 +22,11 @@ fun ConversationsScreen(
     modifier: Modifier
 ) {
     val state by vm.state.collectAsState()
+    val conversations by vm.conversationsFlow(myUid).collectAsState(initial = emptyList())
 
     BackHandler{
         onBack()
     }
-
-    LaunchedEffect(myUid, isVolunteer) { vm.start(myUid, isVolunteer) }
 
     Scaffold(
         modifier = modifier,
@@ -47,7 +46,7 @@ fun ConversationsScreen(
                     contentPadding = PaddingValues(12.dp),
                     verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
-                    items(state.conversations) { conv ->
+                    items(conversations) { conv ->
                         ConversationItem(conv = conv) {
                             onOpenChat(conv.id)
                         }

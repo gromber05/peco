@@ -2,6 +2,7 @@ package com.gromber05.peco.data.di
 
 import android.content.Context
 import com.google.firebase.FirebaseApp
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import dagger.Module
 import dagger.Provides
@@ -14,13 +15,9 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 object FirebaseModule {
 
-    @Provides
-    @Singleton
-    fun provideFirebaseApp(@ApplicationContext context: Context) =
-        FirebaseApp.initializeApp(context) ?: FirebaseApp.getInstance()
+    @Provides @Singleton
+    fun provideAuth(): FirebaseAuth = FirebaseAuth.getInstance()
 
-    @Provides
-    @Singleton
-    fun provideFirestore(app: FirebaseApp): FirebaseFirestore =
-        FirebaseFirestore.getInstance()
+    @Provides @Singleton
+    fun provideFirestore(): FirebaseFirestore = FirebaseFirestore.getInstance()
 }

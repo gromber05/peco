@@ -1,24 +1,19 @@
 package com.gromber05.peco.ui.screens.detail
 
-import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.gromber05.peco.data.local.animal.toDomain
 import com.gromber05.peco.data.repository.AnimalRepository
-import com.gromber05.peco.model.data.Animal
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jakarta.inject.Inject
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
 
 @HiltViewModel
 class DetailViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val animalRepository: AnimalRepository
-): ViewModel() {
+) : ViewModel() {
 
     private val _uiState = MutableStateFlow(DetailUiState())
     val uiState = _uiState.asStateFlow()
@@ -26,40 +21,29 @@ class DetailViewModel @Inject constructor(
     private val animalId: Int? = savedStateHandle["animalId"]
 
     init {
-        animalId?.let { id ->
-            loadAnimal(id)
-        } ?: run {
+        val id = animalId
+        if (id == null) {
             _uiState.value = _uiState.value.copy(notFound = true)
+        } else {
+            observeAnimal(id)
         }
     }
 
-    fun loadAnimal(id: Int) {
+    private fun observeAnimal(id: Int) {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true, notFound = false)
 
-            try {
-                val animalEntity = animalRepository.getAnimalById(id)
-
-                if (animalEntity != null) {
-                    val animalDomain = animalEntity.toDomain()
-                    _uiState.value = DetailUiState(
-                        isLoading = false,
-                        animal = animalDomain,
-                        notFound = false
-                    )
-                } else {
-                    _uiState.value = DetailUiState(
-                        isLoading = false,
-                        notFound = true
-                    )
+            animalRepository.observeAnimal(id)
+                .catch {
+                    _uiState.value = DetailUiState(isLoading = false, notFound = true)
                 }
-            } catch (e: Exception) {
-                Log.e("DetailViewModel", "Error cargando animal", e)
-                _uiState.value = DetailUiState(
-                    isLoading = false,
-                    notFound = true
-                )
-            }
+                .collect { animal ->
+                    if (animal == null) {
+                        _uiState.value = DetailUiState(isLoading = false, notFound = true)
+                    } else {
+                        _uiState.value = DetailUiState(isLoading = false, animal = animal, notFound = false)
+                    }
+                }
         }
     }
 }
