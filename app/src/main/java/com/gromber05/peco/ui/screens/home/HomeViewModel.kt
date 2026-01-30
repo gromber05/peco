@@ -9,9 +9,11 @@ import com.gromber05.peco.data.repository.UserRepository
 import com.gromber05.peco.model.SwipeAction
 import com.gromber05.peco.model.data.Animal
 import com.gromber05.peco.model.events.UiEvent
+import com.gromber05.peco.model.user.UserRole
 import com.gromber05.peco.utils.LocationUtils
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jakarta.inject.Inject
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -20,7 +22,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -42,6 +45,7 @@ class HomeViewModel @Inject constructor(
         observeUserAndData()
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     private fun observeUserAndData() {
         viewModelScope.launch {
             authRepository.currentUidFlow()
@@ -55,28 +59,45 @@ class HomeViewModel @Inject constructor(
         }
 
         viewModelScope.launch {
-            // Perfil usuario (Firestore)
             authRepository.currentUidFlow()
-                .filterNotNull()
-                .collect { uid ->
-                    usersRepository.observeProfile(uid)
-                        .catch { e ->
-                            _uiState.update { it.copy(error = e.message) }
+                .flatMapLatest { uid ->
+                    if (uid == null) {
+                        flowOf(null)
+                    } else {
+                        usersRepository.observeProfile(uid)
+                    }
+                }
+                .catch { e ->
+                    _uiState.update { it.copy(error = e.message) }
+                }
+                .collect { profile ->
+                    if (profile == null) {
+                        _uiState.update {
+                            it.copy(
+                                userUid = null,
+                                username = "",
+                                email = "",
+                                userRole = UserRole.USER,
+                                photo = null,
+                                isLogged = false
+                            )
                         }
-                        .collect { profile ->
-                            _uiState.update {
-                                it.copy(
-                                    userUid = profile.uid,
-                                    username = profile.username,
-                                    email = profile.email,
-                                    userRole = profile.role,
-                                    photo = profile.photo,
-                                    isLogged = true
-                                )
-                            }
+                    } else {
+                        // Usuario OK
+                        _uiState.update {
+                            it.copy(
+                                userUid = profile.uid,
+                                username = profile.username,
+                                email = profile.email,
+                                userRole = profile.role,
+                                photo = profile.photo,
+                                isLogged = true
+                            )
                         }
+                    }
                 }
         }
+
 
         viewModelScope.launch {
             authRepository.currentUidFlow()
