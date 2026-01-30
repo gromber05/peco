@@ -43,7 +43,7 @@ fun HomeView(
             TinderSwipeDeck(
                 items = state.deck,
                 modifier = Modifier.fillMaxSize(),
-                keyOf = { it.id },
+                keyOf = { it.uid },
                 cardContent = { animal ->
                     AnimalCard(animal = animal) { }
                 },

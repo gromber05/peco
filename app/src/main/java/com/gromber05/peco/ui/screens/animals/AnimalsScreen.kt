@@ -32,14 +32,13 @@ import com.gromber05.peco.ui.screens.detail.DetailScreen
 fun AnimalsScreen(
     modifier: Modifier = Modifier,
     viewModel: AnimalsViewModel = hiltViewModel(),
-    uid: String,
     onAnimalClick: (Int) -> Unit,
     onBack: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
-    LaunchedEffect(uid) {
-        viewModel.start(uid)
+    LaunchedEffect(Unit) {
+        viewModel.start()
     }
 
     Scaffold()

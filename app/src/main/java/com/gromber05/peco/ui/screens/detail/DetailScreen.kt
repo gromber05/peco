@@ -42,7 +42,7 @@ fun DetailScreen(
     animalId: Int,
     viewModel: DetailViewModel = hiltViewModel(),
     onBack: () -> Unit,
-    onChatClick: (Int) -> Unit
+    onChatClick: (String) -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState(initial = DetailUiState())
     val animal = uiState.animal
@@ -50,7 +50,7 @@ fun DetailScreen(
     BackHandler { onBack() }
 
     LaunchedEffect(animalId) {
-        viewModel.loadAnimal(animalId)
+        viewModel
     }
 
     LaunchedEffect(uiState.notFound) {

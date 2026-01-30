@@ -5,9 +5,6 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStoreFile
-import com.google.firebase.FirebaseApp
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -17,13 +14,12 @@ import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
-object FirebaseModule {
+object PreferencesModule {
 
     @Provides
     @Singleton
-    fun provideAuth(): FirebaseAuth = FirebaseAuth.getInstance()
-
-    @Provides
-    @Singleton
-    fun provideFirestore(): FirebaseFirestore = FirebaseFirestore.getInstance()
+    fun provideDataStore(@ApplicationContext context: Context): DataStore<Preferences> =
+        PreferenceDataStoreFactory.create(
+            produceFile = { context.preferencesDataStoreFile("peco_prefs") }
+        )
 }

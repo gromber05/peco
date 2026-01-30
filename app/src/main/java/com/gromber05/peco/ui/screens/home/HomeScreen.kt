@@ -202,10 +202,8 @@ fun HomeScreen(
 
             1 -> AnimalsScreen(
                 modifier = Modifier.padding(innerPadding),
-                onBack = {
-
-                },
-                onAnimalClick = onAnimalClick
+                onBack = onBack,
+                onAnimalClick = onAnimalClick,
             )
 
             2 -> SettingsView(

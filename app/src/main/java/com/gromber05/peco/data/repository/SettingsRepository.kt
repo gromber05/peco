@@ -1,8 +1,9 @@
 package com.gromber05.peco.data.repository
 
 import com.gromber05.peco.data.session.AppPreferences
-import jakarta.inject.Inject
-import jakarta.inject.Singleton
+import javax.inject.Inject
+import javax.inject.Singleton
+
 
 @Singleton
 class SettingsRepository @Inject constructor(

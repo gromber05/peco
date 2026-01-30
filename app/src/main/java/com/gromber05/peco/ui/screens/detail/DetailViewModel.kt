@@ -5,8 +5,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.gromber05.peco.data.repository.AnimalRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import jakarta.inject.Inject
-import kotlinx.coroutines.flow.catch
+import javax.inject.Inject
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 @HiltViewModel
@@ -14,36 +15,48 @@ class DetailViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val animalRepository: AnimalRepository
 ) : ViewModel() {
-
     private val _uiState = MutableStateFlow(DetailUiState())
     val uiState = _uiState.asStateFlow()
-
-    private val animalId: Int? = savedStateHandle["animalId"]
+    private val animalId: String? =
+        savedStateHandle.get<String>("animalId")
+            ?: savedStateHandle.get<Int>("animalId")?.toString()
 
     init {
         val id = animalId
         if (id == null) {
-            _uiState.value = _uiState.value.copy(notFound = true)
+            _uiState.value = _uiState.value.copy(notFound = true, isLoading = false)
         } else {
             observeAnimal(id)
         }
     }
 
-    private fun observeAnimal(id: Int) {
+    private fun observeAnimal(id: String) {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true, notFound = false)
 
-            animalRepository.observeAnimal(id)
-                .catch {
-                    _uiState.value = DetailUiState(isLoading = false, notFound = true)
+            try {
+                val animal = animalRepository.getAnimalById(id)
+
+                if (animal == null) {
+                    _uiState.value = _uiState.value.copy(
+                        isLoading = false,
+                        notFound = true,
+                        animal = null
+                    )
+                } else {
+                    _uiState.value = _uiState.value.copy(
+                        isLoading = false,
+                        notFound = false,
+                        animal = animal
+                    )
                 }
-                .collect { animal ->
-                    if (animal == null) {
-                        _uiState.value = DetailUiState(isLoading = false, notFound = true)
-                    } else {
-                        _uiState.value = DetailUiState(isLoading = false, animal = animal, notFound = false)
-                    }
-                }
+            } catch (_: Exception) {
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
+                    notFound = true,
+                    animal = null
+                )
+            }
         }
     }
 }

@@ -54,7 +54,7 @@ class RegisterViewModel @Inject constructor(
                     uid = uid,
                     username = state.name.trim(),
                     email = state.email.trim(),
-                    role = UserRole.USER.name
+                    role = UserRole.USER
                 )
 
                 _uiState.update { it.copy(isLoading = false, isRegistered = true) }

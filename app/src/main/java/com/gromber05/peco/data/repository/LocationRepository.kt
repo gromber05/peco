@@ -2,22 +2,26 @@ package com.gromber05.peco.data.repository
 
 import android.annotation.SuppressLint
 import android.content.Context
+import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 import com.google.android.gms.tasks.CancellationTokenSource
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.suspendCancellableCoroutine
+import javax.inject.Inject
+import javax.inject.Singleton
 import kotlin.coroutines.resume
 
-class LocationRepository(private val context: Context) {
+@Singleton
+class LocationRepository @Inject constructor(private val fused: FusedLocationProviderClient) {
+
 
     @SuppressLint("MissingPermission")
     suspend fun getLastKnownLocation(): Pair<Double, Double>? {
-        val client = LocationServices.getFusedLocationProviderClient(context)
-
         return suspendCancellableCoroutine { cont ->
-            client.lastLocation
+            fused.lastLocation
                 .addOnSuccessListener { loc ->
-                    cont.resume(loc?.latitude?.let { lat -> lat to loc.longitude })
+                    cont.resume(loc?.let { it.latitude to it.longitude })
                 }
                 .addOnFailureListener {
                     cont.resume(null)
@@ -27,16 +31,16 @@ class LocationRepository(private val context: Context) {
 
     @SuppressLint("MissingPermission")
     suspend fun getCurrentLocation(): Pair<Double, Double>? {
-        val client = LocationServices.getFusedLocationProviderClient(context)
         val cts = CancellationTokenSource()
 
         return suspendCancellableCoroutine { cont ->
-            client.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, cts.token)
+            fused.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, cts.token)
                 .addOnSuccessListener { loc ->
-                    if (loc != null) cont.resume(loc.latitude to loc.longitude)
-                    else cont.resume(null)
+                    cont.resume(loc?.let { it.latitude to it.longitude })
                 }
-                .addOnFailureListener { cont.resume(null) }
+                .addOnFailureListener {
+                    cont.resume(null)
+                }
 
             cont.invokeOnCancellation { cts.cancel() }
         }

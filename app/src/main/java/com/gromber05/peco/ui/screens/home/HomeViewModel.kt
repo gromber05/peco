@@ -6,7 +6,6 @@ import com.gromber05.peco.data.repository.AnimalRepository
 import com.gromber05.peco.data.repository.AuthRepository
 import com.gromber05.peco.data.repository.SwipeRepository
 import com.gromber05.peco.data.repository.UserRepository
-import com.gromber05.peco.data.repository.UsersRepository
 import com.gromber05.peco.model.SwipeAction
 import com.gromber05.peco.model.data.Animal
 import com.gromber05.peco.model.events.UiEvent
@@ -88,7 +87,8 @@ class HomeViewModel @Inject constructor(
                         swipeRepository.observeSwipedIds(uid),
                         swipeRepository.observeLikedIds(uid)
                     ) { animals, swipedIds, likedIds ->
-                        val deck = animals.filterNot { it.id in swipedIds }
+                        val swipedIdsMapped: List<String> = swipedIds.map { it.toString() }
+                        val deck = animals.filterNot { it.uid in swipedIdsMapped }
                         Triple(animals, deck, likedIds)
                     }
                         .catch { e ->
@@ -148,16 +148,15 @@ class HomeViewModel @Inject constructor(
             LocationUtils.calculateDistance(userLat, userLon, animal.latitude, animal.longitude)
         }
 
-        // Deck = ordered - swiped
         val swipedSet = _uiState.value.animalList
-            .map { it.id }
-            .toSet() // (si quieres usar swipes reales, mejor guarda swipedIds en state)
+            .map { it.uid }
+            .toSet()
         val likedIds = _uiState.value.likedIds
 
         _uiState.update {
             it.copy(
                 animalList = ordered,
-                deck = ordered.filterNot { a -> a.id in swipedSet },
+                deck = ordered.filterNot { a -> a.uid in swipedSet },
                 likedIds = likedIds
             )
         }
