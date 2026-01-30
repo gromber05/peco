@@ -82,10 +82,9 @@ class AdminAddAnimalViewModel @Inject constructor(
                     return@launch
                 }
 
-                val animalId = (System.currentTimeMillis()).toString()
-
+                // ✅ Animal sin id fijo: Firestore generará el ID
                 val animal = Animal(
-                    uid = animalId,
+                    uid = "", // se ignora al crear
                     name = s.name.trim(),
                     species = s.species.trim(),
                     photo = s.photoUri.trim().ifBlank { null },
@@ -96,12 +95,13 @@ class AdminAddAnimalViewModel @Inject constructor(
                     volunteerId = uid
                 )
 
-                animalRepository.saveAnimal(animal)
+                animalRepository.createAnimal(animal)
 
                 _events.emit(UiEvent.Success("Animal creado"))
                 _uiState.value = AdminAddAnimalUiState()
-            } catch (_: Exception) {
-                emitError("No se pudo guardar el animal")
+
+            } catch (e: Exception) {
+                emitError(e.message ?: "No se pudo guardar el animal")
             } finally {
                 _uiState.update { it.copy(isSaving = false) }
             }

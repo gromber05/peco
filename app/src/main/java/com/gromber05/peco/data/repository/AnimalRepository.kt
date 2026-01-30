@@ -9,7 +9,7 @@ import javax.inject.Singleton
 @Singleton
 class AnimalRepository @Inject constructor(private val db: AnimalsFirestoreDataSource) {
     fun observeAnimals(): Flow<List<Animal>> = db.observeAnimals()
-    fun saveAnimal(animal: Animal) = db.saveAnimal(animal)
+    suspend fun createAnimal(animal: Animal): String = db.createAnimal(animal)
     suspend fun deleteAnimal(animalId: String) = db.deleteAnimal(animalId)
     suspend fun getAnimalById(animalId: String) = db.getAnimalById(animalId)
 }

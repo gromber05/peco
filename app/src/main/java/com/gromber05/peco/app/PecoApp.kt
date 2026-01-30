@@ -38,8 +38,6 @@ fun PecoApp(
     val detailVm: DetailViewModel = hiltViewModel()
 
     val onToggleTheme = {appVm.toggleDarkMode()}
-
-    val logger by loginViewModel.uiState.collectAsState()
     val isLogged: Boolean? by appVm.isLoggedInOrNull.collectAsState()
 
     NavHost(

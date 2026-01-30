@@ -235,6 +235,7 @@ fun HomeScreen(
             }
             4 -> {
                 ConversationsScreen(
+                    modifier = Modifier.padding(innerPadding),
                     onBack = { selectPage = 0 },
                     onOpenChat = { conversationId ->
                         onOpenChat(conversationId)

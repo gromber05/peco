@@ -4,7 +4,9 @@ import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowBack
@@ -19,6 +21,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import coil.compose.AsyncImage
+import com.gromber05.peco.ui.components.ProfilePhotoPicker
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -56,7 +59,8 @@ fun EditProfileScreen(
         Column(
             modifier = Modifier
                 .padding(padding)
-                .padding(16.dp),
+                .padding(16.dp)
+                .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             if (state.isLoading) LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
@@ -85,60 +89,18 @@ fun EditProfileScreen(
                 modifier = Modifier.fillMaxWidth()
             )
 
-            Card(
-                shape = RoundedCornerShape(22.dp),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    Text("Foto de perfil", style = MaterialTheme.typography.titleMedium)
-
-                    if (!state.photo.isNullOrBlank()) {
-                        AsyncImage(
-                            model = state.photo,
-                            contentDescription = "Foto de perfil",
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(180.dp)
-                                .clip(RoundedCornerShape(18.dp)),
-                            contentScale = ContentScale.Crop
+            ProfilePhotoPicker(
+                photoUri = state.photo.orEmpty(),
+                onPick = {
+                    pickImage.launch(
+                        androidx.activity.result.PickVisualMediaRequest(
+                            ActivityResultContracts.PickVisualMedia.ImageOnly
                         )
-                    } else {
-                        Surface(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(180.dp),
-                            shape = RoundedCornerShape(18.dp),
-                            color = MaterialTheme.colorScheme.surfaceVariant
-                        ) {
-                            Box(contentAlignment = Alignment.Center) {
-                                Text("Sin foto")
-                            }
-                        }
-                    }
+                    )
+                },
+                onRemove = { viewModel.onPhotoSelected("") }
+            )
 
-                    Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                        Button(
-                            onClick = {
-                                pickImage.launch(
-                                    androidx.activity.result.PickVisualMediaRequest(
-                                        ActivityResultContracts.PickVisualMedia.ImageOnly
-                                    )
-                                )
-                            },
-                            modifier = Modifier.weight(1f)
-                        ) {
-                            Text("Subir foto")
-                        }
-
-                        OutlinedButton(
-                            onClick = { viewModel.onPhotoSelected("") },
-                            modifier = Modifier.weight(1f)
-                        ) {
-                            Text("Quitar")
-                        }
-                    }
-                }
-            }
 
             if (state.error != null) {
                 Text(

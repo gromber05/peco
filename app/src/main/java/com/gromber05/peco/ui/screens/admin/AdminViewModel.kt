@@ -6,10 +6,10 @@ import com.gromber05.peco.data.repository.AdminStatsRepository
 import com.gromber05.peco.model.data.LabelCount
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jakarta.inject.Inject
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -18,8 +18,8 @@ class AdminViewModel @Inject constructor(
     private val repo: AdminStatsRepository
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(AdminDashboardUiState())
-    val uiState: StateFlow<AdminDashboardUiState> = _uiState.asStateFlow()
+    private val _uiState = kotlinx.coroutines.flow.MutableStateFlow(AdminDashboardUiState())
+    val uiState = _uiState.asStateFlow()
 
     init {
         observeStats()
@@ -29,49 +29,64 @@ class AdminViewModel @Inject constructor(
         _uiState.update { it.copy(selectedSpeciesFilter = species) }
     }
 
+    private data class AnimalCounts(
+        val total: Int,
+        val available: Int,
+        val adopted: Int,
+        val pending: Int
+    )
+
+    private data class SwipeStats(
+        val likes: Int,
+        val dislikes: Int,
+        val bySpecies: List<LabelCount>,
+        val topLiked: List<LabelCount>
+    )
+
     private fun observeStats() {
         viewModelScope.launch {
-            val a = combine(
-                repo.totalAnimals(),
-                repo.availableAnimals(),
-                repo.adoptedAnimals(),
-                repo.pendingAnimals()
+            val countsFlow = combine(
+                repo.totalAnimals().distinctUntilChanged(),
+                repo.availableAnimals().distinctUntilChanged(),
+                repo.adoptedAnimals().distinctUntilChanged(),
+                repo.pendingAnimals().distinctUntilChanged(),
             ) { total, available, adopted, pending ->
-                arrayOf(total, available, adopted, pending)
+                AnimalCounts(total, available, adopted, pending)
             }
 
-            val b = combine(
-                repo.likes(),
-                repo.dislikes(),
-                repo.animalsBySpecies(),
-                repo.topLikedSpecies()
+            val statsFlow = combine(
+                repo.likes().distinctUntilChanged(),
+                repo.dislikes().distinctUntilChanged(),
+                repo.animalsBySpecies().distinctUntilChanged(),
+                repo.topLikedSpecies().distinctUntilChanged(),
             ) { likes, dislikes, bySpecies, topLiked ->
-                arrayOf(likes, dislikes, bySpecies, topLiked)
+                SwipeStats(likes, dislikes, bySpecies, topLiked)
             }
 
-            combine(a, b) { left, right ->
-                val total = left[0]
-                val available = left[1]
-                val adopted = left[2]
-                val pending = left[3]
-
-                val likes = right[0] as Int
-                val dislikes = right[1] as Int
-                val bySpecies = right[2] as List<LabelCount>
-                val topLiked = right[3] as List<LabelCount>
+            combine(countsFlow, statsFlow) { counts, stats ->
+                val currentFilter = _uiState.value.selectedSpeciesFilter
 
                 AdminDashboardUiState(
-                    totalAnimals = total,
-                    available = available,
-                    adopted = adopted,
-                    pending = pending,
-                    likes = likes,
-                    dislikes = dislikes,
-                    bySpecies = bySpecies,
-                    topLikedSpecies = topLiked,
-                    selectedSpeciesFilter = _uiState.value.selectedSpeciesFilter
+                    totalAnimals = counts.total,
+                    available = counts.available,
+                    adopted = counts.adopted,
+                    pending = counts.pending,
+                    likes = stats.likes,
+                    dislikes = stats.dislikes,
+                    bySpecies = stats.bySpecies,
+                    topLikedSpecies = stats.topLiked,
+                    selectedSpeciesFilter = currentFilter,
+                    error = null
                 )
-            }.collect { _uiState.value = it }
+            }
+                .catch { e ->
+                    _uiState.update {
+                        it.copy(error = e.message ?: "Permisos insuficientes o error de red")
+                    }
+                }
+                .collect { newState ->
+                    _uiState.value = newState
+                }
         }
     }
 }

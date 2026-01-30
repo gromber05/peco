@@ -11,5 +11,6 @@ data class AdminDashboardUiState(
     val dislikes: Int = 0,
     val bySpecies: List<LabelCount> = emptyList(),
     val topLikedSpecies: List<LabelCount> = emptyList(),
-    val selectedSpeciesFilter: String? = null
+    val selectedSpeciesFilter: String? = null,
+    val error: String? = null
 )
