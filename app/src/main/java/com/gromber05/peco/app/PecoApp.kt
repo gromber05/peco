@@ -12,11 +12,13 @@ import androidx.navigation.navArgument
 import com.gromber05.peco.ui.AppViewModel
 import com.gromber05.peco.ui.animations.SplashScreen
 import com.gromber05.peco.ui.navigation.AppNavigation
+import com.gromber05.peco.ui.screens.chat.ChatScreen
+import com.gromber05.peco.ui.screens.conversation.ConversationsScreen
 import com.gromber05.peco.ui.screens.detail.DetailScreen
 import com.gromber05.peco.ui.screens.home.HomeScreen
 import com.gromber05.peco.ui.screens.home.HomeViewModel
 import com.gromber05.peco.ui.screens.login.LoginScreen
-import com.gromber05.peco.ui.screens.chat.ConversationsScreen
+import com.gromber05.peco.ui.screens.detail.DetailViewModel
 import com.gromber05.peco.ui.screens.login.LoginViewModel
 import com.gromber05.peco.ui.screens.profile.ChangePasswordScreen
 import com.gromber05.peco.ui.screens.profile.EditProfileScreen
@@ -33,6 +35,7 @@ fun PecoApp(
     val loginViewModel: LoginViewModel = hiltViewModel()
     val registerViewModel: RegisterViewModel = hiltViewModel()
     val homeViewModel: HomeViewModel = hiltViewModel()
+    val detailVm: DetailViewModel = hiltViewModel()
 
     val onToggleTheme = {appVm.toggleDarkMode()}
 
@@ -81,8 +84,8 @@ fun PecoApp(
                 onBack = { navController.popBackStack() },
                 onOpenEditProfile = { navController.navigate(AppNavigation.EditProfile.route) },
                 onOpenChangePassword = { navController.navigate(AppNavigation.ChangePassword.route) },
-                onOpenChats = {
-                    navController.navigate(AppNavigation.Conversations.route)
+                onOpenChat = { conversationId ->
+                    navController.navigate(AppNavigation.Chat.createRoute(conversationId))
                 },
                 onAnimalClick = { animalId ->
                     navController.navigate(AppNavigation.DetailScreen.createRoute(animalId))
@@ -100,8 +103,17 @@ fun PecoApp(
                 onBack = {
                     navController.popBackStack()
                 },
-                onChatClick = {
-                    TODO()
+                onChatClick = { otherUid ->
+                    val myUid = id.toString()
+                    detailVm.openChat(
+                        animalId = id.toString(),
+                        myUid = myUid,
+                        otherUid = otherUid,
+                        onReady = { convId ->
+                            navController.navigate(AppNavigation.Chat.createRoute(convId))
+                        },
+                        onError = { /* muestra snackbar */ }
+                    )
                 }
             )
         }
@@ -121,5 +133,18 @@ fun PecoApp(
                 }
             )
         }
+
+        composable(
+            route = AppNavigation.Chat.route,
+            arguments = listOf(navArgument("conversationId") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val conversationId = backStackEntry.arguments?.getString("conversationId").orEmpty()
+
+            ChatScreen(
+                conversationId = conversationId,
+                onBack = { navController.popBackStack() }
+            )
+        }
+
     }
 }

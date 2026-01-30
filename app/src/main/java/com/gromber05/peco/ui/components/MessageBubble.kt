@@ -9,6 +9,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.gromber05.peco.utils.formatTime
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -58,10 +59,4 @@ fun MessageBubble(
             }
         }
     }
-}
-
-private fun formatTime(timeMillis: Long): String {
-    if (timeMillis == 0L) return ""
-    val sdf = SimpleDateFormat("HH:mm", Locale.getDefault())
-    return sdf.format(Date(timeMillis))
 }

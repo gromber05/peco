@@ -10,9 +10,10 @@ sealed class AppNavigation(val route: String) {
     object RegisterScreen: AppNavigation(route = "register_screen")
     object EditProfile: AppNavigation(route = "edit_profile")
     object ChangePassword: AppNavigation(route = "change_password")
-    object Conversation: AppNavigation(route = "chat/{conversationId}") {
-        fun createRoute(conversationId: String): String =
-            "chat/$conversationId"
+    object Conversations : AppNavigation("conversations")
+
+    object Chat : AppNavigation("chat/{conversationId}") {
+        fun createRoute(conversationId: String) = "chat/$conversationId"
     }
-    object Conversations: AppNavigation(route = "chats")
+
 }

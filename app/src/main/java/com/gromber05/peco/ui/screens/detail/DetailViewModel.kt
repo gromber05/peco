@@ -4,6 +4,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.gromber05.peco.data.repository.AnimalRepository
+import com.gromber05.peco.data.repository.ChatRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -13,7 +14,8 @@ import kotlinx.coroutines.launch
 @HiltViewModel
 class DetailViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
-    private val animalRepository: AnimalRepository
+    private val animalRepository: AnimalRepository,
+    private val chatRepository: ChatRepository
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(DetailUiState())
     val uiState = _uiState.asStateFlow()
@@ -59,4 +61,22 @@ class DetailViewModel @Inject constructor(
             }
         }
     }
+
+    fun openChat(
+        animalId: String,
+        myUid: String,
+        otherUid: String,
+        onReady: (String) -> Unit,
+        onError: (String) -> Unit
+    ) {
+        viewModelScope.launch {
+            try {
+                val convId = chatRepository.getOrCreateConversationId(animalId, myUid, otherUid)
+                onReady(convId)
+            } catch (e: Exception) {
+                onError(e.message ?: "Error creando conversación")
+            }
+        }
+    }
+
 }

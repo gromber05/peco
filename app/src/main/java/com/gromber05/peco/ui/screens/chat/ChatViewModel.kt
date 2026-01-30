@@ -1,30 +1,29 @@
 package com.gromber05.peco.ui.screens.chat
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.gromber05.peco.data.repository.ChatRepository
-import com.gromber05.peco.data.repository.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class ChatViewModel @Inject constructor(
-    private val repo: ChatRepository,
-    private val session: UserRepository
+    savedStateHandle: SavedStateHandle,
+    private val chatRepository: ChatRepository
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(ChatUiState())
-    val uiState: StateFlow<ChatUiState> = _uiState
+    private val conversationId: String =
+        savedStateHandle.get<String>("conversationId").orEmpty()
 
-    fun messagesFlow(conversationId: String) =
-        repo.observeMessages(conversationId)
+    init {
+        require(conversationId.isNotBlank()) { "Falta conversationId en navegación" }
+    }
 
-    fun send(conversationId: String, myUid: String, text: String) {
-        viewModelScope.launch {
-            repo.sendMessage(conversationId, myUid, text)
-        }
+    val messages = chatRepository.observeMessages(conversationId)
+
+    fun send(myUid: String, text: String) = viewModelScope.launch {
+        chatRepository.sendMessage(conversationId, myUid, text)
     }
 }

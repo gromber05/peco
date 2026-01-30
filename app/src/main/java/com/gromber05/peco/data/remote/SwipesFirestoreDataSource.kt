@@ -13,7 +13,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class SwipesFirestoreDatasource @Inject constructor(
+class SwipesFirestoreDataSource @Inject constructor(
     private val db: FirebaseFirestore
 ) {
     private fun swipes(uid: String) = db.collection("users").document(uid).collection("swipes")

@@ -13,7 +13,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class UsersFirestoreDatasource @Inject constructor(private val db: FirebaseFirestore) {
+class UsersFirestoreDataSource @Inject constructor(private val db: FirebaseFirestore) {
     private fun users() = db.collection("users")
 
     suspend fun createProfile(uid: String, username: String, email: String, role: UserRole = UserRole.USER) {

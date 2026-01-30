@@ -1,6 +1,6 @@
 package com.gromber05.peco.data.repository
 
-import com.gromber05.peco.data.remote.SwipesFirestoreDatasource
+import com.gromber05.peco.data.remote.SwipesFirestoreDataSource
 import com.gromber05.peco.model.SwipeAction
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
@@ -8,7 +8,7 @@ import javax.inject.Singleton
 
 @Singleton
 class SwipeRepository @Inject constructor(
-    private val db: SwipesFirestoreDatasource
+    private val db: SwipesFirestoreDataSource
 ) {
     suspend fun setSwipe(uid: String, animalId: String, action: SwipeAction) = db.setSwipe(uid, animalId, action)
     fun observeLikedAnimalIds(uid: String): Flow<Set<String>> = db.observeLikedAnimalIds(uid)
