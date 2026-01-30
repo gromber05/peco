@@ -127,7 +127,6 @@ fun HomeScreen(
     LaunchedEffect(Unit) {
         viewModel.events.collect { event ->
             when (event) {
-                UiEvent.LoggedOut -> onLogout()
                 is UiEvent.Error -> Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show()
                 else -> {}
             }
@@ -233,6 +232,7 @@ fun HomeScreen(
                     )
                 }
             }
+
             4 -> {
                 ConversationsScreen(
                     modifier = Modifier.padding(innerPadding),

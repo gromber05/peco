@@ -19,6 +19,7 @@ import com.gromber05.peco.ui.screens.home.HomeScreen
 import com.gromber05.peco.ui.screens.home.HomeViewModel
 import com.gromber05.peco.ui.screens.login.LoginScreen
 import com.gromber05.peco.ui.screens.detail.DetailViewModel
+import com.gromber05.peco.ui.screens.gate.AuthGate
 import com.gromber05.peco.ui.screens.login.LoginViewModel
 import com.gromber05.peco.ui.screens.profile.ChangePasswordScreen
 import com.gromber05.peco.ui.screens.profile.EditProfileScreen
@@ -48,6 +49,23 @@ fun PecoApp(
             AppNavigation.MainScreen.route
         }
     ) {
+        composable("gate") {
+            AuthGate(
+                onGoHome = {
+                    navController.navigate("home") {
+                        popUpTo("gate") { inclusive = true }
+                        launchSingleTop = true
+                    }
+                },
+                onGoLogin = {
+                    navController.navigate("login") {
+                        popUpTo("gate") { inclusive = true }
+                        launchSingleTop = true
+                    }
+                }
+            )
+        }
+
         composable(AppNavigation.LoginScreen.route) {
             LoginScreen(
                 onToggleTheme = onToggleTheme,
@@ -78,7 +96,10 @@ fun PecoApp(
                 viewModel = homeViewModel,
                 isDarkMode = isDark,
                 onToggleDarkMode = onToggleTheme,
-                onLogout = { homeViewModel.logout() },
+                onLogout = {
+                    navController.navigate(AppNavigation.LoginScreen.route) { popUpTo(0) { inclusive = true}
+                        launchSingleTop = true }
+                    homeViewModel.logout() },
                 onBack = { navController.popBackStack() },
                 onOpenEditProfile = { navController.navigate(AppNavigation.EditProfile.route) },
                 onOpenChangePassword = { navController.navigate(AppNavigation.ChangePassword.route) },
