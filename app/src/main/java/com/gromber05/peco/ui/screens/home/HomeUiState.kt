@@ -16,11 +16,11 @@ data class HomeUiState(
     val deck: List<Animal> = emptyList(),
 
     val swipedIds: Set<String> = emptySet(),
-    val likedIds: List<String> = emptyList(),
+    val likedIds: Set<String> = emptySet(),
 
     val error: String? = null
-)
- {
+) {
     val visibleAnimals: List<Animal>
         get() = animalList.filterNot { it.uid in swipedIds }
 }
+

@@ -45,42 +45,50 @@ class SwipesFirestoreDataSource @Inject constructor(
         awaitClose { reg.remove() }
     }
 
-    fun observeSwipedIds(uid: String): Flow<Set<Int>> = callbackFlow {
-        val reg = swipes(uid)
-            .orderBy("createdAt", Query.Direction.DESCENDING)
-            .addSnapshotListener { snap, err ->
-                if (err != null || snap == null) {
-                    trySend(emptySet())
-                    return@addSnapshotListener
-                }
+    fun observeSwipedIds(uid: String): Flow<Set<String>> = callbackFlow {
+        val ref = db.collection("swipes").document(uid)
 
-                val ids = snap.documents
-                    .mapNotNull { it.id.toIntOrNull() }
-                    .toSet()
-
-                trySend(ids)
+        val listener = ref.addSnapshotListener { snap, err ->
+            if (err != null) {
+                trySend(emptySet())
+                return@addSnapshotListener
             }
 
-        awaitClose { reg.remove() }
+            val raw = snap?.get("swipedIds")
+
+            val swiped: Set<String> = when (raw) {
+                is List<*> -> raw.mapNotNull { it?.toString() }.toSet()
+                is Set<*> -> raw.mapNotNull { it?.toString() }.toSet()
+                else -> emptySet()
+            }
+
+            trySend(swiped)
+        }
+
+        awaitClose { listener.remove() }
     }
 
-    fun observeLikedIds(uid: String): Flow<Set<Int>> = callbackFlow {
-        val reg = swipes(uid)
-            .whereEqualTo("action", "LIKE")
-            .addSnapshotListener { snap, err ->
-                if (err != null || snap == null) {
-                    trySend(emptySet())
-                    return@addSnapshotListener
-                }
+    fun observeLikedIds(uid: String): Flow<Set<String>> = callbackFlow {
+        val ref = db.collection("swipes").document(uid)
 
-                val ids = snap.documents
-                    .mapNotNull { it.id.toIntOrNull() }
-                    .toSet()
-
-                trySend(ids)
+        val listener = ref.addSnapshotListener { snap, err ->
+            if (err != null) {
+                trySend(emptySet())
+                return@addSnapshotListener
             }
 
-        awaitClose { reg.remove() }
+            val raw = snap?.get("likedIds")
+
+            val liked: Set<String> = when (raw) {
+                is List<*> -> raw.mapNotNull { it?.toString() }.toSet()
+                is Set<*> -> raw.mapNotNull { it?.toString() }.toSet()
+                else -> emptySet()
+            }
+
+            trySend(liked)
+        }
+
+        awaitClose { listener.remove() }
     }
 
     suspend fun clearAll(uid: String) {

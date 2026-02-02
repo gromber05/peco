@@ -23,6 +23,7 @@ class AnimalsFirestoreDataSource @Inject constructor(
         val listener = animals()
             .orderBy("createdAt", Query.Direction.DESCENDING)
             .addSnapshotListener { snapshot, error ->
+
                 if (error != null) {
                     close(error)
                     return@addSnapshotListener
@@ -33,8 +34,8 @@ class AnimalsFirestoreDataSource @Inject constructor(
 
                     val name = d.getString("name") ?: return@mapNotNull null
                     val species = d.getString("species") ?: return@mapNotNull null
-                    val photo = d.getString("photo")
 
+                    val photo = d.getString("photo")
                     val dob = d.getString("dob") ?: ""
                     val lat = d.getDouble("latitude") ?: 0.0
                     val lon = d.getDouble("longitude") ?: 0.0
@@ -57,7 +58,7 @@ class AnimalsFirestoreDataSource @Inject constructor(
                     )
                 }
 
-                trySend(list)
+                trySend(list).isSuccess
             }
 
         awaitClose { listener.remove() }

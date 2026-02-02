@@ -111,10 +111,10 @@ class HomeViewModel @Inject constructor(
                         ) { animals, swipedIdsRaw, likedIdsRaw ->
 
                             val swipedSet: Set<String> =
-                                swipedIdsRaw.map { it.toString() }.toSet()
+                                swipedIdsRaw.map { it }.toSet()
 
-                            val likedIds: List<String> =
-                                likedIdsRaw.map { it.toString() }
+                            val likedIds: Set<String> =
+                                likedIdsRaw.map { it }.toSet()
 
                             val deck = animals.filterNot { it.uid in swipedSet }
 
@@ -133,8 +133,8 @@ class HomeViewModel @Inject constructor(
                         it.copy(
                             animalList = animals,
                             deck = deck,
-                            swipedIds = swipedSet as Set<String>,
-                            likedIds = likedIds as List<String>,
+                            swipedIds = swipedSet,
+                            likedIds = likedIds,
                             isLoading = false,
                             error = null
                         )
