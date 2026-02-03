@@ -1,5 +1,6 @@
 package com.gromber05.peco.ui.screens.animals
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -37,8 +38,8 @@ fun AnimalsScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
-    LaunchedEffect(Unit) {
-        viewModel.start()
+    BackHandler {
+        onBack()
     }
 
     Scaffold()

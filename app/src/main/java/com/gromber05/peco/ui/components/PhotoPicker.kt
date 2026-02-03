@@ -38,7 +38,7 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 
 @Composable
-private fun PhotoPicker(
+fun PhotoPicker(
     photoUri: String?,
     onPhotoPicked: (String) -> Unit
 ) {

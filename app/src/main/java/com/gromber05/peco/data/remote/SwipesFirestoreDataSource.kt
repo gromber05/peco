@@ -5,6 +5,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.SetOptions
 import com.gromber05.peco.model.SwipeAction
+import com.gromber05.peco.model.data.Animal
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -18,11 +19,13 @@ class SwipesFirestoreDataSource @Inject constructor(
 ) {
     private fun swipes(uid: String) = db.collection("users").document(uid).collection("swipes")
 
-    suspend fun setSwipe(uid: String, animalId: String, action: SwipeAction) {
+    suspend fun setSwipe(uid: String, animal: Animal, action: SwipeAction) {
         swipes(uid)
-            .document(animalId)
+            .document(animal.uid)
             .set(
                 mapOf(
+                    "animalId" to animal.uid,
+                    "animalSpecies" to animal.species,
                     "action" to action.name,
                     "createdAt" to FieldValue.serverTimestamp()
                 ),

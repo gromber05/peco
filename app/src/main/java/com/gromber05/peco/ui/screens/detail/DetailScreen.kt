@@ -42,7 +42,6 @@ fun DetailScreen(
     animalId: Int,
     viewModel: DetailViewModel = hiltViewModel(),
     onBack: () -> Unit,
-    onChatClick: (String) -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState(initial = DetailUiState())
     val animal = uiState.animal
@@ -68,7 +67,7 @@ fun DetailScreen(
 
             if (volunteerId != null) {
                 FloatingActionButton(
-                    onClick = { onChatClick(volunteerId) }
+                    onClick = {  }
                 ) {
                     Icon(Icons.AutoMirrored.Filled.Chat, contentDescription = "Abrir chat")
                 }

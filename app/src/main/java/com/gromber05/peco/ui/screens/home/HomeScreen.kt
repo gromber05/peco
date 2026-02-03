@@ -45,7 +45,6 @@ import com.gromber05.peco.ui.components.MyTopAppBar
 import com.gromber05.peco.ui.screens.admin.AdminAddAnimalScreen
 import com.gromber05.peco.ui.screens.admin.AdminScreen
 import com.gromber05.peco.ui.screens.animals.AnimalsScreen
-import com.gromber05.peco.ui.screens.conversation.ConversationsScreen
 
 @Composable
 fun HomeScreen(
@@ -56,7 +55,6 @@ fun HomeScreen(
     onLogout: () -> Unit,
     onOpenEditProfile: () -> Unit,
     onOpenChangePassword: () -> Unit,
-    onOpenChat: (String) -> Unit,
     onAnimalClick: (Int) -> Unit
 ) {
     val state by viewModel.uiState.collectAsState()
@@ -170,14 +168,6 @@ fun HomeScreen(
                         colors = navItemColors
                     )
 
-                    NavigationBarItem(
-                        selected = selectPage == 4,
-                        onClick = { selectPage = 4 },
-                        icon = { Icon(Icons.AutoMirrored.Filled.Chat, contentDescription = "Chats") },
-                        label = { Text("Chats") },
-                        colors = navItemColors
-                    )
-
                     if (isAdmin) {
                         NavigationBarItem(
                             selected = selectPage == 3,
@@ -232,18 +222,6 @@ fun HomeScreen(
                     )
                 }
             }
-
-            4 -> {
-                ConversationsScreen(
-                    modifier = Modifier.padding(innerPadding),
-                    onBack = { selectPage = 0 },
-                    onOpenChat = { conversationId ->
-                        onOpenChat(conversationId)
-                    }
-                )
-            }
-
         }
-
     }
 }

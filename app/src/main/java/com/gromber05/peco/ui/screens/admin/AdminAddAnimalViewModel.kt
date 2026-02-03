@@ -88,7 +88,7 @@ class AdminAddAnimalViewModel @Inject constructor(
                     uid = "",
                     name = s.name.trim(),
                     species = s.species.trim(),
-                    photo = s.photoUri?.trim()?.ifBlank { null },
+                    photo = null,
                     dob = s.dob.trim(),
                     latitude = lat,
                     longitude = lon,

@@ -75,23 +75,20 @@ class AdminStatsFirestoreDataSource @Inject constructor(
     )
 
     private fun observeAnimals(): Flow<List<AnimalMini>> = callbackFlow {
-        val reg = animals()
-            .addSnapshotListener { snap, err ->
-                if (err != null) {
-                    close(err)
-                    return@addSnapshotListener
-                }
-
-                val list = snap?.documents.orEmpty().mapNotNull { d ->
-                    val species = d.getString("species")
-                    val state = d.getString("adoptionState")
-                    if (species != null && state != null) {
-                        AnimalMini(species, state)
-                    } else null
-                }
-
-                trySend(list)
+        val reg = animals().addSnapshotListener { snap, err ->
+            if (err != null) {
+                close(err)
+                return@addSnapshotListener
             }
+
+            val list = snap?.documents.orEmpty().map { d ->
+                val species = d.getString("species") ?: "Unknown"
+                val state = d.getString("adoptionState") ?: "AVAILABLE"
+                AnimalMini(species, state)
+            }
+
+            trySend(list)
+        }
 
         awaitClose { reg.remove() }
     }

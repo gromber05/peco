@@ -31,7 +31,7 @@ object LocationUtils {
                     addresses?.firstOrNull()?.locality
                         ?: addresses?.firstOrNull()?.subAdminArea
                         ?: "Ubicación desconocida"
-                } catch (e: Exception) {
+                } catch (_: Exception) {
                     "Ubicación desconocida"
                 }
             }

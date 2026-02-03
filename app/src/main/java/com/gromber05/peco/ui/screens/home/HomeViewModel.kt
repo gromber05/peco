@@ -175,7 +175,7 @@ class HomeViewModel @Inject constructor(
 
         viewModelScope.launch {
             try {
-                swipeRepository.setSwipe(uid, animal.uid, SwipeAction.LIKE)
+                swipeRepository.setSwipe(uid, animal, SwipeAction.LIKE)
             } catch (e: Exception) {
                 _events.emit(UiEvent.Error(e.message ?: "Error guardando LIKE"))
             }
@@ -189,7 +189,7 @@ class HomeViewModel @Inject constructor(
 
         viewModelScope.launch {
             try {
-                swipeRepository.setSwipe(uid, animal.uid, SwipeAction.DISLIKE)
+                swipeRepository.setSwipe(uid, animal, SwipeAction.DISLIKE)
             } catch (e: Exception) {
                 _events.emit(UiEvent.Error(e.message ?: "Error guardando DISLIKE"))
             }

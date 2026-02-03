@@ -43,7 +43,7 @@ class AdminViewModel @Inject constructor(
         val topLiked: List<LabelCount>
     )
 
-    private fun observeStats() {
+    fun observeStats() {
         viewModelScope.launch {
             val countsFlow = combine(
                 repo.totalAnimals().distinctUntilChanged(),
