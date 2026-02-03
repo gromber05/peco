@@ -19,6 +19,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Image
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.FilledTonalButton
@@ -28,116 +29,56 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 
 @Composable
 fun PhotoPicker(
-    photoUri: String?,
-    onPhotoPicked: (String) -> Unit
+    photoUri: String,
+    onPhotoSelected: (ByteArray?, String) -> Unit
 ) {
+    val context = LocalContext.current
+
     val pickImageLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uri ->
-        if (uri != null) onPhotoPicked(uri.toString())
+        if (uri != null) {
+            val bytes = context.contentResolver.openInputStream(uri)!!.use { it.readBytes() }
+            onPhotoSelected(bytes, uri.toString())
+        }
     }
 
-    val shape = RoundedCornerShape(16.dp)
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Text("Foto", style = MaterialTheme.typography.labelLarge)
 
-    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-        Text("Foto", style = MaterialTheme.typography.titleMedium)
-
-        Card(
-            shape = shape,
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
-            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+        Button(
+            onClick = { pickImageLauncher.launch("image/*") },
             modifier = Modifier.fillMaxWidth()
         ) {
-            Box(
+            Text(if (photoUri.isBlank()) "Elegir foto" else "Cambiar foto")
+        }
+
+        if (photoUri.isNotBlank()) {
+            AsyncImage(
+                model = photoUri,
+                contentDescription = "Foto del animal",
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(220.dp)
-                    .clip(shape)
+                    .height(180.dp)
+            )
+            TextButton(
+                onClick = { onPhotoSelected(null, "") },
+                modifier = Modifier.fillMaxWidth()
             ) {
-                if (photoUri != null && photoUri.isBlank())  {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .background(MaterialTheme.colorScheme.surfaceVariant),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Icon(
-                                imageVector = Icons.Default.Image,
-                                contentDescription = null,
-                                modifier = Modifier.size(40.dp)
-                            )
-                            Spacer(Modifier.height(8.dp))
-                            Text(
-                                "Aún no hay foto",
-                                style = MaterialTheme.typography.bodyMedium
-                            )
-                            Spacer(Modifier.height(10.dp))
-                            FilledTonalButton(onClick = { pickImageLauncher.launch("image/*") }) {
-                                Text("Elegir foto")
-                            }
-                        }
-                    }
-                } else {
-                    AsyncImage(
-                        model = photoUri,
-                        contentDescription = "Foto",
-                        contentScale = ContentScale.Crop,
-                        modifier = Modifier.fillMaxSize()
-                    )
-
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .background(
-                                Brush.verticalGradient(
-                                    colors = listOf(
-                                        androidx.compose.ui.graphics.Color.Transparent,
-                                        MaterialTheme.colorScheme.scrim.copy(alpha = 0.55f)
-                                    ),
-                                    startY = 120f
-                                )
-                            )
-                    )
-
-                    Surface(
-                        shape = RoundedCornerShape(999.dp),
-                        color = MaterialTheme.colorScheme.surface.copy(alpha = 0.85f),
-                        modifier = Modifier
-                            .align(Alignment.TopEnd)
-                            .padding(10.dp)
-                    ) {
-                        IconButton(onClick = { onPhotoPicked("") }) {
-                            Icon(Icons.Default.Close, contentDescription = "Quitar foto")
-                        }
-                    }
-
-                    Row(
-                        modifier = Modifier
-                            .align(Alignment.BottomStart)
-                            .padding(12.dp),
-                        horizontalArrangement = Arrangement.spacedBy(10.dp)
-                    ) {
-                        FilledTonalButton(onClick = { pickImageLauncher.launch("image/*") }) {
-                            Text("Cambiar")
-                        }
-                        OutlinedButton(onClick = { onPhotoPicked("") }) {
-                            Text("Quitar")
-                        }
-                    }
-                }
+                Text("Quitar foto")
             }
         }
     }

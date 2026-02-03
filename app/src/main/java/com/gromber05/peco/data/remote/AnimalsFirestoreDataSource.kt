@@ -137,7 +137,7 @@ class AnimalsFirestoreDataSource @Inject constructor(
             mapOf(
                 "name" to animal.name,
                 "species" to animal.species,
-                "photo" to photoUrl,
+                "photo" to null,  // cambiar esto a photoUrl para que puedan cargar las fotos.
                 "dob" to animal.dob,
                 "latitude" to animal.latitude,
                 "longitude" to animal.longitude,
@@ -148,6 +148,7 @@ class AnimalsFirestoreDataSource @Inject constructor(
             )
         ).await()
 
+        android.util.Log.d("ANIMALS", "Created animal id=$animalId photoUrl=$photoUrl")
         return animalId
     }
 }

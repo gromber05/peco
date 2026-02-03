@@ -42,6 +42,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.gromber05.peco.model.AdoptionState
 import com.gromber05.peco.model.events.UiEvent
+import com.gromber05.peco.ui.components.PhotoPicker
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -67,16 +68,6 @@ fun AdminAddAnimalScreen(
         }
     }
 
-    val picker = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.PickVisualMedia(),
-        onResult = { uri ->
-            if (uri != null) {
-                val bytes = context.contentResolver.openInputStream(uri)!!.use { it.readBytes() }
-                viewModel.onPhotoSelected(bytes, uri.toString())
-            }
-        }
-    )
-
     LaunchedEffect(Unit) {
         permissionLauncher.launch(
             arrayOf(
@@ -90,7 +81,10 @@ fun AdminAddAnimalScreen(
         viewModel.events.collect { event ->
             when (event) {
                 is UiEvent.Error -> Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show()
-                is UiEvent.Success -> Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show()
+                is UiEvent.Success -> {
+                    Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show()
+                    onBack()
+                }
                 UiEvent.LoggedOut -> {}
             }
         }
@@ -145,8 +139,8 @@ fun AdminAddAnimalScreen(
             )
 
             PhotoPicker(
-                photoUri = state.photoUri ?: "" ,
-                onPhotoPicked = viewModel::onPhotoUriChange
+                photoUri = state.photoUri ?: "",
+                onPhotoSelected = viewModel::onPhotoSelected
             )
 
             TextButton(
@@ -164,7 +158,9 @@ fun AdminAddAnimalScreen(
             Spacer(modifier = Modifier.height(8.dp))
 
             Button(
-                onClick = viewModel::save,
+                onClick = {
+                    viewModel.save()
+                },
                 enabled = !state.isSaving,
                 modifier = Modifier.fillMaxWidth(),
                 colors = ButtonDefaults.buttonColors(
@@ -212,45 +208,6 @@ private fun AdoptionStateDropdown(
                         expanded = false
                     }
                 )
-            }
-        }
-    }
-}
-
-@Composable
-private fun PhotoPicker(
-    photoUri: String,
-    onPhotoPicked: (String) -> Unit
-) {
-    val pickImageLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.GetContent()
-    ) { uri ->
-        if (uri != null) onPhotoPicked(uri.toString())
-    }
-
-    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        Text("Foto", style = MaterialTheme.typography.labelLarge)
-
-        Button(
-            onClick = { pickImageLauncher.launch("image/*") },
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text(if (photoUri.isBlank()) "Elegir foto" else "Cambiar foto")
-        }
-
-        if (photoUri.isNotBlank()) {
-            AsyncImage(
-                model = photoUri,
-                contentDescription = "Foto del animal",
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(180.dp)
-            )
-            TextButton(
-                onClick = { onPhotoPicked("") },
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text("Quitar foto")
             }
         }
     }

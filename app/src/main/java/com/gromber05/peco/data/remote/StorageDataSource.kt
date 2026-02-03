@@ -9,22 +9,27 @@ import javax.inject.Singleton
 class StorageDataSource @Inject constructor(
     private val storage: FirebaseStorage
 ) {
-
     suspend fun uploadAnimalPhoto(animalId: String, bytes: ByteArray): String {
         val ref = storage.reference
             .child("animals")
             .child(animalId)
-            .child("main.jpg")
+            .child("main_${System.currentTimeMillis()}.jpg")
 
-        ref.putBytes(bytes).await()
-        return ref.downloadUrl.await().toString()
+        try {
+            ref.putBytes(bytes).await()
+            return ref.downloadUrl.await().toString()
+        } catch (e: Exception) {
+            android.util.Log.e("STORAGE", "Upload failed animalId=$animalId", e)
+            throw e
+        }
     }
+
 
     suspend fun uploadUserAvatar(uid: String, bytes: ByteArray): String {
         val ref = storage.reference
             .child("users")
             .child(uid)
-            .child("avatar.jpg")
+            .child("avatar_${System.currentTimeMillis()}.jpg")
 
         ref.putBytes(bytes).await()
         return ref.downloadUrl.await().toString()

@@ -96,6 +96,9 @@ class AdminAddAnimalViewModel @Inject constructor(
                     volunteerId = uid
                 )
 
+                val bytes = s.photoBytes
+                android.util.Log.d("PHOTO", "photoBytes = ${bytes?.size ?: 0} bytes")
+
                 animalRepository.createAnimal(animal, s.photoBytes)
 
                 _events.emit(UiEvent.Success("Animal creado"))
@@ -109,7 +112,7 @@ class AdminAddAnimalViewModel @Inject constructor(
         }
     }
 
-    fun onPhotoSelected(bytes: ByteArray, uriString: String) {
+    fun onPhotoSelected(bytes: ByteArray?, uriString: String) {
         _uiState.update { it.copy(photoBytes = bytes, photoUri = uriString) }
     }
 
