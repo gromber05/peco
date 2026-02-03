@@ -39,7 +39,7 @@ import coil.compose.AsyncImage
 
 @Composable
 private fun PhotoPicker(
-    photoUri: String,
+    photoUri: String?,
     onPhotoPicked: (String) -> Unit
 ) {
     val pickImageLauncher = rememberLauncherForActivityResult(
@@ -66,8 +66,7 @@ private fun PhotoPicker(
                     .height(220.dp)
                     .clip(shape)
             ) {
-                if (photoUri.isBlank()) {
-                    // Placeholder bonito
+                if (photoUri != null && photoUri.isBlank())  {
                     Box(
                         modifier = Modifier
                             .fillMaxSize()
@@ -92,15 +91,13 @@ private fun PhotoPicker(
                         }
                     }
                 } else {
-                    // Imagen + degradado + botón quitar
                     AsyncImage(
                         model = photoUri,
-                        contentDescription = "Foto del animal",
+                        contentDescription = "Foto",
                         contentScale = ContentScale.Crop,
                         modifier = Modifier.fillMaxSize()
                     )
 
-                    // Degradado inferior para que el texto/botones se lean bien
                     Box(
                         modifier = Modifier
                             .fillMaxSize()
@@ -115,7 +112,6 @@ private fun PhotoPicker(
                             )
                     )
 
-                    // Botón quitar arriba a la derecha
                     Surface(
                         shape = RoundedCornerShape(999.dp),
                         color = MaterialTheme.colorScheme.surface.copy(alpha = 0.85f),

@@ -8,8 +8,9 @@ data class AdminAddAnimalUiState(
     val dob: String = "",
     val photo: String = "",
     val latitude: String = "",
-    val photoUri: String = "",
     val longitude: String = "",
+    val photoBytes: ByteArray? = null,
+    val photoUri: String? = null,
     val adoptionState: AdoptionState = AdoptionState.AVAILABLE,
     val isSaving: Boolean = false
 )

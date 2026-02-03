@@ -71,6 +71,8 @@ dependencies {
 
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
+    implementation(libs.firebase.storage)
+    implementation(platform(libs.firebase.bom))
 
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
@@ -79,8 +81,6 @@ dependencies {
     // Google Play Services
     // =========================
     implementation(libs.play.services.location)
-
-    // (Si ya usas material3 de compose, este suele sobrar, pero lo dejo porque lo tenías)
     implementation(libs.androidx.material3)
 
     // =========================
@@ -113,13 +113,11 @@ dependencies {
     implementation(libs.coil.compose)
 
     // =========================
-    // Firebase (UNA sola vez y bien)
+    // Firebase
     // =========================
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.analytics)
     implementation(libs.firebase.auth.ktx)
-
-    // Firestore (elige SOLO 1)
     implementation(libs.firebase.firestore)
 
     // =========================

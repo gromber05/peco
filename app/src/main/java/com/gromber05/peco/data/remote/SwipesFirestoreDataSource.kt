@@ -45,43 +45,37 @@ class SwipesFirestoreDataSource @Inject constructor(
         awaitClose { reg.remove() }
     }
 
-    fun observeSwipedIds(uid: String): Flow<Set<Int>> = callbackFlow {
+    fun observeSwipedIds(uid: String): Flow<Set<String>> = callbackFlow {
         val reg = swipes(uid)
-            .orderBy("createdAt", Query.Direction.DESCENDING)
             .addSnapshotListener { snap, err ->
                 if (err != null || snap == null) {
                     trySend(emptySet())
                     return@addSnapshotListener
                 }
 
-                val ids = snap.documents
-                    .mapNotNull { it.id.toIntOrNull() }
-                    .toSet()
-
+                val ids = snap.documents.map { it.id }.toSet()
                 trySend(ids)
             }
 
         awaitClose { reg.remove() }
     }
 
-    fun observeLikedIds(uid: String): Flow<Set<Int>> = callbackFlow {
+    fun observeLikedIds(uid: String): Flow<Set<String>> = callbackFlow {
         val reg = swipes(uid)
-            .whereEqualTo("action", "LIKE")
+            .whereEqualTo("action", SwipeAction.LIKE.name)
             .addSnapshotListener { snap, err ->
                 if (err != null || snap == null) {
                     trySend(emptySet())
                     return@addSnapshotListener
                 }
 
-                val ids = snap.documents
-                    .mapNotNull { it.id.toIntOrNull() }
-                    .toSet()
-
+                val ids = snap.documents.map { it.id }.toSet()
                 trySend(ids)
             }
 
         awaitClose { reg.remove() }
     }
+
 
     suspend fun clearAll(uid: String) {
         val snapshot = swipes(uid).get().await()

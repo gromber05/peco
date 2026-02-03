@@ -13,7 +13,10 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class UsersFirestoreDataSource @Inject constructor(private val db: FirebaseFirestore) {
+class UsersFirestoreDataSource @Inject constructor(
+    private val db: FirebaseFirestore,
+    private val storage: StorageDataSource
+) {
     private fun users() = db.collection("users")
 
     suspend fun createProfile(uid: String, username: String, email: String, role: UserRole = UserRole.USER) {
@@ -29,6 +32,22 @@ class UsersFirestoreDataSource @Inject constructor(private val db: FirebaseFires
             SetOptions.merge()
         ).await()
     }
+
+    suspend fun updateUserPhoto(uid: String, photoBytes: ByteArray): String {
+        val url = storage.uploadUserAvatar(uid, photoBytes)
+
+        users().document(uid)
+            .set(
+                mapOf(
+                    "photo" to url,
+                    "updatedAt" to FieldValue.serverTimestamp()
+                ),
+                SetOptions.merge()
+            ).await()
+
+        return url
+    }
+
 
     suspend fun getProfileOnce(uid: String): User? {
         val snap = db.collection("users").document(uid).get().await()

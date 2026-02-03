@@ -23,7 +23,7 @@ fun AuthGate(
         when (isLogged) {
             true -> onGoHome()
             false -> onGoLogin()
-            null -> Unit // aún cargando
+            null -> Unit
         }
     }
 

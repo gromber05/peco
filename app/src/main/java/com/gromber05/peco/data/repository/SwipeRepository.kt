@@ -12,7 +12,7 @@ class SwipeRepository @Inject constructor(
 ) {
     suspend fun setSwipe(uid: String, animalId: String, action: SwipeAction) = db.setSwipe(uid, animalId, action)
     fun observeLikedAnimalIds(uid: String): Flow<Set<String>> = db.observeLikedAnimalIds(uid)
-    fun observeSwipedIds(uid: String): Flow<Set<Int>> = db.observeSwipedIds(uid)
-    fun observeLikedIds(uid: String): Flow<Set<Int>> = db.observeLikedIds(uid)
+    fun observeSwipedIds(uid: String): Flow<Set<String>> = db.observeSwipedIds(uid)
+    fun observeLikedIds(uid: String): Flow<Set<String>> = db.observeLikedIds(uid)
     suspend fun clearAll(uid: String) = db.clearAll(uid)
 }

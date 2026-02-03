@@ -101,46 +101,45 @@ class HomeViewModel @Inject constructor(
             authRepository.currentUidFlow()
                 .distinctUntilChanged()
                 .flatMapLatest { uid ->
+
                     if (uid == null) {
-                        flowOf(Triple(emptyList<Animal>(), emptySet<String>(), emptyList<String>()))
+                        flowOf(
+                            Triple(
+                                emptyList(),
+                                emptySet(),
+                                emptySet()
+                            )
+                        )
                     } else {
                         combine(
                             animalRepository.observeAnimals(),
                             swipeRepository.observeSwipedIds(uid),
                             swipeRepository.observeLikedIds(uid)
-                        ) { animals, swipedIdsRaw, likedIdsRaw ->
-
-                            val swipedSet: Set<String> =
-                                swipedIdsRaw.map { it.toString() }.toSet()
-
-                            val likedIds: List<String> =
-                                likedIdsRaw.map { it.toString() }
-
-                            val deck = animals.filterNot { it.uid in swipedSet }
-
-                            Triple(animals, deck, Pair(swipedSet, likedIds))
+                        ) { animals: List<Animal>, swipedSet: Set<String>, likedSet: Set<String> ->
+                            Triple(animals, swipedSet, likedSet)
                         }
-
                     }
                 }
                 .catch { e ->
                     _uiState.update { it.copy(isLoading = false, error = e.message ?: "Error") }
                 }
-                .collect { (animals, swipedSet, likedIds) ->
+                .collect { (animals, swipedSet, likedSet) ->
+
                     val deck = animals.filterNot { it.uid in swipedSet }
 
                     _uiState.update {
                         it.copy(
                             animalList = animals,
                             deck = deck,
-                            swipedIds = swipedSet as Set<String>,
-                            likedIds = likedIds as List<String>,
+                            swipedIds = swipedSet,
+                            likedIds = likedSet,
                             isLoading = false,
                             error = null
                         )
                     }
                 }
         }
+
     }
 
     fun likeCurrent() {
@@ -163,6 +162,10 @@ class HomeViewModel @Inject constructor(
                 deck = newDeck
             )
         }
+    }
+
+    fun onPhotoSelected(bytes: ByteArray, uriString: String) {
+        _uiState.update { it.copy(photoBytes = bytes, photoUri = uriString) }
     }
 
     fun onLike(animal: Animal) {
@@ -198,7 +201,6 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 swipeRepository.clearAll(uid)
-                // No hace falta tocar deck aquí: el combine recomputará al momento
             } catch (e: Exception) {
                 _events.emit(UiEvent.Error(e.message ?: "No se pudo reiniciar"))
             }

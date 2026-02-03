@@ -3,8 +3,10 @@ package com.gromber05.peco.data.remote
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
+import com.google.firebase.firestore.SetOptions
 import com.gromber05.peco.model.AdoptionState
 import com.gromber05.peco.model.data.Animal
+import com.gromber05.peco.utils.uriToBytes
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -14,7 +16,8 @@ import javax.inject.Singleton
 
 @Singleton
 class AnimalsFirestoreDataSource @Inject constructor(
-    private val db: FirebaseFirestore
+    private val db: FirebaseFirestore,
+    private val storage: StorageDataSource
 ) {
 
     private fun animals() = db.collection("animals")
@@ -23,6 +26,7 @@ class AnimalsFirestoreDataSource @Inject constructor(
         val listener = animals()
             .orderBy("createdAt", Query.Direction.DESCENDING)
             .addSnapshotListener { snapshot, error ->
+
                 if (error != null) {
                     close(error)
                     return@addSnapshotListener
@@ -33,8 +37,8 @@ class AnimalsFirestoreDataSource @Inject constructor(
 
                     val name = d.getString("name") ?: return@mapNotNull null
                     val species = d.getString("species") ?: return@mapNotNull null
-                    val photo = d.getString("photo")
 
+                    val photo = d.getString("photo")
                     val dob = d.getString("dob") ?: ""
                     val lat = d.getDouble("latitude") ?: 0.0
                     val lon = d.getDouble("longitude") ?: 0.0
@@ -57,7 +61,7 @@ class AnimalsFirestoreDataSource @Inject constructor(
                     )
                 }
 
-                trySend(list)
+                trySend(list).isSuccess
             }
 
         awaitClose { listener.remove() }
@@ -116,17 +120,24 @@ class AnimalsFirestoreDataSource @Inject constructor(
         animals().document(animalId).delete().await()
     }
 
-    /**
-     * Crear animal nuevo con ID autogenerado y createdAt.
-     * Devuelve el ID creado.
-     */
-    suspend fun createAnimal(animal: Animal): String {
+    suspend fun createAnimal(
+        animal: Animal,
+        photoBytes: ByteArray?
+    ): String {
         val ref = animals().document()
+        val animalId = ref.id
+
+        val photoUrl: String? = if (photoBytes != null) {
+            storage.uploadAnimalPhoto(animalId, photoBytes)
+        } else {
+            null
+        }
+
         ref.set(
             mapOf(
                 "name" to animal.name,
                 "species" to animal.species,
-                "photo" to animal.photo,
+                "photo" to photoUrl,
                 "dob" to animal.dob,
                 "latitude" to animal.latitude,
                 "longitude" to animal.longitude,
@@ -136,6 +147,7 @@ class AnimalsFirestoreDataSource @Inject constructor(
                 "updatedAt" to FieldValue.serverTimestamp()
             )
         ).await()
-        return ref.id
+
+        return animalId
     }
 }

@@ -19,7 +19,7 @@ import kotlinx.coroutines.launch
 class AnimalsViewModel @Inject constructor(
     private val animalRepository: AnimalRepository,
     private val swipeRepository: SwipeRepository,
-    private val authRepository: AuthRepository
+    authRepository: AuthRepository,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(AnimalsUiState(isLoading = true))

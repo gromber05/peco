@@ -19,17 +19,11 @@ class ChatFirestoreDataSource @Inject constructor(
 ) {
     private fun conversations() = db.collection("conversations")
 
-    /**
-     * ID determinista: 1 conversación por (animalId + 2 users), sin duplicados.
-     */
     fun conversationId(animalId: String, uid1: String, uid2: String): String {
         val pair = listOf(uid1, uid2).sorted().joinToString("_")
         return "a_${animalId}_$pair"
     }
 
-    /**
-     * Crea la conversación si no existe. Devuelve el ID siempre.
-     */
     suspend fun getOrCreateConversation(animalId: String, myUid: String, otherUid: String): String {
         require(animalId.isNotBlank())
         require(myUid.isNotBlank())
@@ -39,11 +33,9 @@ class ChatFirestoreDataSource @Inject constructor(
         val id = conversationId(animalId, myUid, otherUid)
         val ref = conversations().document(id)
 
-        // Si ya existe, no hacemos nada
         val snap = ref.get().await()
         if (snap.exists()) return id
 
-        // Creamos metadatos
         val data = mapOf(
             "animalId" to animalId,
             "participants" to listOf(myUid, otherUid),
@@ -58,10 +50,6 @@ class ChatFirestoreDataSource @Inject constructor(
         ref.set(data, SetOptions.merge()).await()
         return id
     }
-
-    /**
-     * Lista de conversaciones del usuario (para tu pantalla "Chats").
-     */
     fun observeConversationsForUser(myUid: String): Flow<List<Conversation>> = callbackFlow {
         require(myUid.isNotBlank())
 
@@ -77,9 +65,6 @@ class ChatFirestoreDataSource @Inject constructor(
         awaitClose { reg.remove() }
     }
 
-    /**
-     * Mensajes de una conversación (para la pantalla de chat).
-     */
     fun observeMessages(conversationId: String): Flow<List<ChatMessage>> = callbackFlow {
         val id = conversationId.trim()
         require(id.isNotBlank()) { "conversationId vacío" }
@@ -100,9 +85,6 @@ class ChatFirestoreDataSource @Inject constructor(
         awaitClose { reg.remove() }
     }
 
-    /**
-     * Enviar mensaje y actualizar metadatos (lastMessage, updatedAt...).
-     */
     suspend fun sendMessage(conversationId: String, myUid: String, text: String) {
         val id = conversationId.trim()
         val msg = text.trim()

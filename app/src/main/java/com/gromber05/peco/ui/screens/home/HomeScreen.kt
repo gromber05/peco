@@ -134,7 +134,6 @@ fun HomeScreen(
     }
 
     val isAdmin = state.userRole == UserRole.ADMIN
-    val isVolunteer = state.userRole == UserRole.VOLUNTEER
 
     Scaffold(
         topBar = { MyTopAppBar(name = state.username) },
@@ -216,6 +215,7 @@ fun HomeScreen(
                 onOpenChangePassword = onOpenChangePassword,
                 profilePhoto = state.photo,
                 userRole = state.userRole,
+                viewModel = viewModel
             )
 
             3 -> {

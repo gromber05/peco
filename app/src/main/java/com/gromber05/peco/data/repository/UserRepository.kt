@@ -15,5 +15,5 @@ class UserRepository @Inject constructor(
     suspend fun getProfileOnce(uid: String): User? = db.getProfileOnce(uid)
     fun observeProfile(uid: String): Flow<User?> = db.observeProfile(uid)
     suspend fun updateProfile(uid: String, username: String, photo: String?) = db.updateProfile(uid, username, photo)
-
+    suspend fun updateUserPhoto(uid: String, photoBytes: ByteArray): String = db.updateUserPhoto(uid, photoBytes)
 }

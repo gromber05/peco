@@ -11,16 +11,18 @@ data class HomeUiState(
     val email: String = "",
     val userRole: UserRole = UserRole.USER,
     val photo: String? = null,
+    val photoBytes: ByteArray? = null,
+    val photoUri: String? = null,
 
     val animalList: List<Animal> = emptyList(),
     val deck: List<Animal> = emptyList(),
 
     val swipedIds: Set<String> = emptySet(),
-    val likedIds: List<String> = emptyList(),
+    val likedIds: Set<String> = emptySet(),
 
     val error: String? = null
-)
- {
+) {
     val visibleAnimals: List<Animal>
         get() = animalList.filterNot { it.uid in swipedIds }
 }
+
