@@ -19,7 +19,7 @@ class UsersFirestoreDataSource @Inject constructor(
 ) {
     private fun users() = db.collection("users")
 
-    suspend fun createProfile(uid: String, username: String, email: String, role: UserRole = UserRole.USER) {
+    suspend fun createProfile(uid: String, username: String, email: String, role: UserRole = UserRole.USER, phone: String) {
         users().document(uid).set(
             mapOf(
                 "username" to username,
@@ -27,7 +27,8 @@ class UsersFirestoreDataSource @Inject constructor(
                 "photo" to null,
                 "role" to role.name,
                 "createdAt" to FieldValue.serverTimestamp(),
-                "updatedAt" to FieldValue.serverTimestamp()
+                "updatedAt" to FieldValue.serverTimestamp(),
+                "phone" to phone
             ),
             SetOptions.merge()
         ).await()
@@ -61,7 +62,8 @@ class UsersFirestoreDataSource @Inject constructor(
             email = snap.getString("email").orEmpty(),
             photo = snap.getString("photo"),
             role = runCatching { UserRole.valueOf(roleRaw) }
-                .getOrElse { UserRole.USER }
+                .getOrElse { UserRole.USER },
+            phone = snap.getString("phone").orEmpty()
 
         )
     }
@@ -80,7 +82,8 @@ class UsersFirestoreDataSource @Inject constructor(
                 email = snap.getString("email").orEmpty(),
                 photo = snap.getString("photo"),
                 role = runCatching { UserRole.valueOf(roleRaw) }
-                    .getOrElse { UserRole.USER }
+                    .getOrElse { UserRole.USER },
+                phone = snap.getString("phone").orEmpty()
             )
             trySend(profile)
         }

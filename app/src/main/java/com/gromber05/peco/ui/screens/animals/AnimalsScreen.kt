@@ -33,7 +33,7 @@ import com.gromber05.peco.ui.screens.detail.DetailScreen
 fun AnimalsScreen(
     modifier: Modifier = Modifier,
     viewModel: AnimalsViewModel = hiltViewModel(),
-    onAnimalClick: (Int) -> Unit,
+    onAnimalClick: (String) -> Unit,
     onBack: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -80,13 +80,7 @@ fun AnimalsScreen(
                                 AnimalCardHorizontal(
                                     animal = animal,
                                     onClick = {
-                                        onAnimalClick(
-                                            try {
-                                                animal.uid.toInt()
-                                            } catch (_: Exception) {
-                                                0
-                                            }
-                                        )
+                                        onAnimalClick(animal.uid)
                                     }
                                 )
                             }

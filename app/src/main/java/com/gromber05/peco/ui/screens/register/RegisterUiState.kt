@@ -8,5 +8,6 @@ data class RegisterUiState(
     val isPasswordVisible: Boolean = false,
     val isLoading: Boolean = false,
     val isRegistered: Boolean = false,
-    val error: String? = null
+    val error: String? = null,
+    val phone: String = ""
 )

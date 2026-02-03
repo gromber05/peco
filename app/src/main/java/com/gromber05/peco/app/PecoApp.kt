@@ -104,9 +104,9 @@ fun PecoApp(
 
         composable(
             route = AppNavigation.DetailScreen.route,
-            arguments = listOf(navArgument("animalId") { type = NavType.IntType })
+            arguments = listOf(navArgument("animalId") { type = NavType.StringType })
         ) { backStackEntry ->
-            val id = backStackEntry.arguments?.getInt("animalId") ?: 0
+            val id = backStackEntry.arguments?.getString("animalId").toString()
             DetailScreen(
                 animalId = id,
                 onBack = {

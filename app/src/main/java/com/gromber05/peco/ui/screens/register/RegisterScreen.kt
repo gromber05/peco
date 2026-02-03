@@ -102,6 +102,18 @@ fun RegisterScreen(
             Spacer(modifier = Modifier.height(16.dp))
 
             OutlinedTextField(
+                value = state.phone,
+                onValueChange = { viewModel.onPhoneChange(it) },
+                label = { Text("Número de teléfono") },
+                leadingIcon = { Icon(Icons.Filled.Call, contentDescription = null) },
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            OutlinedTextField(
                 value = state.pass,
                 onValueChange = { viewModel.onPassChange(it) },
                 label = { Text("Contraseña") },
@@ -133,6 +145,8 @@ fun RegisterScreen(
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                 isError = state.pass != state.confirmPass && state.confirmPass.isNotEmpty()
             )
+
+
 
             if (state.error != null) {
                 Text(

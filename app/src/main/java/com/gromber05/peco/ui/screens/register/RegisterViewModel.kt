@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.gromber05.peco.data.repository.AuthRepository
 import com.gromber05.peco.data.repository.UserRepository
 import com.gromber05.peco.model.user.UserRole
+import com.gromber05.peco.utils.normalizePhone
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -27,6 +28,9 @@ class RegisterViewModel @Inject constructor(
     fun onPassChange(newValue: String) { _uiState.update { it.copy(pass = newValue, error = null) } }
     fun onConfirmPassChange(newValue: String) { _uiState.update { it.copy(confirmPass = newValue, error = null) } }
     fun togglePasswordVisibility() { _uiState.update { it.copy(isPasswordVisible = !it.isPasswordVisible) } }
+    fun onPhoneChange(newValue: String) { _uiState.update { it.copy(phone = newValue, error = null) }}
+
+    private fun isValidPhone(phone: String): Boolean = phone.matches(Regex("^\\+?[0-9]{9,15}\$"))
 
     fun register() {
         val state = _uiState.value
@@ -44,6 +48,12 @@ class RegisterViewModel @Inject constructor(
             return
         }
 
+        val phoneNormalized = normalizePhone(state.phone)
+        if (!isValidPhone(phoneNormalized)) {
+            _uiState.update { it.copy(error = "El teléfono no es válido (usa 9-15 dígitos, opcional +)") }
+            return
+        }
+
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, error = null) }
 
@@ -54,7 +64,8 @@ class RegisterViewModel @Inject constructor(
                     uid = uid,
                     username = state.name.trim(),
                     email = state.email.trim(),
-                    role = UserRole.USER
+                    role = UserRole.USER,
+                    phone = phoneNormalized
                 )
 
                 _uiState.update { it.copy(isLoading = false, isRegistered = true) }

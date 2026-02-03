@@ -55,7 +55,7 @@ fun HomeScreen(
     onLogout: () -> Unit,
     onOpenEditProfile: () -> Unit,
     onOpenChangePassword: () -> Unit,
-    onAnimalClick: (Int) -> Unit
+    onAnimalClick: (String) -> Unit
 ) {
     val state by viewModel.uiState.collectAsState()
     var selectPage by rememberSaveable { mutableIntStateOf(0) }

@@ -11,7 +11,7 @@ import javax.inject.Singleton
 class UserRepository @Inject constructor(
     private val db: UsersFirestoreDataSource
 ) {
-    suspend fun createProfile(uid: String, username: String, email: String, role: UserRole = UserRole.USER) = db.createProfile(uid, username, email, role)
+    suspend fun createProfile(uid: String, username: String, email: String, role: UserRole = UserRole.USER, phone: String) = db.createProfile(uid, username, email, role, phone)
     suspend fun getProfileOnce(uid: String): User? = db.getProfileOnce(uid)
     fun observeProfile(uid: String): Flow<User?> = db.observeProfile(uid)
     suspend fun updateProfile(uid: String, username: String, photo: String?) = db.updateProfile(uid, username, photo)

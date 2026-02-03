@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Chat
+import androidx.compose.material.icons.filled.Call
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -31,6 +32,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import coil.compose.AsyncImage
@@ -39,17 +41,19 @@ import coil.compose.AsyncImage
 @Composable
 fun DetailScreen(
     modifier: Modifier = Modifier,
-    animalId: Int,
+    animalId: String,
     viewModel: DetailViewModel = hiltViewModel(),
     onBack: () -> Unit,
 ) {
     val uiState by viewModel.uiState.collectAsState(initial = DetailUiState())
     val animal = uiState.animal
 
+    val context = LocalContext.current
+
     BackHandler { onBack() }
 
     LaunchedEffect(animalId) {
-        viewModel
+        viewModel.observeAnimal(animalId)
     }
 
     LaunchedEffect(uiState.notFound) {
@@ -63,13 +67,12 @@ fun DetailScreen(
             )
         },
         floatingActionButton = {
-            val volunteerId = animal?.volunteerId
-
-            if (volunteerId != null) {
+            if (uiState.volunteer != null) {
+                val volunteer =
                 FloatingActionButton(
-                    onClick = {  }
+                    onClick = { viewModel.openDialer(context = context, phone = uiState.volunteer!!.phone) }
                 ) {
-                    Icon(Icons.AutoMirrored.Filled.Chat, contentDescription = "Abrir chat")
+                    Icon(Icons.Default.Call, contentDescription = "Llamar")
                 }
             }
         }
