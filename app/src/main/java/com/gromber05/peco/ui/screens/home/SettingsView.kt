@@ -1,5 +1,7 @@
 package com.gromber05.peco.ui.screens.home
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -48,8 +50,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.gromber05.peco.model.user.UserRole
 
@@ -65,9 +69,11 @@ fun SettingsView(
     onToggleTheme: () -> Unit,
     onLogout: () -> Unit,
     onOpenEditProfile: () -> Unit = {},
-    onOpenChangePassword: () -> Unit = {}
+    onOpenChangePassword: () -> Unit = {},
+    viewModel: HomeViewModel,
 ) {
     var showLogoutDialog by remember { mutableStateOf(false) }
+    val context = LocalContext.current
 
     if (showLogoutDialog) {
         AlertDialog(
@@ -87,6 +93,17 @@ fun SettingsView(
             }
         )
     }
+
+
+    val picker = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia(),
+        onResult = { uri ->
+            if (uri != null) {
+                val bytes = context.contentResolver.openInputStream(uri)!!.use { it.readBytes() }
+                viewModel.onPhotoSelected(bytes, uri.toString())
+            }
+        }
+    )
 
     LazyColumn(
         modifier = modifier.fillMaxSize(),

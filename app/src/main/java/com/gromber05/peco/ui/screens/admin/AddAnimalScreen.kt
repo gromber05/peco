@@ -67,6 +67,16 @@ fun AdminAddAnimalScreen(
         }
     }
 
+    val picker = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia(),
+        onResult = { uri ->
+            if (uri != null) {
+                val bytes = context.contentResolver.openInputStream(uri)!!.use { it.readBytes() }
+                viewModel.onPhotoSelected(bytes, uri.toString())
+            }
+        }
+    )
+
     LaunchedEffect(Unit) {
         permissionLauncher.launch(
             arrayOf(
@@ -135,7 +145,7 @@ fun AdminAddAnimalScreen(
             )
 
             PhotoPicker(
-                photoUri = state.photoUri,
+                photoUri = state.photoUri ?: "" ,
                 onPhotoPicked = viewModel::onPhotoUriChange
             )
 

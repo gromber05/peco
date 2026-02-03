@@ -43,23 +43,19 @@ fun PecoApp(
 
     NavHost(
         navController = navController,
-        startDestination = if (isLogged == false) {
-            AppNavigation.LoginScreen.route
-        } else {
-            AppNavigation.MainScreen.route
-        }
+        startDestination = AppNavigation.Gate.route
     ) {
-        composable("gate") {
+        composable(AppNavigation.Gate.route) {
             AuthGate(
                 onGoHome = {
-                    navController.navigate("home") {
-                        popUpTo("gate") { inclusive = true }
+                    navController.navigate(AppNavigation.MainScreen.route) {
+                        popUpTo(AppNavigation.Gate.route) { inclusive = true }
                         launchSingleTop = true
                     }
                 },
                 onGoLogin = {
-                    navController.navigate("login") {
-                        popUpTo("gate") { inclusive = true }
+                    navController.navigate(AppNavigation.LoginScreen.route) {
+                        popUpTo(AppNavigation.Gate.route) { inclusive = true }
                         launchSingleTop = true
                     }
                 }

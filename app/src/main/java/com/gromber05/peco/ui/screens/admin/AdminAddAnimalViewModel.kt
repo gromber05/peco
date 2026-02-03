@@ -1,5 +1,6 @@
 package com.gromber05.peco.ui.screens.admin
 
+import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.gromber05.peco.data.repository.AnimalRepository
@@ -8,6 +9,7 @@ import com.gromber05.peco.data.repository.LocationRepository
 import com.gromber05.peco.model.AdoptionState
 import com.gromber05.peco.model.data.Animal
 import com.gromber05.peco.model.events.UiEvent
+import com.gromber05.peco.utils.uriToBytes
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jakarta.inject.Inject
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -22,7 +24,7 @@ import kotlinx.coroutines.launch
 class AdminAddAnimalViewModel @Inject constructor(
     private val animalRepository: AnimalRepository,
     private val locationRepository: LocationRepository,
-    private val authRepository: AuthRepository
+    private val authRepository: AuthRepository,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(AdminAddAnimalUiState())
@@ -82,12 +84,11 @@ class AdminAddAnimalViewModel @Inject constructor(
                     return@launch
                 }
 
-                // ✅ Animal sin id fijo: Firestore generará el ID
                 val animal = Animal(
-                    uid = "", // se ignora al crear
+                    uid = "",
                     name = s.name.trim(),
                     species = s.species.trim(),
-                    photo = s.photoUri.trim().ifBlank { null },
+                    photo = s.photoUri?.trim()?.ifBlank { null },
                     dob = s.dob.trim(),
                     latitude = lat,
                     longitude = lon,
@@ -95,7 +96,7 @@ class AdminAddAnimalViewModel @Inject constructor(
                     volunteerId = uid
                 )
 
-                animalRepository.createAnimal(animal)
+                animalRepository.createAnimal(animal, s.photoBytes)
 
                 _events.emit(UiEvent.Success("Animal creado"))
                 _uiState.value = AdminAddAnimalUiState()
@@ -106,6 +107,10 @@ class AdminAddAnimalViewModel @Inject constructor(
                 _uiState.update { it.copy(isSaving = false) }
             }
         }
+    }
+
+    fun onPhotoSelected(bytes: ByteArray, uriString: String) {
+        _uiState.update { it.copy(photoBytes = bytes, photoUri = uriString) }
     }
 
     private fun emitError(msg: String) {

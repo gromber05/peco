@@ -12,8 +12,10 @@ sealed class AppNavigation(val route: String) {
     object ChangePassword: AppNavigation(route = "change_password")
     object Conversations : AppNavigation("conversations")
 
-    object Chat : AppNavigation("chat/{conversationId}") {
+    object Chat: AppNavigation("chat/{conversationId}") {
         fun createRoute(conversationId: String) = "chat/$conversationId"
     }
+
+    object Gate: AppNavigation("gate")
 
 }
