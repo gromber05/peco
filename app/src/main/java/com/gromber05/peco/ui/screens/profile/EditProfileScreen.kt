@@ -90,7 +90,7 @@ fun EditProfileScreen(
             )
 
             ProfilePhotoPicker(
-                photoUri = state.photo.orEmpty(),
+                photoUri = state.photo,
                 onPick = {
                     pickImage.launch(
                         androidx.activity.result.PickVisualMediaRequest(

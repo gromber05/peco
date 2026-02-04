@@ -70,6 +70,7 @@ fun SettingsView(
     onLogout: () -> Unit,
     onOpenEditProfile: () -> Unit = {},
     onOpenChangePassword: () -> Unit = {},
+    onMyAnimals: () -> Unit,
     viewModel: HomeViewModel,
 ) {
     var showLogoutDialog by remember { mutableStateOf(false) }
@@ -260,6 +261,26 @@ fun SettingsView(
                 },
                 onClick = onOpenChangePassword
             )
+        }
+
+        if (userRole == UserRole.VOLUNTEER || userRole == UserRole.ADMIN) {
+            item {
+                SettingsSection(title = "Mis animales")
+            }
+
+            item {
+                SettingsRow(
+                    title = "Mis animales",
+                    subtitle = "Gestiona tus animales",
+                    leading = {
+                        Icon(
+                            imageVector = Icons.Default.Pets,
+                            contentDescription = null,
+                        )
+                    },
+                    onClick = { onMyAnimals() }
+                )
+            }
         }
 
         item {

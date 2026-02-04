@@ -54,6 +54,7 @@ fun HomeScreen(
     onBack: () -> Unit,
     onLogout: () -> Unit,
     onOpenEditProfile: () -> Unit,
+    onMyAnimals: () -> Unit,
     onOpenChangePassword: () -> Unit,
     onAnimalClick: (String) -> Unit
 ) {
@@ -203,6 +204,7 @@ fun HomeScreen(
                 email = state.email,
                 onOpenEditProfile = onOpenEditProfile,
                 onOpenChangePassword = onOpenChangePassword,
+                onMyAnimals = onMyAnimals,
                 profilePhoto = state.photo,
                 userRole = state.userRole,
                 viewModel = viewModel

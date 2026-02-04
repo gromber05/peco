@@ -15,6 +15,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import androidx.core.net.toUri
+import com.gromber05.peco.utils.normalizePhone
+import kotlinx.coroutines.flow.collectLatest
 
 @HiltViewModel
 class DetailViewModel @Inject constructor(
@@ -25,6 +28,7 @@ class DetailViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(DetailUiState())
     val uiState = _uiState.asStateFlow()
     private val animalId: String? = savedStateHandle.get<String>("animalId")
+    private var volunteerJob: kotlinx.coroutines.Job? = null
 
     init {
         val id = animalId
@@ -35,30 +39,19 @@ class DetailViewModel @Inject constructor(
         }
     }
 
-    private fun getVolunteerById(volunteerId: String) {
-        viewModelScope.launch {
-            val volunteer = userRepository.observeProfile(volunteerId)
-
-            volunteer.collect { volunteerData ->
-                if (volunteerData == null) {
+    private fun observeVolunteer(volunteerId: String) {
+        volunteerJob?.cancel()
+        volunteerJob = viewModelScope.launch {
+            userRepository.observeProfile(volunteerId)
+                .collectLatest { volunteerData ->
                     _uiState.update {
                         it.copy(
-                            isLoading = false,
-                            notFound = true
-                        )
-                    }
-                } else {
-                    _uiState.update {
-                        it.copy(
-                            isLoading = false,
-                            notFound = false,
-                            volunteer = volunteerData
+                            volunteer = volunteerData,
+                            isLoading = false
                         )
                     }
                 }
-            }
         }
-
     }
 
     fun observeAnimal(id: String) {
@@ -75,7 +68,7 @@ class DetailViewModel @Inject constructor(
                         animal = null
                     )
                 } else {
-                    getVolunteerById(animal.volunteerId)
+                    observeVolunteer(animal.volunteerId)
                     _uiState.value = _uiState.value.copy(
                         isLoading = false,
                         notFound = false,
@@ -93,15 +86,14 @@ class DetailViewModel @Inject constructor(
     }
 
     fun openDialer(context: Context, phone: String) {
-        val normalized = phone.trim()
+        val normalized = normalizePhone(phone)
         if (normalized.isBlank()) return
 
         val intent = Intent(Intent.ACTION_DIAL).apply {
-            data = Uri.parse("tel:$normalized")
+            data = "tel:$normalized".toUri()
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         }
 
-        if (intent.resolveActivity(context.packageManager) != null) {
-            context.startActivity(intent)
-        }
+        context.startActivity(intent)
     }
 }

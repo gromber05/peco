@@ -98,7 +98,8 @@ fun PecoApp(
                 onOpenChangePassword = { navController.navigate(AppNavigation.ChangePassword.route) },
                 onAnimalClick = { animalId ->
                     navController.navigate(AppNavigation.DetailScreen.createRoute(animalId))
-                }
+                },
+                onMyAnimals = {}
             )
         }
 

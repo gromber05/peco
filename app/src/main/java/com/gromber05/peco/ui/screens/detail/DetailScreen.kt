@@ -1,5 +1,8 @@
 package com.gromber05.peco.ui.screens.detail
 
+import android.content.Intent
+import android.net.Uri
+import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -36,6 +39,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import coil.compose.AsyncImage
+import androidx.core.net.toUri
+import com.gromber05.peco.utils.normalizePhone
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -66,16 +71,27 @@ fun DetailScreen(
                 title = { Text(animal?.name ?: "Detalle") }
             )
         },
-        floatingActionButton = {
+        /*floatingActionButton = {
             if (uiState.volunteer != null) {
-                val volunteer =
                 FloatingActionButton(
-                    onClick = { viewModel.openDialer(context = context, phone = uiState.volunteer!!.phone) }
+                    modifier = Modifier.padding(10.dp),
+                    onClick = {
+                        val phone = uiState.volunteer!!.phone
+                        val normalized = normalizePhone(phone)
+                        if (normalized.isNotBlank()) {
+                            val intent = Intent(Intent.ACTION_DIAL).apply {
+                                data = "tel:$normalized".toUri()
+                            }
+                            val canHandle = intent.resolveActivity(context.packageManager) != null
+                            Log.d("DIALER", "phone=$normalized canHandle=$canHandle")
+                            if (canHandle) context.startActivity(intent)
+                        }
+                    }
                 ) {
                     Icon(Icons.Default.Call, contentDescription = "Llamar")
                 }
             }
-        }
+        }*/
     ) { padding ->
 
         if (uiState.isLoading) {
