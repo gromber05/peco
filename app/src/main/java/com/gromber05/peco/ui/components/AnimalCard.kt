@@ -38,6 +38,9 @@ import coil.compose.AsyncImage
 import com.gromber05.peco.model.AdoptionState
 import com.gromber05.peco.model.data.Animal
 import com.gromber05.peco.utils.LocationUtils.rememberCityFromLatLng
+import com.gromber05.peco.utils.TtsSpeaker
+import com.gromber05.peco.utils.fechaATexto
+import com.gromber05.peco.utils.parseDateApi
 
 @Composable
 fun AnimalCard(
@@ -128,29 +131,38 @@ fun AnimalCard(
                     horizontalArrangement = Arrangement.spacedBy(10.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(
-                        text = "Nacimiento: ${animal.dob}",
-                        color = Color.White.copy(alpha = 0.9f),
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-                    val city = rememberCityFromLatLng(
-                        latitude = animal.latitude,
-                        longitude = animal.longitude
-                    )
-
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(
-                            imageVector = Icons.Default.LocationOn,
-                            contentDescription = null,
-                            tint = Color.White.copy(alpha = 0.9f),
-                            modifier = Modifier.size(18.dp)
-                        )
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(10.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
                         Text(
-                            text = city,
+                            text = "Nacimiento: ${animal.dob}",
                             color = Color.White.copy(alpha = 0.9f),
                             style = MaterialTheme.typography.bodyMedium
                         )
+                        val city = rememberCityFromLatLng(
+                            latitude = animal.latitude,
+                            longitude = animal.longitude
+                        )
+
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(
+                                imageVector = Icons.Default.LocationOn,
+                                contentDescription = null,
+                                tint = Color.White.copy(alpha = 0.9f),
+                                modifier = Modifier.size(18.dp)
+                            )
+                            Text(
+                                text = city,
+                                color = Color.White.copy(alpha = 0.9f),
+                                style = MaterialTheme.typography.bodyMedium
+                            )
+                        }
                     }
+
+                    SpeakButton(
+                        textToRead = "Información del animal. Se llama ${animal.name}. Es un ${animal.species}. Estado: ${animal.adoptionState.value}. Nació el: ${fechaATexto(animal.dob)}."
+                    )
                 }
 
                 Spacer(modifier = Modifier.height(6.dp))

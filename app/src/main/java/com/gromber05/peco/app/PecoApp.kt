@@ -1,10 +1,8 @@
 package com.gromber05.peco.app
 
-import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -12,23 +10,35 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.gromber05.peco.ui.AppViewModel
-import com.gromber05.peco.ui.animations.SplashScreen
 import com.gromber05.peco.ui.navigation.AppNavigation
 import com.gromber05.peco.ui.screens.admin.AdminAddAnimalScreen
 import com.gromber05.peco.ui.screens.animals.AnimalsScreen
 import com.gromber05.peco.ui.screens.detail.DetailScreen
+import com.gromber05.peco.ui.screens.forgotpassword.ForgotPasswordScreen
+import com.gromber05.peco.ui.screens.gate.AuthGate
 import com.gromber05.peco.ui.screens.home.HomeScreen
 import com.gromber05.peco.ui.screens.home.HomeViewModel
 import com.gromber05.peco.ui.screens.login.LoginScreen
-import com.gromber05.peco.ui.screens.detail.DetailViewModel
-import com.gromber05.peco.ui.screens.forgotpassword.ForgotPasswordScreen
-import com.gromber05.peco.ui.screens.gate.AuthGate
-import com.gromber05.peco.ui.screens.login.LoginViewModel
 import com.gromber05.peco.ui.screens.profile.ChangePasswordScreen
 import com.gromber05.peco.ui.screens.profile.EditProfileScreen
 import com.gromber05.peco.ui.screens.register.RegisterScreen
-import com.gromber05.peco.ui.screens.register.RegisterViewModel
 
+/**
+ * Composable raíz de la aplicación PECO.
+ *
+ * Se encarga de:
+ * - Inicializar el [NavController] principal.
+ * - Gestionar la navegación entre pantallas mediante [NavHost].
+ * - Conectar con los ViewModels globales usando Hilt.
+ * - Controlar el estado de autenticación y el tema (modo claro / oscuro).
+ *
+ * Define el grafo de navegación de la aplicación, incluyendo:
+ * - Pantallas de autenticación (login, registro, recuperación de contraseña).
+ * - Pantalla principal y navegación interna.
+ * - Pantallas de detalle, perfil y gestión de animales.
+ *
+ * @param isDark Indica si el tema actual de la aplicación es oscuro.
+ */
 @Composable
 fun PecoApp(
     isDark: Boolean

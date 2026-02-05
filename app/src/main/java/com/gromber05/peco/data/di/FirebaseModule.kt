@@ -16,18 +16,41 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 
+/**
+ * Módulo de Hilt encargado de proporcionar las dependencias de Firebase.
+ *
+ * Este módulo define los proveedores de instancias únicas (Singleton) de:
+ * - [FirebaseAuth] para la autenticación de usuarios.
+ * - [FirebaseFirestore] como base de datos en la nube.
+ * - [FirebaseStorage] para el almacenamiento de archivos.
+ *
+ * Se instala en [SingletonComponent], por lo que las dependencias viven
+ * durante todo el ciclo de vida de la aplicación.
+ *
+ * Gracias a este módulo, las dependencias de Firebase pueden inyectarse
+ * de forma segura y desacoplada en ViewModels, Repositories y DataSources.
+ */
 @Module
 @InstallIn(SingletonComponent::class)
 object FirebaseModule {
 
+    /**
+     * Proporciona una instancia singleton de [FirebaseAuth].
+     */
     @Provides
     @Singleton
     fun provideAuth(): FirebaseAuth = FirebaseAuth.getInstance()
 
+    /**
+     * Proporciona una instancia singleton de [FirebaseFirestore].
+     */
     @Provides
     @Singleton
     fun provideFirestore(): FirebaseFirestore = FirebaseFirestore.getInstance()
 
+    /**
+     * Proporciona una instancia singleton de [FirebaseStorage].
+     */
     @Provides
     @Singleton
     fun provideStorage(): FirebaseStorage = FirebaseStorage.getInstance()

@@ -2,22 +2,19 @@ package com.gromber05.peco.ui.screens.detail
 
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
+import androidx.core.net.toUri
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.gromber05.peco.data.repository.AnimalRepository
 import com.gromber05.peco.data.repository.UserRepository
-import com.gromber05.peco.model.user.User
 import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import androidx.core.net.toUri
-import com.gromber05.peco.utils.normalizePhone
-import kotlinx.coroutines.flow.collectLatest
+import javax.inject.Inject
 
 @HiltViewModel
 class DetailViewModel @Inject constructor(
@@ -83,17 +80,5 @@ class DetailViewModel @Inject constructor(
                 )
             }
         }
-    }
-
-    fun openDialer(context: Context, phone: String) {
-        val normalized = normalizePhone(phone)
-        if (normalized.isBlank()) return
-
-        val intent = Intent(Intent.ACTION_DIAL).apply {
-            data = "tel:$normalized".toUri()
-            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        }
-
-        context.startActivity(intent)
     }
 }

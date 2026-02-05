@@ -4,18 +4,23 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-fun formatTimestamp(timestamp: Long): String {
-    val sdf = SimpleDateFormat("dd/MM HH:mm", Locale.getDefault())
-    return sdf.format(Date(timestamp))
+private val INPUT_FMT = SimpleDateFormat(
+    "yyyy-MM-dd",
+    Locale("es", "ES")
+)
+
+fun parseDateApi(date: String): Date? =
+    runCatching { INPUT_FMT.parse(date) }.getOrNull()
+
+fun dateToSpokenTextApi23(date: Date): String {
+    val spokenFormat = SimpleDateFormat(
+        "d 'de' MMMM 'de' yyyy",
+        Locale("es", "ES")
+    )
+    return spokenFormat.format(date)
 }
 
-fun formatTime(timeMillis: Long): String {
-    if (timeMillis == 0L) return ""
-    val sdf = SimpleDateFormat("HH:mm", Locale.getDefault())
-    return sdf.format(Date(timeMillis))
-}
-
-fun formatTime(date: Date): String {
-    val formatter = SimpleDateFormat("HH:mm", Locale.getDefault())
-    return formatter.format(date)
+fun fechaATexto(date: String): String {
+    val fechaParse = parseDateApi(date)
+    return fechaParse?.let { dateToSpokenTextApi23(it) } ?: "fecha desconocida"
 }
