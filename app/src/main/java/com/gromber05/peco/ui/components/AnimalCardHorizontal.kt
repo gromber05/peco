@@ -1,6 +1,7 @@
 package com.gromber05.peco.ui.components
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -29,13 +30,17 @@ import com.gromber05.peco.model.data.Animal
 fun AnimalCardHorizontal(
     animal: Animal,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onErase: () -> Unit = {}
 ) {
     Card(
         modifier = modifier
             .fillMaxWidth()
             .height(120.dp)
-            .clickable(onClick = onClick),
+            .combinedClickable(
+                onClick = onClick,
+                onLongClick = onErase
+            ),
         shape = RoundedCornerShape(18.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {

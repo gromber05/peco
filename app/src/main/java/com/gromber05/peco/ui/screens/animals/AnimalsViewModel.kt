@@ -70,6 +70,27 @@ class AnimalsViewModel @Inject constructor(
                 }
         }
     }
+
+    fun deleteAnimal(animalUid: String) {
+        viewModelScope.launch {
+            _uiState.update { it.copy(isLoading = true, error = null) }
+
+            try {
+                animalRepository.deleteAnimal(animalUid)
+
+                _uiState.update { it.copy(isLoading = false) }
+            } catch (e: Exception) {
+                _uiState.update {
+                    it.copy(
+                        isLoading = false,
+                        error = e.message ?: "Error al eliminar el animal"
+                    )
+                }
+            }
+        }
+    }
+
+
     fun setFilter(filter: Boolean) {
         _uiState.update {
             it.copy(
