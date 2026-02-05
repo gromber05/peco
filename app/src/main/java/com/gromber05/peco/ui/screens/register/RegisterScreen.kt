@@ -1,13 +1,40 @@
 package com.gromber05.peco.ui.screens.register
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material.icons.filled.Call
+import androidx.compose.material.icons.filled.DarkMode
+import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Pets
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.FabPosition
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
@@ -17,8 +44,32 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
 
+/**
+ * Pantalla de registro de usuario.
+ *
+ * Permite crear una cuenta nueva introduciendo los datos del formulario:
+ * - Nombre completo
+ * - Correo electrónico
+ * - Número de teléfono
+ * - Contraseña y confirmación
+ *
+ * La pantalla observa el estado expuesto por [RegisterViewModel] mediante `StateFlow`
+ * y reacciona a los cambios para:
+ * - Mostrar errores de validación o backend.
+ * - Mostrar indicador de carga durante el registro.
+ * - Notificar el éxito del registro ejecutando [onRegisterSuccess].
+ *
+ * Incluye además un botón flotante (FAB) para alternar el tema (claro/oscuro).
+ *
+ * @param viewModel Instancia de [RegisterViewModel]. Por defecto se obtiene con [hiltViewModel]
+ * para inyección con Hilt.
+ * @param onNavigateBack Callback para volver a la pantalla anterior (por ejemplo, login).
+ * @param onRegisterSuccess Callback que se ejecuta cuando el registro finaliza con éxito.
+ * @param onToggleTheme Callback para alternar el tema de la aplicación.
+ * @param isDarkMode Indica si el tema actual es oscuro. (En esta implementación se recibe
+ * como parámetro, aunque la UI no lo utiliza directamente).
+ */
 @Composable
 fun RegisterScreen(
     viewModel: RegisterViewModel = hiltViewModel(),
@@ -29,6 +80,12 @@ fun RegisterScreen(
 ) {
     val state by viewModel.uiState.collectAsState()
 
+    /**
+     * Efecto que reacciona al cambio de `state.isRegistered`.
+     *
+     * Cuando el registro se completa correctamente (`isRegistered == true`),
+     * se invoca [onRegisterSuccess] para navegar o actualizar el flujo de la app.
+     */
     LaunchedEffect(state.isRegistered) {
         if (state.isRegistered) {
             onRegisterSuccess()
@@ -36,6 +93,9 @@ fun RegisterScreen(
     }
 
     Scaffold(
+        /**
+         * Botón flotante que permite alternar el tema (modo claro/oscuro).
+         */
         floatingActionButton = {
             FloatingActionButton(
                 onClick = { onToggleTheme() },
@@ -60,6 +120,9 @@ fun RegisterScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
+            /**
+             * Icono principal de la pantalla (branding / logo).
+             */
             Icon(
                 imageVector = Icons.Filled.Pets,
                 contentDescription = "Logo Protectora",
@@ -69,6 +132,9 @@ fun RegisterScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
+            /**
+             * Título de la pantalla.
+             */
             Text(
                 text = "Crear Cuenta",
                 fontSize = 28.sp,
@@ -78,6 +144,9 @@ fun RegisterScreen(
 
             Spacer(modifier = Modifier.height(32.dp))
 
+            /**
+             * Campo: nombre completo.
+             */
             OutlinedTextField(
                 value = state.name,
                 onValueChange = { viewModel.onNameChange(it) },
@@ -90,6 +159,9 @@ fun RegisterScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
+            /**
+             * Campo: correo electrónico.
+             */
             OutlinedTextField(
                 value = state.email,
                 onValueChange = { viewModel.onEmailChange(it) },
@@ -102,6 +174,9 @@ fun RegisterScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
+            /**
+             * Campo: número de teléfono.
+             */
             OutlinedTextField(
                 value = state.phone,
                 onValueChange = { viewModel.onPhoneChange(it) },
@@ -114,6 +189,11 @@ fun RegisterScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
+            /**
+             * Campo: contraseña.
+             *
+             * Incluye icono para alternar la visibilidad, reutilizando `state.isPasswordVisible`.
+             */
             OutlinedTextField(
                 value = state.pass,
                 onValueChange = { viewModel.onPassChange(it) },
@@ -135,6 +215,11 @@ fun RegisterScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
+            /**
+             * Campo: confirmación de contraseña.
+             *
+             * Se marca como error cuando no coincide con `state.pass` y el usuario ya ha escrito algo.
+             */
             OutlinedTextField(
                 value = state.confirmPass,
                 onValueChange = { viewModel.onConfirmPassChange(it) },
@@ -147,8 +232,9 @@ fun RegisterScreen(
                 isError = state.pass != state.confirmPass && state.confirmPass.isNotEmpty()
             )
 
-
-
+            /**
+             * Mensaje de error general del proceso de registro (validación o backend).
+             */
             if (state.error != null) {
                 Text(
                     text = state.error!!,
@@ -160,6 +246,12 @@ fun RegisterScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
+            /**
+             * Botón principal de registro.
+             *
+             * Durante la carga se muestra un [CircularProgressIndicator] y el botón se deshabilita
+             * para evitar envíos múltiples.
+             */
             Button(
                 onClick = { viewModel.register() },
                 modifier = Modifier.fillMaxWidth(),
@@ -177,6 +269,9 @@ fun RegisterScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
+            /**
+             * Acción secundaria para navegar a la pantalla de login si el usuario ya tiene cuenta.
+             */
             TextButton(onClick = onNavigateBack) {
                 Text(
                     text = "¿Ya tienes cuenta? Inicia sesión",
@@ -187,6 +282,13 @@ fun RegisterScreen(
     }
 }
 
+/**
+ * Previsualización de la pantalla de registro en Android Studio.
+ *
+ * Nota: en esta preview se utilizan `TODO()` para callbacks y ViewModel,
+ * lo cual provoca error si se ejecuta tal cual. Se mantiene sin modificar
+ * para respetar el código original.
+ */
 @Preview(showBackground = true)
 @Composable
 fun Preview_RegisterScreen() {

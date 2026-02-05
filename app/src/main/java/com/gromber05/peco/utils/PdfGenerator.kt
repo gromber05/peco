@@ -13,6 +13,25 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
+/**
+ * Genera un PDF con un informe tabular de animales y lo guarda en la caché de la app.
+ *
+ * El documento se crea con [PdfDocument] (API nativa Android) y contiene:
+ * - Cabecera con título y fecha de generación.
+ * - Tabla con columnas: Nombre, Nacimiento/Edad, Estado.
+ * - Paginación automática cuando se supera el alto disponible.
+ * - Pie de página con el número de página.
+ * - Resumen final con el total de animales.
+ *
+ * Si la lista está vacía, se genera igualmente un PDF con un mensaje indicando
+ * que no hay datos para mostrar.
+ *
+ * El archivo se guarda en `context.cacheDir` con el nombre `animales.pdf`.
+ *
+ * @param context Contexto Android necesario para acceder a `cacheDir`.
+ * @param animals Lista de [Animal] a incluir en el informe.
+ * @return Archivo PDF generado en la caché (`animales.pdf`).
+ */
 fun generatePdf(context: Context, animals: List<Animal>): File {
     val pdf = PdfDocument()
 
@@ -50,6 +69,16 @@ fun generatePdf(context: Context, animals: List<Animal>): File {
     var pageNumber = 1
     var y = 0f
 
+    /**
+     * Crea una nueva página del PDF y dibuja:
+     * - Título del informe.
+     * - Fecha/hora de generación.
+     * - Cabecera de la tabla (Nombre, Nacimiento/Edad, Estado) y una línea separadora.
+     *
+     * También reinicia la coordenada vertical `y` al margen superior para comenzar a dibujar filas.
+     *
+     * @return Página iniciada mediante [PdfDocument.startPage].
+     */
     fun startNewPage(): PdfDocument.Page {
         val pageInfo = PdfDocument.PageInfo.Builder(pageWidth, pageHeight, pageNumber).create()
         val page = pdf.startPage(pageInfo)
@@ -79,6 +108,13 @@ fun generatePdf(context: Context, animals: List<Animal>): File {
         return page
     }
 
+    /**
+     * Finaliza una página del PDF añadiendo el pie de página y llamando a [PdfDocument.finishPage].
+     *
+     * Tras finalizar, incrementa el contador de página para la siguiente.
+     *
+     * @param page Página actual a finalizar.
+     */
     fun finishPage(page: PdfDocument.Page) {
         val canvas = page.canvas
         val footerText = "Página $pageNumber"
@@ -138,8 +174,29 @@ fun generatePdf(context: Context, animals: List<Animal>): File {
     return file
 }
 
+/**
+ * Normaliza valores de texto para mostrarlos en el PDF de forma segura.
+ *
+ * - Si el texto es `null`, devuelve `"-"`.
+ * - Si el texto es demasiado largo, lo recorta a un máximo de 40 caracteres.
+ *
+ * @param s Texto de entrada (posiblemente `null`).
+ * @return Texto seguro para imprimir en el PDF.
+ */
 private fun safe(s: String?): String = s?.take(40) ?: "-"
 
+/**
+ * Abre un archivo PDF usando una app externa.
+ *
+ * Utiliza [FileProvider] para obtener una URI segura y concede permisos
+ * de lectura temporales al visor seleccionado.
+ *
+ * Requiere que exista un `provider` configurado en el `AndroidManifest`
+ * con la autoridad `${context.packageName}.provider` y sus `paths` correspondientes.
+ *
+ * @param context Contexto Android usado para resolver el [FileProvider] y lanzar el intent.
+ * @param file Archivo PDF a abrir.
+ */
 fun openPdf(context: Context, file: File) {
     val uri = FileProvider.getUriForFile(
         context,
@@ -154,6 +211,15 @@ fun openPdf(context: Context, file: File) {
     context.startActivity(Intent.createChooser(intent, "Abrir PDF"))
 }
 
+/**
+ * Comparte un archivo PDF mediante un intent de compartir.
+ *
+ * Utiliza [FileProvider] para generar una URI segura y adjunta el PDF mediante
+ * [Intent.EXTRA_STREAM], otorgando permisos de lectura temporales.
+ *
+ * @param context Contexto Android usado para resolver el [FileProvider] y lanzar el intent.
+ * @param file Archivo PDF a compartir.
+ */
 fun sharePdf(context: Context, file: File) {
     val uri = FileProvider.getUriForFile(
         context,
