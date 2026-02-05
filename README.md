@@ -5,34 +5,48 @@
 [![Kotlin](https://img.shields.io/badge/Kotlin-100%25-purple?logo=kotlin)](#)
 [![Status](https://img.shields.io/badge/Status-En%20desarrollo-yellow)](#)
 
-**PECO** es una aplicación móvil Android desarrollada con **Jetpack Compose**, diseñada para mejorar la gestión interna de las protectoras de animales y optimizar la comunicación entre administradores, voluntarios y usuarios.
+# 🐾 PECO – Plataforma de gestión y adopción animal
 
-El proyecto nace de una **necesidad social real**: la falta de herramientas centralizadas, accesibles y modernas para la gestión de animales y adopciones en organizaciones sin ánimo de lucro.
+PECO es una **aplicación móvil Android** desarrollada con **Jetpack Compose**, orientada a la **organización social y comunitaria**, cuyo objetivo es mejorar la gestión interna de una protectora de animales y facilitar el proceso de adopción responsable.
 
----
-
-## ✨ Características principales
-
-* 📋 Gestión y visualización de animales
-* 🔍 Búsqueda y filtrado avanzado
-* 🐶 Ficha detallada de animales
-* 👥 Sistema de roles (Administrador, Voluntario, Usuario)
-* 💬 Comunicación interna
-* 📊 Informes y estadísticas
-* 🎨 Interfaz moderna con Material 3
-* ♿ Diseño centrado en usabilidad y accesibilidad
+El proyecto se ha desarrollado como **Proyecto Final del módulo DIN**, aplicando una arquitectura moderna, buenas prácticas de desarrollo y una documentación completa tanto a nivel de usuario como técnico.
 
 ---
 
-## 🛠️ Stack tecnológico
+## 📌 Objetivos del proyecto
+
+* Centralizar la información de animales disponibles para adopción.
+* Facilitar la comunicación entre usuarios, voluntarios y administradores.
+* Diferenciar roles y permisos dentro de la aplicación.
+* Generar informes estructurados a partir de datos reales.
+* Aplicar una arquitectura clara, mantenible y testable.
+* Responder a una **necesidad social real** mediante una solución digital.
+
+---
+
+## 🧱 Arquitectura y tecnologías
 
 * **Lenguaje:** Kotlin
-* **UI:** Jetpack Compose + Material 3
-* **Arquitectura:** MVVM
-* **Estado:** ViewModel + StateFlow
-* **DI:** Hilt
-* **Persistencia:** Room / Firebase
-* **Navegación:** Navigation Compose
+* **Interfaz gráfica:** Jetpack Compose + Material 3
+* **Arquitectura:** MVVM + principios de Clean Architecture
+* **Persistencia:** Firebase Firestore
+* **Autenticación:** Firebase Auth
+* **Inyección de dependencias:** Hilt
+* **Asincronía:** Kotlin Coroutines + Flow
+
+---
+
+## 🧭 Funcionalidades principales
+
+* Registro e inicio de sesión de usuarios.
+* Gestión de perfiles y roles (usuario, voluntario, administrador).
+* Listado y detalle de animales.
+* Favoritos y filtrado dinámico.
+* Gestión de animales asignados (“Mis animales”).
+* Eliminación segura con confirmación.
+* Generación de informes en **PDF**.
+* Panel de estadísticas con gráficos básicos.
+* Recuperación de contraseña.
 
 ---
 
@@ -50,58 +64,102 @@ El proyecto nace de una **necesidad social real**: la falta de herramientas cent
 
 ```text
 .
-├── app/                    # Código fuente de la aplicación
-├── docs/                   # Documentación del proyecto
-│   ├── criterio.md         # Documentación principal (RA y rúbrica)
-│   ├── pruebas.md          # Estrategia y documentación de pruebas
-├── README.md               # Descripción general del proyecto
+├── app/                      # Código fuente de la aplicación
+├── docs/                     # Documentación del proyecto
+│   ├── criterio.md           # Documentación principal (RA y rúbrica)
+│   ├── pruebas.md            # Estrategia y documentación de pruebas
+│   ├── manual_tecnico.md     # Manual técnico de la aplicación
+│   ├── manual_de_usuario.md  # EManual de usuario 
+├── README.md                 # Descripción general del proyecto
 ```
 
 ---
 
-## 📘 Documentación del proyecto
+## 📚 Documentación del proyecto
 
-Toda la documentación detallada y evaluable del proyecto se encuentra en la carpeta `docs`.
+Toda la documentación del proyecto se encuentra organizada en la carpeta `docs/`:
 
-### 📄 [docs/criterio.md](docs/criterio.md)
+### 📖 Manuales
 
-Documento principal del proyecto donde se desarrolla:
+* 👤 **Manual de usuario**
+  👉 [docs/manual_usuario.md](docs/manual_usuario.md)
 
-* Contexto y justificación de la aplicación
-* Objetivos y alcance
-* Diseño de la interfaz
-* Usabilidad y accesibilidad
-* Arquitectura y decisiones técnicas
-* Relación con los Resultados de Aprendizaje (RA)
-* Justificación teórica de funcionalidades avanzadas
+* 🛠️ **Manual técnico**
+  👉 [docs/manual_tecnico.md](docs/manual_tecnico.md)
 
-### 🧪 [docs/pruebas.md](docs/pruebas.md)
+### 🧪 Pruebas
 
-Documento específico de pruebas que incluye:
+* 🧪 **Documento de pruebas y validación**
+  👉 [docs/pruebas.md](docs/pruebas.md)
 
-* Estrategia de pruebas
-* Pruebas de integración
-* Pruebas de regresión
-* Pruebas de estrés y volumen
-* Pruebas de seguridad
-* Análisis del uso de recursos
+### 📐 Evaluación y criterios
+
+* 📐 **Criterios de evaluación y justificación**
+  👉 [docs/criterio.md](docs/criterio.md)
 
 ---
 
-## ▶️ Ejecución del proyecto
+## 🧪 Pruebas y calidad
 
-1. Descargar el paquete `.apk` de la última `release`
+El proyecto incluye **pruebas unitarias** centradas en la lógica de negocio (ViewModels y repositorios), utilizando:
 
-2. Instalar en un dispositivo android
+* JUnit
+* MockK
+* Coroutines Test
+* Turbine
+
+Las pruebas se encuentran en:
+
+```
+app/src/test/java/
+```
+
+Y pueden ejecutarse mediante:
+
+```bash
+./gradlew test
+```
+
+Los informes de resultados se generan automáticamente en formato HTML.
 
 ---
 
-## 🎥 Evidencias
+## 📦 Distribución
 
-El proyecto se acompaña de:
+La aplicación puede generarse en formato APK:
 
-* Capturas de pantalla de la aplicación
-* Documentación técnica y funcional
-* Vídeo explicativo mostrando el funcionamiento completo de la app
+* **Debug APK:** para pruebas internas.
+* **Release APK:** firmado para distribución.
+
+Ruta típica de salida:
+
+```
+app/build/outputs/apk/
+```
+
+---
+
+## ⚠️ Limitaciones conocidas
+
+* La carga de imágenes mediante Firebase Storage no se ha implementado en esta versión por limitaciones del contexto del proyecto.
+* El modelo de datos mantiene el campo `photo` preparado para una futura ampliación.
+
+Estas limitaciones y posibles mejoras se detallan en la documentación técnica.
+
+---
+
+## 🚀 Mejoras futuras
+
+* Integración de imágenes con Firebase Storage o servicio externo.
+* Gráficos avanzados también en informes PDF.
+* Aumento de la cobertura de pruebas automatizadas.
+* Optimización visual y accesibilidad.
+
+---
+
+## 👨‍💻 Autor
+
+Proyecto desarrollado por **Gonzalo Romero Bernal**
+Ciclo Formativo de Grado Superior – Desarrollo de Aplicaciones Multiplataforma (2º DAM)
 
 ---

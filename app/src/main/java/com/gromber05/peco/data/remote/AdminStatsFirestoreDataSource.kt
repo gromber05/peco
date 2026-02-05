@@ -32,7 +32,7 @@ class AdminStatsFirestoreDataSource @Inject constructor(
 
     private fun countAnimalsByState(state: String): Flow<Int> =
         observeAnimals().map { list ->
-            list.count { it.adoptionState == state }
+            list.count { it.adoptionState.equals(state, ignoreCase = true) }
         }
 
     fun animalsBySpecies(): Flow<List<LabelCount>> =
@@ -47,8 +47,16 @@ class AdminStatsFirestoreDataSource @Inject constructor(
 
     private fun swipes() = db.collectionGroup("swipes")
 
-    fun likes(): Flow<Int> =
-        countSwipesByAction("LIKE")
+    private fun swipesByAction(action: String) =
+        db.collectionGroup("swipes").whereEqualTo("action", action)
+
+    fun likes(): Flow<Int> = callbackFlow {
+        val reg = swipesByAction("LIKE").addSnapshotListener { snap, err ->
+            if (err != null) { close(err); return@addSnapshotListener }
+            trySend(snap?.size() ?: 0)
+        }
+        awaitClose { reg.remove() }
+    }
 
     fun dislikes(): Flow<Int> =
         countSwipesByAction("DISLIKE")
