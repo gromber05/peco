@@ -11,14 +11,10 @@ class AuthRepository @Inject constructor(
 ) {
     fun isLoggedIn(): Boolean = db.isLoggedIn()
     fun currentUidFlow(): Flow<String?> = db.currentUidFlow()
-
     suspend fun signIn(email: String, password: String) = db.signIn(email, password)
-
     suspend fun signUp(email: String, password: String): String = db.signUp(email, password)
-
     suspend fun changePassword(currentPassword: String, newPassword: String) = db.changePassword(currentPassword, newPassword)
-
     fun signOut() = db.signOut()
-
     fun isLoggedInFlow(): Flow<Boolean?> = db.isLoggedInFlow()
+    fun sendPasswordResetEmail(email: String) = db.sendPasswordResetEmail(email.trim())
 }

@@ -31,6 +31,10 @@ class AuthFirestoreDataSource @Inject constructor(
         }
     }
 
+    fun sendPasswordResetEmail(email: String) {
+        auth.sendPasswordResetEmail(email)
+    }
+
     suspend fun signIn(email: String, password: String) {
         auth.signInWithEmailAndPassword(email, password).await()
     }

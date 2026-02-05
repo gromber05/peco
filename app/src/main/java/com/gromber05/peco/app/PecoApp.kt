@@ -21,6 +21,7 @@ import com.gromber05.peco.ui.screens.home.HomeScreen
 import com.gromber05.peco.ui.screens.home.HomeViewModel
 import com.gromber05.peco.ui.screens.login.LoginScreen
 import com.gromber05.peco.ui.screens.detail.DetailViewModel
+import com.gromber05.peco.ui.screens.forgotpassword.ForgotPasswordScreen
 import com.gromber05.peco.ui.screens.gate.AuthGate
 import com.gromber05.peco.ui.screens.login.LoginViewModel
 import com.gromber05.peco.ui.screens.profile.ChangePasswordScreen
@@ -72,6 +73,9 @@ fun PecoApp(
                 },
                 onNavigateToRegister = {
                     navController.navigate(AppNavigation.RegisterScreen.route)
+                },
+                onNavigateToResetPassword = {
+                    navController.navigate(AppNavigation.ForgotPassword.route)
                 }
             )
         }
@@ -158,5 +162,12 @@ fun PecoApp(
                 }
             )
         }
+
+        composable(AppNavigation.ForgotPassword.route) {
+            ForgotPasswordScreen(
+                onBack = { navController.popBackStack() }
+            )
+        }
+
     }
 }

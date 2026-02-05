@@ -1,8 +1,3 @@
-Perfecto, Gonzalo. Lo que tienes ya está **muy bien planteado**; ahora lo que te voy a hacer es **desarrollarlo “un poquito más”**, dándole más cuerpo, más tono académico/profesional y dejando claro al profe que **sabes exactamente lo que estás haciendo** (sin inventar humo).
-Puedes **copiar y pegar** directamente sobre tu documento.
-
----
-
 # PROYECTO FINAL DIN – PECO
 
 ---
@@ -84,10 +79,11 @@ Claro, te lo dejo **más desarrollado** (sin hacerlo eterno) y después te digo 
 ### RA1.a – Análisis de herramientas y librerías
 
 Antes de iniciar el desarrollo se realizó un análisis de herramientas actuales, priorizando tecnologías recomendadas por Google por su estabilidad, escalabilidad y adopción en proyectos reales.
-Se selecciona **Jetpack Compose** como sistema de UI declarativo por su enfoque moderno basado en estados y su integración natural con **ViewModel + Flow**, lo que facilita una interfaz reactiva y coherente. Para garantizar una experiencia consistente, se utiliza **Material 3**, aprovechando su sistema de tipografías, colores y componentes con soporte para accesibilidad y temas.
-Como backend, se emplea **Firebase** (Auth + Firestore) por su enfoque serverless, reduciendo complejidad de infraestructura y permitiendo centrarse en la lógica de negocio y la experiencia de usuario. Además, su integración con Android acelera el desarrollo y facilita la gestión de usuarios y datos en tiempo real.
+He escogido **Jetpack Compose** como sistema de UI declarativo por su enfoque moderno basado en estados y su integración natural con **ViewModel + Flow**, lo que facilita una interfaz reactiva y coherente además de limpia y organizada. Para garantizar una experiencia consistente, se utiliza **Material 3**, aprovechando su sistema de tipografías, colores y componentes con soporte para accesibilidad y temas.
+Como backend, se emplea **Firebase** (Auth + Firestore) por su enfoque `serverless`, reduciendo complejidad de infraestructura y permitiendo centrarse en la lógica de negocio y la experiencia de usuario. Además, su integración con Android acelera el desarrollo y facilita la gestión de usuarios y datos en tiempo real.
+No se ha podido implementar la carga de imagenes debido a las limitaciones que nos ofrece firebase
 
-**Nivel alcanzado:** Análisis completo, actualizado y justificado.
+https://github.com/gromber05/peco/blob/1d46987f87f3e4f787041a718db2c3f999ed18a0/app/src/main/java/com/gromber05/peco/data/remote/UsersFirestoreDataSource.kt#L15-L106
 
 ---
 
@@ -96,12 +92,32 @@ Como backend, se emplea **Firebase** (Auth + Firestore) por su enfoque serverles
 La interfaz gráfica se estructura en un conjunto de pantallas que cubren el flujo principal de uso de la aplicación:
 
 * **Login / Registro**: entrada segura mediante autenticación.
+
+https://github.com/gromber05/peco/blob/1d46987f87f3e4f787041a718db2c3f999ed18a0/app/src/main/java/com/gromber05/peco/ui/screens/login/LoginScreen.kt#L26-L155
+
+https://github.com/gromber05/peco/blob/1d46987f87f3e4f787041a718db2c3f999ed18a0/app/src/main/java/com/gromber05/peco/ui/screens/register/RegisterScreen.kt#L22-L188
+
 * **Home**: punto de acceso a funcionalidades principales.
+
+https://github.com/gromber05/peco/blob/1d46987f87f3e4f787041a718db2c3f999ed18a0/app/src/main/java/com/gromber05/peco/ui/screens/home/HomeScreen.kt#L48-L229
+
+https://github.com/gromber05/peco/blob/1d46987f87f3e4f787041a718db2c3f999ed18a0/app/src/main/java/com/gromber05/peco/ui/screens/home/HomeView.kt#L30-L92
+
 * **Listado de animales**: navegación eficiente y visualización clara.
+
+https://github.com/gromber05/peco/blob/1d46987f87f3e4f787041a718db2c3f999ed18a0/app/src/main/java/com/gromber05/peco/ui/screens/animals/AnimalsScreen.kt#L46-L199
+
 * **Detalle de animal**: información completa, estado y acciones disponibles.
+
+https://github.com/gromber05/peco/blob/1d46987f87f3e4f787041a718db2c3f999ed18a0/app/src/main/java/com/gromber05/peco/ui/screens/detail/DetailScreen.kt#L54-L179
+
 * **Perfil de usuario**: datos personales y opciones relacionadas.
 
+https://github.com/gromber05/peco/blob/1d46987f87f3e4f787041a718db2c3f999ed18a0/app/src/main/java/com/gromber05/peco/ui/screens/profile/EditProfileScreen.kt#L26-L128
+
 Todas las pantallas están conectadas mediante **Navigation Compose**, aplicando rutas claras y controlando el estado de navegación para ofrecer una experiencia fluida. Se mantiene coherencia visual entre pantallas mediante un tema común y patrones consistentes (cabeceras, márgenes, jerarquía de texto, etc.).
+
+https://github.com/gromber05/peco/blob/1d46987f87f3e4f787041a718db2c3f999ed18a0/app/src/main/java/com/gromber05/peco/app/PecoApp.kt#L31-L162
 
 ---
 
@@ -122,8 +138,16 @@ Se cuida la jerarquía visual para que la información sea legible, accesible y 
 Se crean componentes reutilizables para evitar duplicación y asegurar coherencia:
 
 * **AnimalCard** (tarjetas con imagen/datos principales del animal).
+
+https://github.com/gromber05/peco/blob/1d46987f87f3e4f787041a718db2c3f999ed18a0/app/src/main/java/com/gromber05/peco/ui/components/AnimalCard.kt#L42-L198
+
 * Botones y elementos de acción adaptados al estilo de la app.
+
+https://github.com/gromber05/peco/blob/1d46987f87f3e4f787041a718db2c3f999ed18a0/app/src/main/java/com/gromber05/peco/ui/components/SwipeCards.kt#L34-L209
+
 * Campos de formulario reutilizables (login, registro, edición perfil).
+
+https://github.com/gromber05/peco/blob/1d46987f87f3e4f787041a718db2c3f999ed18a0/app/src/main/java/com/gromber05/peco/ui/components/TopBar.kt#L17-L41
 
 Los componentes se parametrizan para soportar distintos estados (cargando, error, datos parciales) y se integran con el estado proveniente de ViewModel. Esto mejora mantenibilidad, escalabilidad y consistencia visual en toda la aplicación.
 
@@ -151,7 +175,7 @@ El proyecto no parte de una plantilla simple, sino que incorpora adaptación y m
 * Refactorización de código para mejorar legibilidad y separación de capas.
 * Corrección de errores y mejora de estados (loading/error/empty).
 
-Esto demuestra evolución del proyecto y desarrollo real, no un ejemplo estático.
+Esto demuestra evolución del proyecto y desarrollo real, no un ejemplo estático, o lo que es lo mismo, cada pantalla no depende de otra, aunque se cambien mi proyecto permite que se mantega la funcionabilidad de la aplicación.
 
 ---
 
@@ -178,28 +202,148 @@ La aplicación se integra de forma coherente: la navegación, el estado, los com
 
 Se desarrollan composables reutilizables y parametrizables, con valores por defecto y soporte de eventos mediante lambdas. Los componentes están integrados en varias pantallas, manteniendo consistencia visual y reduciendo duplicación. Además, se documenta su uso para facilitar mantenimiento y ampliaciones futuras.
 
+https://github.com/gromber05/peco/blob/1d46987f87f3e4f787041a718db2c3f999ed18a0/app/src/main/java/com/gromber05/peco/ui/components/AnimalCardHorizontal.kt#L29-L91
+
+---
+
+Perfecto 👍 gracias por decírmelo, tienes razón: **los enlaces hay que mantenerlos sí o sí** para que el profe pueda comprobar código.
+Te termino **desde RA5 en adelante**, integrando **lo nuevo** (PDF múltiple, filtros, borrado seguro, generación manual desde botón, pruebas) **SIN quitar ni romper enlaces**, y con un tono **100 % académico**.
+
+Puedes **copiar y pegar directamente** esto debajo de donde te quedaste.
+
 ---
 
 ## RA5 – Informes (FFOE)
 
-La aplicación genera informes PDF desde datos reales, con estructura clara (cabecera, datos y detalles). Se incluyen filtros para limitar información (p.ej. por animal) y valores calculados como contadores, estados o resumen del registro. La incorporación de gráficos se plantea como mejora futura, documentada de forma teórica como evolución del sistema.
+La aplicación permite la generación de **informes en formato PDF** a partir de datos reales almacenados en Firebase Firestore.
+Estos informes se generan **bajo demanda por el usuario**, evitando procesos automáticos innecesarios y optimizando el uso de recursos.
+
+La lógica de generación de informes se encuentra desacoplada de la interfaz gráfica y centralizada en una clase específica, facilitando su reutilización y mantenimiento:
+
+https://github.com/gromber05/peco/blob/1d46987f87f3e4f787041a718db2c3f999ed18a0/app/src/main/java/com/gromber05/peco/utils/PdfGenerator.kt#L16-L170
+
+### RA5.a – Estructura del informe
+
+Los informes PDF presentan una estructura clara y profesional:
+
+* Cabecera con título del informe y fecha de generación.
+* Tabla con los datos principales de los animales.
+* Paginación automática en caso de listados extensos.
+* Resumen final con el número total de animales incluidos.
+
+Esta estructura facilita la lectura, el análisis y la impresión del informe.
+
+---
+
+### RA5.b – Generación de informes desde datos reales
+
+Los datos utilizados en los informes se obtienen directamente desde el repositorio de animales mediante una llamada puntual (*one-shot*), evitando observadores persistentes:
+
+El uso de funciones específicas permite obtener los datos de forma segura y controlada, garantizando que el informe refleje el estado real del sistema en el momento de su generación.
+
+---
+
+### RA5.c – Filtros del informe
+
+Antes de generar el informe, el usuario puede aplicar **filtros previos** mediante una ventana modal integrada en la interfaz:
+
+* Solo mis animales (voluntario autenticado).
+* Solo animales favoritos.
+* Solo animales adoptados.
+
+Estos filtros permiten adaptar el contenido del informe a distintos contextos y necesidades, mejorando la utilidad del documento generado.
+
+https://github.com/gromber05/peco/blob/1d46987f87f3e4f787041a718db2c3f999ed18a0/app/src/main/java/com/gromber05/peco/ui/screens/admin/AdminScreen.kt#L147-L287
+
+---
+
+### RA5.d – Valores calculados
+
+El informe incluye valores calculados automáticamente, como:
+
+* Número total de animales listados.
+* Estado de adopción de cada animal.
+
+Estos valores no se almacenan directamente, sino que se calculan a partir de los datos recuperados, garantizando coherencia y evitando duplicidad de información.
+
+---
+
+### RA5.e – Gráficos
+
+La aplicación incluye gráficos sencillos integrados en la interfaz administrativa, representando de forma visual estadísticas como animales por especie y especies con mayor número de interacciones.
+Estos gráficos se generan dinámicamente a partir de los datos calculados en el ViewModel, sin uso de librerías externas, garantizando simplicidad, rendimiento y facilidad de mantenimiento.
+
+https://github.com/gromber05/peco/blob/1d46987f87f3e4f787041a718db2c3f999ed18a0/app/src/main/java/com/gromber05/peco/ui/components/SimpleBarChart.kt#L14-L64
 
 ---
 
 ## RA7 – Distribución de aplicaciones (FFOE)
 
-Se documenta el proceso de distribución: generación de APK, conceptos de firma digital, canales de distribución (Google Play o distribución interna), e instalación/desinstalación. Esto demuestra comprensión del ciclo de vida de entrega de una aplicación Android.
+Se documenta el proceso completo de distribución de la aplicación Android:
+
+* Generación del APK desde Android Studio.
+* Diferenciación entre APK de depuración (*debug*) y APK firmado (*release*).
+* Conceptos de firma digital mediante *keystore*.
+* Instalación y desinstalación manual del APK en dispositivos Android.
+
+El APK final se genera mediante la opción **Generate Signed APK**, garantizando la integridad del paquete y su correcta instalación.
 
 ---
 
 ## RA8 – Pruebas avanzadas (FFOE)
 
-Se define una estrategia de pruebas que contempla pruebas manuales, funcionales y de regresión. Se validan flujos completos (login → navegación → listado → detalle → acciones) y se documentan aspectos como seguridad (Auth), gestión de sesiones y cuidado de recursos. Se plantean pruebas automatizadas como refuerzo de calidad del proyecto.
+### RA8.a – Estrategia de pruebas
+
+Se define una estrategia de pruebas basada en distintos niveles:
+
+* Pruebas manuales de interfaz y navegación.
+* Pruebas funcionales de flujos completos.
+* Pruebas de regresión tras añadir nuevas funcionalidades.
+
+---
+
+### RA8.b – Pruebas de integración
+
+Se prueban flujos completos como:
+
+* Login → Home → Listado de animales.
+* Acceso a detalle → acciones sobre animal.
+* Generación de informes PDF con y sin filtros.
+
+Estas pruebas garantizan que los distintos módulos funcionan correctamente de forma conjunta.
+
+---
+
+### RA8.c – Pruebas unitarias
+
+Se implementan **pruebas unitarias** sobre la capa de ViewModel y lógica de negocio, utilizando repositorios simulados (*mocks*) para evitar dependencias externas como Firebase.
+
+Las pruebas verifican, entre otros aspectos:
+
+* Carga correcta de datos.
+* Filtrado de animales según rol o estado.
+* Llamadas correctas a repositorios (por ejemplo, eliminación de animales).
+
+Esta aproximación mejora la calidad del código y facilita la detección temprana de errores.
+
+---
+
+### RA8.d – Seguridad y gestión de sesiones
+
+La aplicación utiliza **Firebase Auth** para la autenticación de usuarios y la gestión de sesiones.
+Se implementa **Firebase App Check en modo desarrollo**, garantizando que las peticiones a Firestore provienen de la aplicación legítima durante las pruebas.
+
+---
+
+### RA8.e – Optimización de recursos
+
+Se emplean corrutinas y Flows para evitar bloqueos de la interfaz, y se generan informes únicamente bajo demanda, reduciendo el consumo innecesario de recursos.
 
 ---
 
 ## 5. Conclusión
 
-PECO es una aplicación móvil completa, funcional y profesional que responde a una **necesidad social real**. El proyecto demuestra el uso correcto de **Jetpack Compose**, una arquitectura moderna, generación de informes y una clara orientación a la organización social y comunitaria.
+PECO es una aplicación móvil completa, funcional y profesional que responde a una **necesidad social real**.
+El proyecto demuestra el uso correcto de **Jetpack Compose**, una arquitectura moderna basada en MVVM y Clean Architecture, la generación de informes estructurados y una clara orientación a la organización social y comunitaria.
 
-El desarrollo realizado cumple ampliamente con los requisitos del **Proyecto Final DIN**, mostrando tanto competencias técnicas como capacidad de análisis, diseño y documentación.
+El desarrollo realizado cumple ampliamente con los requisitos, mostrando tanto competencias técnicas como capacidad de análisis, diseño, documentación y toma de decisiones técnicas justificadas.

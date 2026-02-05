@@ -20,6 +20,7 @@ coil = "2.7.0"
 playServicesLocation = "21.3.0"
 material3 = "1.4.0"
 datastore = "1.2.0"
+uiText = "1.10.2"
 
 [libraries]
 # ===== AndroidX / Tests (LO TUYO) =====
@@ -75,6 +76,7 @@ firebase-firestore = { module = "com.google.firebase:firebase-firestore" }
 # ===== Coroutines Play Services =====
 kotlinx-coroutines-play-services = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-play-services", version.ref = "kotlinxCoroutinesPlayServices" }
 firebase-storage = { module = "com.google.firebase:firebase-storage" }
+androidx-compose-ui-text = { group = "androidx.compose.ui", name = "ui-text", version.ref = "uiText" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

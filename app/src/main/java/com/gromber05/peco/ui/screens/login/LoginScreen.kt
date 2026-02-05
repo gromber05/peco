@@ -28,6 +28,7 @@ fun LoginScreen(
     viewModel: LoginViewModel = hiltViewModel(),
     onNavigateToHome: () -> Unit,
     onNavigateToRegister: () -> Unit,
+    onNavigateToResetPassword: () -> Unit,
     onToggleTheme: () -> Unit
 ) {
     val state by viewModel.uiState.collectAsState()
@@ -149,6 +150,20 @@ fun LoginScreen(
                     color = Color.Gray
                 )
             }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            TextButton(
+                onClick = {
+                    onNavigateToResetPassword()
+                }
+            ) {
+                Text(
+                    text = "He olvidado mi contraseña",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = Color.Gray
+                )
+            }
         }
 
     }
@@ -164,5 +179,6 @@ fun Preview_loginScreen() {
         onNavigateToHome = {},
         onNavigateToRegister = {},
         onToggleTheme = {},
+        onNavigateToResetPassword = {},
     )
 }

@@ -8,6 +8,7 @@ sealed class AppNavigation(val route: String) {
         fun createRoute(animalId: String) = "detail/$animalId"
     }
     object RegisterScreen: AppNavigation(route = "register_screen")
+    object ForgotPassword : AppNavigation("forgot_password")
     object EditProfile: AppNavigation(route = "edit_profile")
     object ChangePassword: AppNavigation(route = "change_password")
     object Gate: AppNavigation(route = "gate")

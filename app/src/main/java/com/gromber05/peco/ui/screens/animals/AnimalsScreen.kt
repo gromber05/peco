@@ -59,8 +59,6 @@ fun AnimalsScreen(
     var animalToDeleteId by remember { mutableStateOf<String?>(null) }
     var animalToDeleteName by remember { mutableStateOf<String?>(null) }
 
-
-
     val uiState by viewModel.uiState.collectAsState()
     val title = if (ownAnimals) "Mis animales" else "Animales"
     val texto1 = if (ownAnimals) "No tienes animales" else "No tienes favoritos"

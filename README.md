@@ -63,7 +63,7 @@ El proyecto nace de una **necesidad social real**: la falta de herramientas cent
 
 Toda la documentación detallada y evaluable del proyecto se encuentra en la carpeta `docs`.
 
-### 📄 `docs/criterio.md`
+### 📄 [docs/criterio.md](docs/criterio.md)
 
 Documento principal del proyecto donde se desarrolla:
 
@@ -75,7 +75,7 @@ Documento principal del proyecto donde se desarrolla:
 * Relación con los Resultados de Aprendizaje (RA)
 * Justificación teórica de funcionalidades avanzadas
 
-### 🧪 `docs/pruebas.md`
+### 🧪 [docs/pruebas.md](docs/pruebas.md)
 
 Documento específico de pruebas que incluye:
 
