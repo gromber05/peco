@@ -11,6 +11,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
+/**
+ * Una tarjeta informativa diseñada para mostrar métricas individuales o estadísticas clave.
+ * Utiliza una jerarquía tipográfica para diferenciar claramente el concepto del valor numérico.
+ *
+ * @param title El nombre de la métrica o categoría (ej: "Total Animales", "Adoptados").
+ * @param value El dato numérico o estado a mostrar (ej: "124", "85%").
+ * @param modifier Modificador para ajustar el tamaño, peso o padding externo de la tarjeta.
+ */
 @Composable
 fun StatCard(
     title: String,
@@ -18,10 +26,24 @@ fun StatCard(
     modifier: Modifier = Modifier
 ) {
     Card(modifier = modifier) {
-        Column(Modifier.padding(14.dp)) {
-            Text(title, style = MaterialTheme.typography.labelLarge)
-            Spacer(Modifier.height(6.dp))
-            Text(value, style = MaterialTheme.typography.headlineSmall)
+        Column(
+            modifier = Modifier.padding(14.dp)
+        ) {
+            // Etiqueta descriptiva: utiliza un estilo más pequeño y discreto
+            Text(
+                text = title,
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+
+            Spacer(modifier = Modifier.height(6.dp))
+
+            // Valor de la métrica: utiliza un estilo destacado para captar la atención
+            Text(
+                text = value,
+                style = MaterialTheme.typography.headlineSmall,
+                color = MaterialTheme.colorScheme.primary
+            )
         }
     }
 }

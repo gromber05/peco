@@ -45,6 +45,33 @@ import com.gromber05.peco.ui.screens.admin.AdminAddAnimalScreen
 import com.gromber05.peco.ui.screens.admin.AdminScreen
 import com.gromber05.peco.ui.screens.animals.AnimalsScreen
 
+/**
+ * Pantalla principal (Home) que actúa como "contenedor" de navegación interna mediante bottom bar.
+ *
+ * Funcionalidades:
+ * - Muestra una BottomNavigation con distintas secciones: Inicio, Animales (favoritos), Cuenta
+ *   y, si el usuario es admin, una sección extra de Administración.
+ * - Gestiona el botón de atrás con [BackHandler] para volver a la pestaña inicial o navegar
+ *   dentro del subflujo de administración.
+ * - Solicita permiso de ubicación y, si se concede, ordena animales por proximidad mediante
+ *   [HomeViewModel.sortByProximity].
+ * - Escucha eventos del ViewModel (por ejemplo errores) y los muestra con [Toast].
+ *
+ * Arquitectura:
+ * - MVVM + Compose.
+ * - [HomeViewModel] se inyecta con Hilt.
+ * - El estado se consume con `collectAsState()` y la UI reacciona automáticamente.
+ *
+ * @param viewModel ViewModel principal del Home (inyectado por Hilt por defecto).
+ * @param onToggleDarkMode Callback para alternar tema oscuro/claro.
+ * @param isDarkMode Indica si el tema actual es oscuro.
+ * @param onBack Callback de navegación atrás (cuando ya estás en la pestaña raíz).
+ * @param onLogout Callback para cerrar sesión y navegar fuera del Home.
+ * @param onOpenEditProfile Callback para abrir edición de perfil.
+ * @param onMyAnimals Callback para abrir "Mis animales" (voluntario).
+ * @param onOpenChangePassword Callback para abrir cambio de contraseña.
+ * @param onAnimalClick Callback para abrir el detalle de un animal.
+ */
 @Composable
 fun HomeScreen(
     viewModel: HomeViewModel = hiltViewModel(),
@@ -57,13 +84,33 @@ fun HomeScreen(
     onOpenChangePassword: () -> Unit,
     onAnimalClick: (String) -> Unit
 ) {
+    /** Estado global de la pantalla obtenido desde el ViewModel (perfil, rol, etc.). */
     val state by viewModel.uiState.collectAsState()
+
+    /**
+     * Índice de la pestaña seleccionada (BottomNavigation):
+     * 0=Inicio, 1=Animales, 2=Cuenta, 3=Admin (si aplica)
+     */
     var selectPage by rememberSaveable { mutableIntStateOf(0) }
+
+    /**
+     * Subpágina dentro de la sección Admin.
+     * 0=Dashboard admin, 1=Add animal, 2=Manage animals (actualmente no implementado en el when).
+     */
     var adminPage by rememberSaveable { mutableIntStateOf(0) }
 
+    /** Contexto Android necesario para permisos, Toasts, y location client. */
     val context = LocalContext.current
+
+    /**
+     * Cliente de localización (FusedLocationProviderClient).
+     * Se guarda con remember para no recrearlo en recomposiciones.
+     */
     val fusedLocationClient = remember { LocationServices.getFusedLocationProviderClient(context) }
 
+    /**
+     * Colores personalizados para items de la barra inferior (Material3).
+     */
     val navItemColors = NavigationBarItemDefaults.colors(
         selectedIconColor = MaterialTheme.colorScheme.primary,
         selectedTextColor = MaterialTheme.colorScheme.primary,
@@ -72,6 +119,12 @@ fun HomeScreen(
         indicatorColor = MaterialTheme.colorScheme.secondaryContainer
     )
 
+    /**
+     * Manejo del botón atrás:
+     * - Si estás en Admin y dentro de una subpágina (adminPage != 0), vuelve al dashboard admin.
+     * - Si estás en cualquier pestaña distinta a Inicio, vuelve a Inicio.
+     * - Si ya estás en Inicio, ejecuta el callback [onBack].
+     */
     BackHandler {
         when {
             selectPage == 3 && adminPage != 0 -> adminPage = 0
@@ -80,6 +133,10 @@ fun HomeScreen(
         }
     }
 
+    /**
+     * Launcher para pedir permiso de ubicación en tiempo de ejecución.
+     * Si se concede, intenta obtener la última localización conocida y ordenar por proximidad.
+     */
     val permissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
     ) { isGranted ->
@@ -94,6 +151,12 @@ fun HomeScreen(
         }
     }
 
+    /**
+     * Obtiene la última ubicación conocida si el permiso ya está concedido
+     * y ordena animales por proximidad.
+     *
+     * Se usa como ayuda para el LaunchedEffect inicial.
+     */
     fun getLocationAndOrganise() {
         try {
             val granted = ActivityCompat.checkSelfPermission(
@@ -111,6 +174,11 @@ fun HomeScreen(
         }
     }
 
+    /**
+     * Solicitud de permiso de ubicación al entrar en la pantalla.
+     * - Si ya hay permiso: obtiene ubicación y ordena.
+     * - Si no: lanza el diálogo de permiso.
+     */
     LaunchedEffect(Unit) {
         val hasPermission = ContextCompat.checkSelfPermission(
             context,
@@ -121,7 +189,10 @@ fun HomeScreen(
         else permissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
     }
 
-    
+    /**
+     * Observa eventos emitidos por el ViewModel y muestra errores con Toast.
+     * (Patrón típico: SharedFlow de eventos one-shot.)
+     */
     LaunchedEffect(Unit) {
         viewModel.events.collect { event ->
             when (event) {
@@ -131,11 +202,21 @@ fun HomeScreen(
         }
     }
 
+    /** Determina si el usuario actual tiene rol de administrador. */
     val isAdmin = state.userRole == UserRole.ADMIN
 
+    /**
+     * Scaffold principal:
+     * - Top bar con saludo/nombre.
+     * - Bottom bar con navegación entre secciones.
+     * - Body: muestra la pantalla correspondiente según [selectPage].
+     */
     Scaffold(
         topBar = { MyTopAppBar(name = state.username) },
         bottomBar = {
+            /**
+             * Contenedor de la barra inferior con estilo redondeado y elevación.
+             */
             Surface(
                 modifier = Modifier.fillMaxWidth(),
                 color = MaterialTheme.colorScheme.primaryContainer,
@@ -159,7 +240,6 @@ fun HomeScreen(
                         colors = navItemColors
                     )
 
-
                     NavigationBarItem(
                         selected = selectPage == 2,
                         onClick = { selectPage = 2 },
@@ -168,6 +248,9 @@ fun HomeScreen(
                         colors = navItemColors
                     )
 
+                    /**
+                     * Pestaña Admin solo visible para usuarios con rol ADMIN.
+                     */
                     if (isAdmin) {
                         NavigationBarItem(
                             selected = selectPage == 3,
@@ -182,6 +265,9 @@ fun HomeScreen(
             }
         }
     ) { innerPadding ->
+        /**
+         * Contenido según la pestaña seleccionada.
+         */
         when (selectPage) {
             0 -> HomeView(
                 modifier = Modifier.padding(innerPadding),
@@ -211,6 +297,9 @@ fun HomeScreen(
             )
 
             3 -> {
+                /**
+                 * Subnavegación interna dentro de Admin.
+                 */
                 when (adminPage) {
                     0 -> AdminScreen(
                         modifier = Modifier.padding(innerPadding),

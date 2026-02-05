@@ -4,46 +4,29 @@ import android.Manifest
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.LinearProgressIndicator
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import coil.compose.AsyncImage
 import com.gromber05.peco.model.AdoptionState
 import com.gromber05.peco.model.events.UiEvent
 import com.gromber05.peco.ui.components.PhotoPicker
 
+/**
+ * Pantalla de administración para la creación de nuevos perfiles de animales.
+ * Gestiona el formulario de entrada de datos, la selección de imágenes y la obtención
+ * automática de la ubicación mediante GPS.
+ *
+ * @param onBack Callback para navegar hacia atrás tras cancelar o completar la acción.
+ * @param viewModel ViewModel encargado de la lógica de negocio y persistencia.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AdminAddAnimalScreen(
@@ -54,6 +37,10 @@ fun AdminAddAnimalScreen(
     val state by viewModel.uiState.collectAsState()
     val context = LocalContext.current
 
+    /**
+     * Lanzador de permisos para solicitar acceso a la ubicación.
+     * Si se concede, activa la función de auto-rellenado de coordenadas en el ViewModel.
+     */
     val permissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestMultiplePermissions()
     ) { result ->
@@ -68,6 +55,7 @@ fun AdminAddAnimalScreen(
         }
     }
 
+    // Solicita los permisos automáticamente al entrar en la pantalla
     LaunchedEffect(Unit) {
         permissionLauncher.launch(
             arrayOf(
@@ -77,6 +65,10 @@ fun AdminAddAnimalScreen(
         )
     }
 
+    /**
+     * Observador de eventos de un solo disparo (One-shot events).
+     * Maneja el feedback visual mediante Toasts y la navegación tras el éxito.
+     */
     LaunchedEffect(Unit) {
         viewModel.events.collect { event ->
             when (event) {
@@ -110,10 +102,12 @@ fun AdminAddAnimalScreen(
                 .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
+            // Indicador de carga durante la subida de datos/imágenes
             if (state.isSaving) {
                 LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
             }
 
+            // --- Formulario de datos básicos ---
             OutlinedTextField(
                 value = state.name,
                 onValueChange = viewModel::onNameChange,
@@ -138,11 +132,13 @@ fun AdminAddAnimalScreen(
                 singleLine = true
             )
 
+            // Selector de fotografía con previsualización
             PhotoPicker(
                 photoUri = state.photoUri ?: "",
                 onPhotoSelected = viewModel::onPhotoSelected
             )
 
+            // Acción manual para refrescar la ubicación GPS
             TextButton(
                 onClick = viewModel::autoFillLocationIfNeeded,
                 modifier = Modifier.fillMaxWidth()
@@ -150,6 +146,7 @@ fun AdminAddAnimalScreen(
                 Text("Rellenar ubicación automáticamente")
             }
 
+            // Selector de estado (Disponible, Pendiente, etc.)
             AdoptionStateDropdown(
                 selected = state.adoptionState,
                 onSelected = viewModel::onStateChange
@@ -157,15 +154,11 @@ fun AdminAddAnimalScreen(
 
             Spacer(modifier = Modifier.height(8.dp))
 
+            // Botón de guardado final
             Button(
-                onClick = {
-                    viewModel.save()
-                },
+                onClick = { viewModel.save() },
                 enabled = !state.isSaving,
-                modifier = Modifier.fillMaxWidth(),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.primary
-                )
+                modifier = Modifier.fillMaxWidth()
             ) {
                 Text("Guardar animal")
             }
@@ -180,6 +173,9 @@ fun AdminAddAnimalScreen(
     }
 }
 
+/**
+ * Componente interno para la selección del estado de adopción mediante un menú desplegable.
+ */
 @Composable
 private fun AdoptionStateDropdown(
     selected: AdoptionState,
@@ -188,9 +184,7 @@ private fun AdoptionStateDropdown(
     var expanded by remember { mutableStateOf(false) }
     val options = remember { AdoptionState.entries }
 
-    Column(
-        modifier = Modifier.fillMaxWidth(0.9f)
-    ){
+    Column(modifier = Modifier.fillMaxWidth()) {
         Text(
             text = "Estado de adopción",
             style = MaterialTheme.typography.labelLarge

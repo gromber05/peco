@@ -26,6 +26,16 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.gromber05.peco.model.data.Animal
 
+/**
+ * Representación horizontal compacta de la información de un animal.
+ * Optimizado para listas densas o historiales de actividad.
+ *
+ * @param animal El objeto [Animal] con la información a mostrar.
+ * @param onClick Acción que se ejecuta al realizar un toque simple en la tarjeta.
+ * @param modifier Modificador para personalizar el diseño o comportamiento externo.
+ * @param onErase Acción opcional que se dispara tras una pulsación larga (Long Click),
+ * útil para eliminar elementos de una lista de favoritos.
+ */
 @Composable
 fun AnimalCardHorizontal(
     animal: Animal,
@@ -47,6 +57,7 @@ fun AnimalCardHorizontal(
         Row(
             modifier = Modifier.fillMaxSize()
         ) {
+            // Imagen del animal alineada a la izquierda (proporción 1:1 respecto a la altura)
             AsyncImage(
                 model = animal.photo,
                 contentDescription = "Foto de ${animal.name}",
@@ -56,12 +67,14 @@ fun AnimalCardHorizontal(
                     .fillMaxHeight()
             )
 
+            // Panel de información lateral
             Column(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(12.dp),
                 verticalArrangement = Arrangement.SpaceBetween
             ) {
+                // Título y especie con manejo de desbordamiento de texto
                 Column {
                     Text(
                         text = animal.name,
@@ -76,13 +89,19 @@ fun AnimalCardHorizontal(
                     )
                 }
 
+                // Indicador de estado de adopción mediante un AssistChip
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     AssistChip(
-                        onClick = { /* opcional */ },
-                        label = { Text(animal.adoptionState.value) }
+                        onClick = { /* Acción opcional al pulsar el chip */ },
+                        label = {
+                            Text(
+                                text = animal.adoptionState.value,
+                                style = MaterialTheme.typography.labelMedium
+                            )
+                        }
                     )
                 }
             }

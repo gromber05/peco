@@ -58,6 +58,36 @@ import coil.compose.AsyncImage
 import com.gromber05.peco.model.user.UserRole
 
 
+/**
+ * Vista de ajustes / cuenta dentro de [HomeScreen].
+ *
+ * Muestra información del usuario (nombre, email, rol y foto) y ofrece acciones:
+ * - Alternar modo oscuro.
+ * - Abrir edición de perfil.
+ * - Abrir cambio de contraseña.
+ * - Acceder a "Mis animales" (solo VOLUNTEER o ADMIN).
+ * - Cerrar sesión con confirmación.
+ *
+ * Además incluye selector de imagen (picker) para elegir un avatar local y enviar
+ * los bytes al [HomeViewModel] mediante [HomeViewModel.onPhotoSelected].
+ *
+ * Nota:
+ * - Este composable recibe el [HomeViewModel] por parámetro para reutilizar lógica
+ *   ya existente y evitar duplicar estado aquí.
+ *
+ * @param modifier Modificador externo para personalizar layout.
+ * @param username Nombre visible del usuario.
+ * @param email Correo del usuario.
+ * @param userRole Rol del usuario (USER/ADMIN/VOLUNTEER) para UI condicional.
+ * @param profilePhoto URL de la foto de perfil (puede ser null).
+ * @param isDarkMode Indica si el tema actual es oscuro.
+ * @param onToggleTheme Callback para alternar tema.
+ * @param onLogout Callback para cerrar sesión.
+ * @param onOpenEditProfile Callback para navegar a editar perfil.
+ * @param onOpenChangePassword Callback para navegar a cambiar contraseña.
+ * @param onMyAnimals Callback para abrir la sección "Mis animales".
+ * @param viewModel ViewModel principal de Home (para acciones como selección de foto).
+ */
 @Composable
 fun SettingsView(
     modifier: Modifier = Modifier,
@@ -73,9 +103,16 @@ fun SettingsView(
     onMyAnimals: () -> Unit,
     viewModel: HomeViewModel,
 ) {
+    /** Controla la visibilidad del diálogo de confirmación de logout. */
     var showLogoutDialog by remember { mutableStateOf(false) }
+
+    /** Contexto Android necesario para abrir InputStream del picker. */
     val context = LocalContext.current
 
+    /**
+     * Diálogo de confirmación para cerrar sesión.
+     * Evita acciones accidentales.
+     */
     if (showLogoutDialog) {
         AlertDialog(
             onDismissRequest = { showLogoutDialog = false },
@@ -96,6 +133,16 @@ fun SettingsView(
     }
 
 
+    /**
+     * Selector de imagen del sistema (Photo Picker) para elegir avatar.
+     *
+     * - Si el usuario selecciona una imagen, se leen los bytes desde ContentResolver.
+     * - Se delega al ViewModel con `onPhotoSelected(bytes, uriString)`.
+     *
+     * Nota:
+     * - Esto solo guarda los bytes/uri en el estado; la subida a backend normalmente
+     *   se realiza después (por ejemplo al guardar perfil).
+     */
     val picker = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia(),
         onResult = { uri ->
@@ -106,6 +153,9 @@ fun SettingsView(
         }
     )
 
+    /**
+     * Listado vertical tipo "settings" con secciones y filas.
+     */
     LazyColumn(
         modifier = modifier.fillMaxSize(),
         contentPadding = PaddingValues(16.dp),
@@ -119,6 +169,13 @@ fun SettingsView(
             )
         }
 
+        /**
+         * Tarjeta de cabecera con información del usuario:
+         * - Avatar (icono o imagen).
+         * - Username y email.
+         * - Chip con rol.
+         * - Botón de editar perfil.
+         */
         item {
             Card(
                 shape = RoundedCornerShape(22.dp),
@@ -170,6 +227,9 @@ fun SettingsView(
 
                         Spacer(Modifier.height(8.dp))
 
+                        /**
+                         * Chip de rol: informa al usuario y sirve como feedback visual.
+                         */
                         when (userRole) {
                             UserRole.USER -> {
                                 AssistChip(
@@ -210,6 +270,9 @@ fun SettingsView(
                         }
                     }
 
+                    /**
+                     * Botón para editar perfil.
+                     */
                     IconButton(onClick = onOpenEditProfile) {
                         Icon(Icons.Default.Edit, contentDescription = "Editar perfil")
                     }
@@ -221,6 +284,9 @@ fun SettingsView(
             SettingsSection(title = "Apariencia")
         }
 
+        /**
+         * Ajuste de tema: switch para modo oscuro.
+         */
         item {
             SettingsRow(
                 title = "Modo oscuro",
@@ -246,6 +312,9 @@ fun SettingsView(
             SettingsSection(title = "Cuenta")
         }
 
+        /**
+         * Navegación a cambio de contraseña.
+         */
         item {
             SettingsRow(
                 title = "Cambiar contraseña",
@@ -263,6 +332,9 @@ fun SettingsView(
             )
         }
 
+        /**
+         * Sección "Mis animales" disponible solo para VOLUNTEER o ADMIN.
+         */
         if (userRole == UserRole.VOLUNTEER || userRole == UserRole.ADMIN) {
             item {
                 SettingsSection(title = "Mis animales")
@@ -287,6 +359,9 @@ fun SettingsView(
             SettingsSection(title = "Sesión")
         }
 
+        /**
+         * Opción de cerrar sesión: muestra diálogo de confirmación.
+         */
         item {
             SettingsRow(
                 title = "Cerrar sesión",
@@ -307,6 +382,11 @@ fun SettingsView(
     }
 }
 
+/**
+ * Composable auxiliar para mostrar un título de sección en la pantalla de ajustes.
+ *
+ * @param title Texto de la sección (ej. "Cuenta", "Apariencia", "Sesión").
+ */
 @Composable
 private fun SettingsSection(title: String) {
     Text(
@@ -317,6 +397,23 @@ private fun SettingsSection(title: String) {
     )
 }
 
+/**
+ * Fila reutilizable para una opción de ajustes.
+ *
+ * Permite componer:
+ * - Icono/elemento leading (izquierda).
+ * - Texto principal y opcionalmente subtítulo (centro).
+ * - Elemento trailing (derecha), por ejemplo chevron o switch.
+ *
+ * La fila puede ser clickable si [onClick] no es null.
+ *
+ * @param title Título principal de la opción.
+ * @param subtitle Texto secundario opcional.
+ * @param leading Contenido composable opcional a la izquierda.
+ * @param trailing Contenido composable opcional a la derecha.
+ * @param titleColor Color del título (por defecto color de surface).
+ * @param onClick Acción opcional al pulsar la fila.
+ */
 @Composable
 private fun SettingsRow(
     title: String,
@@ -326,6 +423,12 @@ private fun SettingsRow(
     titleColor: Color = MaterialTheme.colorScheme.onSurface,
     onClick: (() -> Unit)? = null
 ) {
+    /**
+     * Modificador de la fila:
+     * - Ancho completo, forma redondeada.
+     * - Clickable solo si hay onClick.
+     * - Padding interno.
+     */
     val rowMod = Modifier
         .fillMaxWidth()
         .clip(RoundedCornerShape(18.dp))
@@ -334,6 +437,9 @@ private fun SettingsRow(
         )
         .padding(horizontal = 14.dp, vertical = 12.dp)
 
+    /**
+     * Contenedor Surface para dar fondo y ligera elevación.
+     */
     Surface(
         shape = RoundedCornerShape(18.dp),
         color = MaterialTheme.colorScheme.surface,
@@ -343,6 +449,9 @@ private fun SettingsRow(
             modifier = rowMod,
             verticalAlignment = Alignment.CenterVertically
         ) {
+            /**
+             * Leading opcional: normalmente un icono dentro de una cajita.
+             */
             if (leading != null) {
                 Surface(
                     shape = RoundedCornerShape(14.dp),
@@ -356,6 +465,9 @@ private fun SettingsRow(
                 Spacer(Modifier.width(12.dp))
             }
 
+            /**
+             * Texto principal y subtítulo.
+             */
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = title,
@@ -372,6 +484,9 @@ private fun SettingsRow(
                 }
             }
 
+            /**
+             * Trailing opcional: switch, chevron, etc.
+             */
             if (trailing != null) {
                 Spacer(Modifier.width(10.dp))
                 trailing()

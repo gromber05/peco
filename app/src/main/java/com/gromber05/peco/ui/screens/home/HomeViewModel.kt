@@ -29,28 +29,78 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
+/**
+ * ViewModel principal de la pantalla Home.
+ *
+ * Responsabilidades:
+ * - Mantener el estado global de Home ([HomeUiState]) para Compose.
+ * - Gestionar el perfil del usuario (username, email, rol, foto) observando Firestore.
+ * - Observar el listado de animales y el estado de swipes (swipedIds/likedIds).
+ * - Construir el "deck" de tarjetas tipo Tinder filtrando los animales ya swipeados.
+ * - Registrar acciones de LIKE / DISLIKE en Firestore mediante [SwipeRepository].
+ * - Permitir reiniciar swipes (reset) y ordenar por proximidad (ubicación).
+ * - Gestionar logout y emitir eventos de UI ([UiEvent]) para feedback/navegación.
+ *
+ * Arquitectura:
+ * - MVVM con Kotlin Flow/StateFlow.
+ * - Se usan corrutinas en [viewModelScope].
+ * - Se combinan múltiples flujos con [combine] y se controla el ciclo de vida
+ *   del usuario con [flatMapLatest] (cuando cambia uid, se cancelan flujos previos).
+ */
 @HiltViewModel
 class HomeViewModel @Inject constructor(
+    /** Repositorio de autenticación (estado de sesión, signOut...). */
     private val authRepository: AuthRepository,
+    /** Repositorio de usuarios (perfil en tiempo real). */
     private val usersRepository: UserRepository,
+    /** Repositorio de animales (observación de listado). */
     private val animalRepository: AnimalRepository,
+    /** Repositorio de swipes (registrar y observar likes/dislikes). */
     private val swipeRepository: SwipeRepository
 ) : ViewModel() {
 
+    /**
+     * Estado interno mutable del Home.
+     * Se expone como inmutable mediante [uiState] para ser observado por Compose.
+     */
     private val _uiState = MutableStateFlow(HomeUiState())
     val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
 
+    /**
+     * Flujo de eventos one-shot para la UI.
+     * Útil para:
+     * - Toasts / Snackbars
+     * - Navegación (por ejemplo LoggedOut)
+     */
     private val _events = MutableSharedFlow<UiEvent>()
     val events = _events.asSharedFlow()
 
+    /**
+     * Flag para evitar ejecutar logout más de una vez (doble click o recomposición).
+     */
     private var logoutDone = false
 
+    /**
+     * Inicialización del ViewModel: arranca todas las observaciones necesarias.
+     */
     init {
         observeAll()
     }
 
+    /**
+     * Arranca la observación de:
+     * 1) UID actual (sesión).
+     * 2) Perfil del usuario (username/email/rol/foto).
+     * 3) Animales + swipes (swipedIds/likedIds) para construir el deck.
+     *
+     * Se ejecutan en corrutinas separadas para que cada flujo sea independiente.
+     */
     @OptIn(ExperimentalCoroutinesApi::class)
     private fun observeAll() {
+        /**
+         * Observa el UID del usuario actual.
+         * - Actualiza `userUid` e `isLogged` en el estado.
+         */
         viewModelScope.launch {
             authRepository.currentUidFlow()
                 .distinctUntilChanged()
@@ -64,6 +114,15 @@ class HomeViewModel @Inject constructor(
                 }
         }
 
+        /**
+         * Observa el perfil del usuario autenticado.
+         *
+         * - Si uid es null => emite profile null.
+         * - Si uid existe => observa el documento de usuario en tiempo real.
+         *
+         * Actualiza:
+         * - username, email, userRole, photo, isLogged
+         */
         viewModelScope.launch {
             authRepository.currentUidFlow()
                 .distinctUntilChanged()
@@ -97,6 +156,19 @@ class HomeViewModel @Inject constructor(
                 }
         }
 
+        /**
+         * Observa datos necesarios para el "deck":
+         * - Lista de animales (stream).
+         * - IDs swipeados por el usuario (stream).
+         * - IDs likeados por el usuario (stream).
+         *
+         * Si uid es null:
+         * - Emite valores vacíos para evitar nulls y mantener estado consistente.
+         *
+         * Con los datos:
+         * - Construye `deck` filtrando los animales ya swipeados.
+         * - Actualiza `animalList`, `deck`, `swipedIds`, `likedIds`, `isLoading`, `error`.
+         */
         viewModelScope.launch {
             authRepository.currentUidFlow()
                 .distinctUntilChanged()
@@ -125,6 +197,7 @@ class HomeViewModel @Inject constructor(
                 }
                 .collect { (animals, swipedSet, likedSet) ->
 
+                    // Deck = animales que aún no han sido swipeados por el usuario
                     val deck = animals.filterNot { it.uid in swipedSet }
 
                     _uiState.update {
@@ -142,16 +215,36 @@ class HomeViewModel @Inject constructor(
 
     }
 
+    /**
+     * Ejecuta un LIKE sobre el animal actual del deck (primer elemento).
+     * Si el deck está vacío, no hace nada.
+     */
     fun likeCurrent() {
         val animal = _uiState.value.deck.firstOrNull() ?: return
         onLike(animal)
     }
 
+    /**
+     * Ejecuta un DISLIKE sobre el animal actual del deck (primer elemento).
+     * Si el deck está vacío, no hace nada.
+     */
     fun dislikeCurrent() {
         val animal = _uiState.value.deck.firstOrNull() ?: return
         onDislike(animal)
     }
 
+    /**
+     * Avanza el deck de forma local inmediatamente tras un swipe.
+     *
+     * Objetivo:
+     * - Mejorar UX: la UI responde instantáneamente sin esperar a Firestore.
+     *
+     * Implementación:
+     * - Añade el ID del animal a `swipedIds`.
+     * - Elimina la primera tarjeta del deck (`drop(1)`).
+     *
+     * @param swipedAnimalId ID del animal swipeado.
+     */
     private fun advanceDeckLocally(swipedAnimalId: String) {
         _uiState.update { s ->
             val newSwiped = s.swipedIds + swipedAnimalId
@@ -164,10 +257,30 @@ class HomeViewModel @Inject constructor(
         }
     }
 
+    /**
+     * Guarda en el estado una foto seleccionada (bytes + uri).
+     *
+     * Uso típico:
+     * - Previsualización y subida posterior del avatar del usuario.
+     *
+     * @param bytes Imagen seleccionada en bytes.
+     * @param uriString URI local de la imagen seleccionada.
+     */
     fun onPhotoSelected(bytes: ByteArray, uriString: String) {
         _uiState.update { it.copy(photoBytes = bytes, photoUri = uriString) }
     }
 
+    /**
+     * Registra un LIKE para el usuario actual sobre un [Animal].
+     *
+     * Flujo:
+     * 1) Verifica que exista uid.
+     * 2) Avanza el deck localmente para respuesta inmediata.
+     * 3) Guarda el swipe en Firestore mediante [SwipeRepository].
+     * 4) Si falla, emite evento de error para la UI.
+     *
+     * @param animal Animal al que se aplica LIKE.
+     */
     fun onLike(animal: Animal) {
         val uid = _uiState.value.userUid ?: return
 
@@ -182,6 +295,13 @@ class HomeViewModel @Inject constructor(
         }
     }
 
+    /**
+     * Registra un DISLIKE para el usuario actual sobre un [Animal].
+     *
+     * Flujo similar a [onLike], pero con acción DISLIKE.
+     *
+     * @param animal Animal al que se aplica DISLIKE.
+     */
     fun onDislike(animal: Animal) {
         val uid = _uiState.value.userUid ?: return
 
@@ -196,6 +316,13 @@ class HomeViewModel @Inject constructor(
         }
     }
 
+    /**
+     * Reinicia el historial de swipes del usuario actual.
+     *
+     * Implementación:
+     * - Elimina todos los documentos `users/{uid}/swipes` mediante [SwipeRepository.clearAll].
+     * - Si falla, emite evento de error.
+     */
     fun resetSwipes() {
         val uid = _uiState.value.userUid ?: return
         viewModelScope.launch {
@@ -207,6 +334,19 @@ class HomeViewModel @Inject constructor(
         }
     }
 
+    /**
+     * Ordena los animales por proximidad a la ubicación del usuario.
+     *
+     * Uso:
+     * - Se llama desde la UI cuando se obtiene la localización (HomeScreen).
+     *
+     * Implementación:
+     * - Ordena `animalList` por distancia usando [LocationUtils.calculateDistance].
+     * - Reconstruye `deck` excluyendo animales ya swipeados.
+     *
+     * @param userLat Latitud del usuario.
+     * @param userLon Longitud del usuario.
+     */
     fun sortByProximity(userLat: Double, userLon: Double) {
         val ordered = _uiState.value.animalList.sortedBy { animal ->
             LocationUtils.calculateDistance(userLat, userLon, animal.latitude, animal.longitude)
@@ -222,6 +362,17 @@ class HomeViewModel @Inject constructor(
         }
     }
 
+    /**
+     * Cierra sesión del usuario actual.
+     *
+     * Prevención de doble ejecución:
+     * - Usa [logoutDone] para evitar múltiples llamadas concurrentes.
+     *
+     * Flujo:
+     * 1) Llama a [AuthRepository.signOut].
+     * 2) Emite [UiEvent.LoggedOut] para que la UI navegue al login.
+     * 3) Si falla, restablece `logoutDone=false` y emite error.
+     */
     fun logout() {
         if (logoutDone) return
         logoutDone = true

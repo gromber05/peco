@@ -2,27 +2,13 @@ package com.gromber05.peco.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Pets
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -42,6 +28,15 @@ import com.gromber05.peco.utils.TtsSpeaker
 import com.gromber05.peco.utils.fechaATexto
 import com.gromber05.peco.utils.parseDateApi
 
+/**
+ * Componente visual que muestra la información resumida de un animal en formato de tarjeta.
+ * Diseñado con un estilo moderno que incluye imágenes a sangre (full-bleed), gradientes
+ * para legibilidad y soporte para accesibilidad mediante TTS.
+ *
+ * @param modifier Modificador para ajustar el diseño externo (padding, tamaño, etc.).
+ * @param animal El objeto [Animal] cuyos datos se van a visualizar.
+ * @param onDetails Callback que se ejecuta cuando el usuario pulsa la tarjeta.
+ */
 @Composable
 fun AnimalCard(
     modifier: Modifier = Modifier,
@@ -61,6 +56,7 @@ fun AnimalCard(
                 .fillMaxSize()
                 .height(540.dp)
         ) {
+            // --- Capa 1: Imagen de fondo ---
             if (!animal.photo.isNullOrBlank()) {
                 AsyncImage(
                     model = animal.photo,
@@ -69,6 +65,7 @@ fun AnimalCard(
                     contentScale = ContentScale.Crop
                 )
             } else {
+                // Placeholder en caso de que no haya imagen
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
@@ -84,6 +81,7 @@ fun AnimalCard(
                 }
             }
 
+            // --- Capa 2: Gradiente inferior para legibilidad del texto ---
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -100,6 +98,7 @@ fun AnimalCard(
                     )
             )
 
+            // --- Capa 3: Información del animal ---
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -115,18 +114,15 @@ fun AnimalCard(
 
                 Spacer(modifier = Modifier.height(10.dp))
 
+                // Fila de etiquetas (Especie y Estado)
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Chip(
-                        icon = Icons.Default.Pets,
-                        text = animal.species
-                    )
-                    Chip(
-                        text = animal.adoptionState.value
-                    )
+                    Chip(icon = Icons.Default.Pets, text = animal.species)
+                    Chip(text = animal.adoptionState.value)
                 }
 
                 Spacer(modifier = Modifier.height(10.dp))
 
+                // Detalles: Nacimiento, Ubicación y Botón de Voz
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(10.dp),
                     verticalAlignment = Alignment.CenterVertically
@@ -140,6 +136,8 @@ fun AnimalCard(
                             color = Color.White.copy(alpha = 0.9f),
                             style = MaterialTheme.typography.bodyMedium
                         )
+
+                        // Conversión de coordenadas a nombre de ciudad
                         val city = rememberCityFromLatLng(
                             latitude = animal.latitude,
                             longitude = animal.longitude
@@ -160,6 +158,7 @@ fun AnimalCard(
                         }
                     }
 
+                    // Función de accesibilidad para lectura de la ficha
                     SpeakButton(
                         textToRead = "Información del animal. Se llama ${animal.name}. Es un ${animal.species}. Estado: ${animal.adoptionState.value}. Nació el: ${fechaATexto(animal.dob)}."
                     )
@@ -177,6 +176,9 @@ fun AnimalCard(
     }
 }
 
+/**
+ * Componente auxiliar para mostrar etiquetas informativas con estilo de cápsula translúcida.
+ */
 @Composable
 private fun Chip(
     text: String,
@@ -206,30 +208,5 @@ private fun Chip(
                 fontWeight = FontWeight.SemiBold
             )
         }
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun AnimalCardPreview() {
-    Column(
-        modifier = Modifier.padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        AnimalCard(
-            modifier = Modifier.fillMaxWidth(),
-            animal = Animal(
-                uid = "1",
-                name = "Mario",
-                species = "Perro",
-                photo = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRcci_BP3wtsbh1-gFdV4FXfyMWkdw1GyO-0-tvNLGhRGqc1YL8tuZWS05CdGtePNgYc5ESKo7BmbEaDywuWbSDJmwA7v6t9wuVIr79Cw&s=10",
-                dob = "29/11/2022",
-                adoptionState = AdoptionState.AVAILABLE,
-                latitude = 0.0,
-                longitude = 0.0,
-                volunteerId = "s6jSb0i2fDOXIXevrbjNrgDlDSr1"
-            ),
-            onDetails = {}
-        )
     }
 }
