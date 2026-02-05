@@ -1,8 +1,10 @@
 package com.gromber05.peco.app
 
+import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -12,6 +14,8 @@ import androidx.navigation.navArgument
 import com.gromber05.peco.ui.AppViewModel
 import com.gromber05.peco.ui.animations.SplashScreen
 import com.gromber05.peco.ui.navigation.AppNavigation
+import com.gromber05.peco.ui.screens.admin.AdminAddAnimalScreen
+import com.gromber05.peco.ui.screens.animals.AnimalsScreen
 import com.gromber05.peco.ui.screens.detail.DetailScreen
 import com.gromber05.peco.ui.screens.home.HomeScreen
 import com.gromber05.peco.ui.screens.home.HomeViewModel
@@ -31,8 +35,6 @@ fun PecoApp(
     val navController = rememberNavController()
 
     val appVm: AppViewModel = hiltViewModel()
-    val loginViewModel: LoginViewModel = hiltViewModel()
-    val registerViewModel: RegisterViewModel = hiltViewModel()
     val homeViewModel: HomeViewModel = hiltViewModel()
 
     val onToggleTheme = {appVm.toggleDarkMode()}
@@ -62,8 +64,12 @@ fun PecoApp(
         composable(AppNavigation.LoginScreen.route) {
             LoginScreen(
                 onToggleTheme = onToggleTheme,
-                viewModel = loginViewModel,
-                onNavigateToHome = {},
+                onNavigateToHome = {
+                    navController.navigate(AppNavigation.MainScreen.route) {
+                        popUpTo(AppNavigation.LoginScreen.route) { inclusive = true }
+                        launchSingleTop = true
+                    }
+                },
                 onNavigateToRegister = {
                     navController.navigate(AppNavigation.RegisterScreen.route)
                 }
@@ -74,7 +80,6 @@ fun PecoApp(
             RegisterScreen(
                 onToggleTheme = onToggleTheme,
                 isDarkMode = isDark,
-                viewModel = registerViewModel,
                 onNavigateBack = {
                     navController.popBackStack()
                 },
@@ -86,7 +91,6 @@ fun PecoApp(
 
         composable(AppNavigation.MainScreen.route) {
             HomeScreen(
-                viewModel = homeViewModel,
                 isDarkMode = isDark,
                 onToggleDarkMode = onToggleTheme,
                 onLogout = {
@@ -99,7 +103,30 @@ fun PecoApp(
                 onAnimalClick = { animalId ->
                     navController.navigate(AppNavigation.DetailScreen.createRoute(animalId))
                 },
-                onMyAnimals = {}
+                onMyAnimals = { navController.navigate(AppNavigation.MyAnimalsScreen.route) }
+            )
+        }
+
+        composable(
+            route = AppNavigation.MyAnimalsScreen.route
+        ) {
+            AnimalsScreen(
+                onBack = {
+                    navController.popBackStack()
+                },
+                onAnimalClick = { animalId ->
+                    navController.navigate(AppNavigation.DetailScreen.createRoute(animalId))
+                },
+                onAddAnimal = {
+                    navController.navigate(AppNavigation.AddAnimalScreen.route)
+                },
+                ownAnimals = true
+            )
+        }
+
+        composable ( route = AppNavigation.AddAnimalScreen.route ) {
+            AdminAddAnimalScreen(
+                onBack = { navController.popBackStack() },
             )
         }
 

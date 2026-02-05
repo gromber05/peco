@@ -31,6 +31,7 @@ import com.gromber05.peco.ui.components.TinderSwipeDeck
 fun HomeView(
     modifier: Modifier = Modifier,
     viewModel: HomeViewModel,
+    onDetails: (String) -> Unit
 ) {
     val state by viewModel.uiState.collectAsState()
 
@@ -45,7 +46,12 @@ fun HomeView(
                 modifier = Modifier.fillMaxSize(),
                 keyOf = { it.uid },
                 cardContent = { animal ->
-                    AnimalCard(animal = animal) { }
+                    AnimalCard(
+                        animal = animal,
+                        onDetails = {
+                            onDetails(animal.uid)
+                        }
+                    )
                 },
                 onLike = { animal -> viewModel.onLike(animal) },
                 onDislike = { animal -> viewModel.onDislike(animal) },

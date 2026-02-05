@@ -16,10 +16,13 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.util.Optional.empty
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
@@ -33,6 +36,15 @@ class AnimalsViewModel @Inject constructor(
     val uiState = _uiState.asStateFlow()
 
     init {
+        loadScreen()
+    }
+
+    private fun loadScreen() {
+        val filterflow = uiState
+            .map { it.filter }
+            .distinctUntilChanged()
+
+
         viewModelScope.launch {
             authRepository.currentUidFlow()
                 .filterNotNull()
@@ -40,9 +52,14 @@ class AnimalsViewModel @Inject constructor(
                 .flatMapLatest { uid ->
                     combine(
                         animalRepository.observeAnimals().onStart { emit(emptyList()) },
-                        swipeRepository.observeLikedIds(uid).onStart { emit(emptySet()) }
-                    ) { animals, likedIds ->
-                        animals.filter { it.uid in likedIds }
+                        swipeRepository.observeLikedIds(uid).onStart { emit(emptySet()) },
+                        filterflow
+                    ) { animals, likedIds, filter ->
+                        if (filter) {
+                            animals.filter { it.volunteerId == uid }
+                        } else {
+                            animals.filter { it.uid in likedIds }
+                        }
                     }
                 }
                 .catch { e ->
@@ -51,6 +68,13 @@ class AnimalsViewModel @Inject constructor(
                 .collect { favorites ->
                     _uiState.update { it.copy(isLoading = false, animals = favorites, error = null) }
                 }
+        }
+    }
+    fun setFilter(filter: Boolean) {
+        _uiState.update {
+            it.copy(
+                filter = filter
+            )
         }
     }
 }

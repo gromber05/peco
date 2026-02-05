@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.Chat
 import androidx.compose.material.icons.filled.AdminPanelSettings
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
@@ -186,7 +185,8 @@ fun HomeScreen(
         when (selectPage) {
             0 -> HomeView(
                 modifier = Modifier.padding(innerPadding),
-                viewModel = viewModel
+                viewModel = viewModel,
+                onDetails = onAnimalClick
             )
 
             1 -> AnimalsScreen(

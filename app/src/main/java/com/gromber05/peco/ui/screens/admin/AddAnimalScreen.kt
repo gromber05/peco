@@ -49,7 +49,7 @@ import com.gromber05.peco.ui.components.PhotoPicker
 fun AdminAddAnimalScreen(
     onBack: () -> Unit,
     viewModel: AdminAddAnimalViewModel = hiltViewModel(),
-    modifier: Modifier
+    modifier: Modifier = Modifier
 ) {
     val state by viewModel.uiState.collectAsState()
     val context = LocalContext.current

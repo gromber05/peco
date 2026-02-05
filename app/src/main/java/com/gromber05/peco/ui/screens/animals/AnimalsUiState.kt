@@ -7,4 +7,5 @@ data class AnimalsUiState(
     val notFound: Boolean = false,
     val error: String? = null,
     val animals: List<Animal> = emptyList(),
+    val filter: Boolean = false
 )

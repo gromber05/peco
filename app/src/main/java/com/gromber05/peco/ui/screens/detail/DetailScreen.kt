@@ -7,15 +7,21 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.Chat
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Call
+import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.Person3
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -24,6 +30,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -34,12 +41,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import coil.compose.AsyncImage
 import androidx.core.net.toUri
+import com.gromber05.peco.utils.LocationUtils.rememberCityFromLatLng
 import com.gromber05.peco.utils.normalizePhone
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -52,8 +61,6 @@ fun DetailScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState(initial = DetailUiState())
     val animal = uiState.animal
-
-    val context = LocalContext.current
 
     BackHandler { onBack() }
 
@@ -68,30 +75,19 @@ fun DetailScreen(
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
-                title = { Text(animal?.name ?: "Detalle") }
-            )
-        },
-        /*floatingActionButton = {
-            if (uiState.volunteer != null) {
-                FloatingActionButton(
-                    modifier = Modifier.padding(10.dp),
-                    onClick = {
-                        val phone = uiState.volunteer!!.phone
-                        val normalized = normalizePhone(phone)
-                        if (normalized.isNotBlank()) {
-                            val intent = Intent(Intent.ACTION_DIAL).apply {
-                                data = "tel:$normalized".toUri()
-                            }
-                            val canHandle = intent.resolveActivity(context.packageManager) != null
-                            Log.d("DIALER", "phone=$normalized canHandle=$canHandle")
-                            if (canHandle) context.startActivity(intent)
-                        }
+                title = {
+                    Text(animal?.name ?: "Detalle")
+                },
+                navigationIcon = {
+                    IconButton(onClick = onBack) {
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Volver atrás"
+                        )
                     }
-                ) {
-                    Icon(Icons.Default.Call, contentDescription = "Llamar")
                 }
-            }
-        }*/
+            )
+        }
     ) { padding ->
 
         if (uiState.isLoading) {
@@ -132,7 +128,6 @@ fun DetailScreen(
             Column(
                 modifier = Modifier.fillMaxSize()
             ) {
-                // ✅ Foto dentro de la Card (con esquinas redondeadas arriba)
                 AsyncImage(
                     model = animal.photo,
                     contentDescription = "Foto de ${animal.name}",
@@ -156,18 +151,27 @@ fun DetailScreen(
                         style = MaterialTheme.typography.bodyLarge
                     )
 
+                    Text(
+                        text = "Año d: ${animal.dob}",
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+
+                    val city = rememberCityFromLatLng(
+                        latitude = animal.latitude,
+                        longitude = animal.longitude
+                    )
+
+                    Text(
+                        text = "Ciudad: $city",
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+
                     AssistChip(
                         onClick = { },
                         label = { Text("Estado: ${animal.adoptionState}") }
                     )
 
                     Spacer(Modifier.height(6.dp))
-
-                    Text(
-                        text = "Aquí puedes poner más datos (edad, descripción, ubicación, etc.)",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
                 }
             }
         }
