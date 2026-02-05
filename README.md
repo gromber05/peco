@@ -87,6 +87,9 @@ Toda la documentación del proyecto se encuentra organizada en la carpeta `docs/
 * 🛠️ **Manual técnico**
   👉 [docs/manual_tecnico.md](docs/manual_tecnico.md)
 
+* 👤 **Videotutorial**
+  👉 [Ver video](https://youtu.be/aKarSiq72Ro)
+
 ### 🧪 Pruebas
 
 * 🧪 **Documento de pruebas y validación**
