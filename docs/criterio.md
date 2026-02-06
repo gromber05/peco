@@ -233,6 +233,7 @@ El usuario puede realizar acciones como:
 * Navegar entre pantallas mediante comandos simples.
 * Activar funcionalidades clave sin necesidad de tocar la pantalla.
 * Confirmar o cancelar acciones mediante respuestas verbales.
+* O como ya está implementada en la aplicación, para la lectura de datos de manera verbal.
 
 Esta funcionalidad está pensada especialmente para **mejorar la accesibilidad**, permitiendo el uso de la aplicación en situaciones donde el uso táctil no es cómodo (personas con movilidad reducida, manos ocupadas, etc.).
 La integración es realista, ya que se apoya en tecnologías ya disponibles en Android y no en soluciones experimentales.
