@@ -1,11 +1,9 @@
-# 🐾 PECO — Plataforma de Gestión para Protectoras de Animales
+# 🐾 PECO – Plataforma de gestión y adopción animal
 
 [![Android](https://img.shields.io/badge/Android-10%2B-green?logo=android)](#)
 [![Jetpack Compose](https://img.shields.io/badge/Jetpack%20Compose-Material%203-blue?logo=android)](#)
 [![Kotlin](https://img.shields.io/badge/Kotlin-100%25-purple?logo=kotlin)](#)
 [![Status](https://img.shields.io/badge/Status-En%20desarrollo-yellow)](#)
-
-# 🐾 PECO – Plataforma de gestión y adopción animal
 
 PECO es una **aplicación móvil Android** desarrollada con **Jetpack Compose**, orientada a la **organización social y comunitaria**, cuyo objetivo es mejorar la gestión interna de una protectora de animales y facilitar el proceso de adopción responsable.
 

@@ -246,7 +246,7 @@ La interacción por gestos se utiliza como uno de los pilares principales de la 
 Se han definido gestos claros y coherentes, como:
 
 * **Deslizar** para avanzar o descartar elementos.
-* **Pulsación prolongada** para mostrar opciones adicionales.
+* **Pulsación** para mostrar opciones adicionales.
 * **Gestos direccionales** para navegar entre secciones.
 
 Estos gestos están alineados con los patrones habituales de uso en aplicaciones móviles actuales, lo que reduce el tiempo de aprendizaje y mejora la usabilidad.
@@ -305,7 +305,7 @@ La aplicación mantiene una experiencia homogénea, profesional y alineada con l
 ## **RA4.b Valoración de los estándares**
 
 El uso de estándares de diseño no solo mejora el aspecto visual, sino que **reduce la curva de aprendizaje**, aumenta la accesibilidad y mejora la eficiencia del usuario.
-Seguir Material Design permite:
+Material Design permite:
 
 * Que el usuario intuya el funcionamiento sin necesidad de explicaciones.
 * Garantizar compatibilidad y coherencia con otras aplicaciones del sistema.

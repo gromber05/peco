@@ -307,15 +307,15 @@ Las pruebas unitarias se ubican en el directorio src/test, siguiendo la misma es
 ### Limitación de imágenes por Firebase Storage en este contexto
 Durante el desarrollo de PECO se planteó incluir imágenes reales para cada animal (foto de perfil) mediante subida y almacenamiento en la nube. La opción natural dentro del ecosistema Firebase es Firebase Storage, ya que se integra con Firebase Auth y permite servir recursos multimedia asociados a documentos de Firestore.
 
-Sin embargo, en el contexto de este proyecto se detectaron limitaciones que impidieron implementar esta funcionalidad de forma estable y adecuada para la entrega:
+Sin embargo, en el contexto de este proyecto se detectaron limitaciones que impidieron implementar esta funcionalidad de forma estable y adecuada para el proyecto:
 
-Restricciones de configuración y seguridad: Firebase Storage requiere definir reglas de acceso estrictas para evitar exposición pública de archivos. Ajustar correctamente permisos por roles (usuario/voluntario/admin) y por propietario del recurso implica una configuración adicional que debe ser validada en profundidad.
+- Restricciones de configuración y seguridad: Firebase Storage requiere definir reglas de acceso estrictas para evitar exposición pública de archivos. Ajustar correctamente permisos por roles (usuario/voluntario/admin) y por propietario del recurso implica una configuración adicional que debe ser validada en profundidad.
 
-Problemas operativos en el entorno de pruebas: durante la subida de imágenes se produjeron errores de sesión de subida y fallos intermitentes, especialmente en dispositivos/emuladores dependiendo de la red. Esto afectaba a la estabilidad de la app y a la experiencia de usuario.
+- Problemas operativos en el entorno de pruebas: durante la subida de imágenes se produjeron errores de sesión de subida y fallos intermitentes, especialmente en dispositivos/emuladores dependiendo de la red. Esto afectaba a la estabilidad de la app y a la experiencia de usuario.
 
-Complejidad añadida frente al alcance del proyecto: para garantizar una implementación completa se necesitaría, además del upload, gestionar compresión, formatos, estados de carga, recuperación ante fallos, cache local y borrado sincronizado (Firestore + Storage), lo cual aumentaba significativamente el alcance técnico sin aportar valor crítico a los objetivos principales evaluados.
+- Complejidad añadida frente al alcance del proyecto: para garantizar una implementación completa se necesitaría, además del upload, gestionar compresión, formatos, estados de carga, recuperación ante fallos, cache local y borrado sincronizado (Firestore + Storage), lo cual aumentaba significativamente el alcance técnico sin aportar valor crítico a los objetivos principales evaluados.
 
-Por estos motivos, y priorizando la estabilidad, la coherencia del sistema y el cumplimiento del resto de requisitos (roles, navegación, filtros e informes PDF), se decidió dejar la carga de imágenes como mejora futura documentada. Actualmente el campo photo se mantiene en el modelo para permitir su integración posterior sin afectar a la arquitectura del proyecto.
+- Por estos motivos, y priorizando la estabilidad, la coherencia del sistema y el cumplimiento del resto de requisitos (roles, navegación, filtros e informes PDF), se decidió dejar la carga de imágenes como mejora futura documentada. Actualmente el campo photo se mantiene en el modelo para permitir su integración posterior sin afectar a la arquitectura del proyecto.
 
 ---
 
