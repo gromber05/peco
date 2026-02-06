@@ -43,9 +43,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import com.gromber05.peco.model.AdoptionState
 import com.gromber05.peco.ui.components.SimpleBarChart
 import com.gromber05.peco.ui.components.StatCard
 import com.gromber05.peco.ui.screens.animals.AnimalsViewModel
+import com.gromber05.peco.ui.screens.home.HomeViewModel
 import com.gromber05.peco.utils.generatePdf
 import com.gromber05.peco.utils.openPdf
 import com.gromber05.peco.utils.sharePdf
@@ -270,6 +272,7 @@ private fun AdminManagementTab(
 @Composable
 private fun AdminReportsTab(
     animalsViewModel: AnimalsViewModel = hiltViewModel(),
+    authViewModel: HomeViewModel = hiltViewModel()
 ) {
     /** Contexto necesario para generar/abrir/compartir ficheros. */
     val context = LocalContext.current
@@ -378,12 +381,36 @@ private fun AdminReportsTab(
                     isGenerating = true
                     error = null
                     try {
-                        // Obtiene la lista de animales desde el ViewModel.
                         val animals = animalsViewModel.getAllAnimalsOnce()
 
-                        // Genera el PDF y guarda la referencia al fichero.
-                        val file = generatePdf(context, animals)
+                        val filteredAnimals = animals
+                            .asSequence()
+                            .let { seq ->
+                                var s = seq
+
+                                if (onlyAdopted) {
+                                    s = s.filter { it.adoptionState == AdoptionState.ADOPTED }
+                                }
+
+                                val favorites = animalsViewModel.uiState.value.animals
+
+                                if (onlyFavorites) {
+                                    s = s.filter { it in favorites }
+                                }
+
+
+                                if (onlyMyAnimals) {
+                                    val myUid = authViewModel.uiState.value.userUid
+                                    s = s.filter { it.volunteerId == myUid }
+                                }
+
+                                s
+                            }
+                            .toList()
+
+                        val file = generatePdf(context, filteredAnimals)
                         lastFile = file
+
                     } catch (e: Exception) {
                         // Captura errores de lectura/generación y los muestra en UI.
                         error = e.message ?: "Error generando el informe"
