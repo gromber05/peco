@@ -70,10 +70,6 @@ Esta combinación permite una aplicación **escalable, mantenible y fácil de pr
 
 ---
 
-Claro, te lo dejo **más desarrollado** (sin hacerlo eterno) y después te digo **cómo meter pruebas unitarias de verdad** en PECO (MVVM + repositorios + Firebase), con ejemplos listos para copiar.
-
----
-
 ## RA1 – Desarrollo de interfaces gráficas
 
 ### RA1.a – Análisis de herramientas y librerías
